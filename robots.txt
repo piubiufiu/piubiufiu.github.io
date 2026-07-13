@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.axureshow.com/project/12R9Z5WK/sitemap.xml

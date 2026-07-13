@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://abbgo.github.io/">
+<meta name="keywords" content="艾宾浩斯背诵计划表,单词复习规划,记忆计划表生成器,考研单词背诵表,可打印复习表">
+<meta name="description" content="免费艾宾浩斯遗忘曲线背诵计划表在线生成工具，自定义背诵周期，一键打印导出PDF，适配考研、四六级、专业课背诵">
+<title>艾宾浩斯背诵计划表生成器｜单词复习规划在线打印工具</title>
+<!-- 各大搜索引擎验证占位meta，后续去各站长平台获取对应验证码替换content值 -->
+<meta name="baidu-site-verification" content="codeva-2whtFFhOnu" />
+<meta name="msvalidate.01" content="替换为必应验证码">
+<meta name="360-site-verification" content="替换为360搜索验证码">
+<meta name="sogou_site_verification" content="替换为搜狗验证码">
+<meta name="bytedance-site-verification" content="替换为头条搜索验证码">
+<meta name="google-site-verification" content="替换为谷歌验证码">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+        },
+        secondary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+      }
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body {
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    background: #ffffff;
+    min-height: 100vh;
+  }
+  
+  .glass-panel {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .input-field {
+    transition: all 0.3s ease;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+  }
+  
+  .input-field:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    background: #ffffff;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+  
+  .btn-secondary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+  
+  .btn-accent {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+  }
+  
+  .btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  }
+  
+  .btn-warm {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  }
+  
+  .btn-warm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+  
+  .plan-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+  
+  .plan-table th {
+    background: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    padding: 10px 6px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .plan-table td {
+    padding: 8px 6px;
+    border: 1px solid #e5e7eb;
+    vertical-align: top;
+    background: #ffffff;
+  }
+  
+  .plan-table .day-cell {
+    width: 14.28%;
+    min-height: 70px;
+  }
+  
+  .plan-table .new-unit {
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+  
+  .plan-table .review-unit {
+    color: #475569;
+    font-size: 0.85em;
+  }
+  
+  .plan-table .evening-review {
+    color: #7c3aed;
+    font-size: 0.85em;
+    font-style: italic;
+  }
+  
+  /* 防止表格行在打印时被截断 */
+  .plan-table tr {
+    word-break: break-all;
+    page-break-inside: avoid;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  /* Custom checkbox */
+  .custom-checkbox {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #22c55e;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    background: white;
+  }
+  
+  .custom-checkbox:checked {
+    background: #22c55e;
+  }
+  
+  .custom-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Loading spinner */
+  .spinner {
+    border: 3px solid rgba(34, 197, 94, 0.2);
+    border-top: 3px solid #22c55e;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Print styles */
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      background: white !important;
+    }
+    body * {
+      visibility: hidden;
+    }
+    #planTableSection, #planTableSection * {
+      visibility: visible;
+    }
+    #planTableSection {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+    /* 确保打印时表格行不被截断 */
+    .plan-table tr {
+      word-break: break-all;
+      page-break-inside: avoid;
+    }
+    .plan-table th {
+      background: #f9fafb !important;
+    }
+    .plan-table td {
+      background: white !important;
+    }
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    animation: slideInRight 0.3s ease-out;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  .toast-success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+  
+  .toast-error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  .toast-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+  
+  /* 功能说明样式 */
+  .info-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  
+  .info-title {
+    color: #0369a1;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .info-content {
+    color: #0c4a6e;
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+<!-- Header -->
+<header class="max-w-7xl mx-auto mb-8 animate-fade-in">
+  <div class="glass-panel rounded-3xl p-6 md:p-8">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg">
+          <i class="fas fa-brain text-white text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-800">艾宾浩斯背诵计划表生成器</h1>
+          <p class="text-gray-500 text-sm md:text-base mt-1">基于遗忘曲线的科学记忆规划工具</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <i class="fas fa-circle text-primary-500 text-xs"></i>
+        <span>科学记忆 · 高效复习</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto">
+  
+  <!-- Configuration Panel -->
+  <section class="glass-panel rounded-3xl p-6 md:p-8 mb-8 animate-slide-up">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+        <i class="fas fa-sliders text-primary-600"></i>
+      </div>
+      <h2 class="text-xl font-bold text-gray-800">参数配置面板</h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Plan Name -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-tag text-primary-500 text-xs"></i>
+          计划名称
+        </label>
+        <input type="text" id="planName" 
+               class="input-field w-full px-4 py-3 rounded-xl text-gray-700 placeholder-gray-400"
+               placeholder="例如：背诵计划表"
+               value="背诵计划表">
+      </div>
+      
+      <!-- Unit Prefix -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-layer-group text-primary-500 text-xs"></i>
+          List 前缀
+        </label>
+        <input type="text" id="unitPrefix" 
+               class="input-field w-full px-4 py-3 rounded-xl text-gray-700 placeholder-gray-400"
+               placeholder="例如：Unit"
+               value="Unit">
+      </div>
+      
+      <!-- Start Date -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-calendar-alt text-primary-500 text-xs"></i>
+          开始日期
+        </label>
+        <input type="date" id="startDate" 
+               class="input-field w-full px-4 py-3 rounded-xl text-gray-700">
+      </div>
+      
+      <!-- Daily New Count -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-plus-circle text-primary-500 text-xs"></i>
+          每日新学 List 数
+        </label>
+        <input type="number" id="dailyNewCount" min="1" max="10"
+               class="input-field w-full px-4 py-3 rounded-xl text-gray-700 placeholder-gray-400"
+               value="1">
+      </div>
+      
+      <!-- Total Lists -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-list-ol text-primary-500 text-xs"></i>
+          List 总数
+        </label>
+        <input type="number" id="totalLists" min="1" max="200"
+               class="input-field w-full px-4 py-3 rounded-xl text-gray-700 placeholder-gray-400"
+               value="21">
+      </div>
+      
+      <!-- Reverse Order -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <i class="fas fa-sort text-primary-500 text-xs"></i>
+          生成顺序
+        </label>
+        <div class="flex items-center gap-3 h-[50px] px-4 rounded-xl input-field">
+          <input type="checkbox" id="reverseOrder" class="custom-checkbox">
+          <label for="reverseOrder" class="text-gray-700 cursor-pointer select-none">逆序生成</label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-3 mt-8">
+      <button onclick="generatePlan()" class="btn-primary text-white font-semibold px-6 py-3 rounded-xl flex items-center gap-2">
+        <i class="fas fa-table"></i>
+        生成计划表
+      </button>
+      <button onclick="generateAndDownloadPDF()" class="btn-secondary text-white font-semibold px-6 py-3 rounded-xl flex items-center gap-2">
+        <i class="fas fa-file-pdf"></i>
+        下载PDF
+      </button>
+      <button onclick="exportImage()" class="btn-accent text-white font-semibold px-6 py-3 rounded-xl flex items-center gap-2">
+        <i class="fas fa-image"></i>
+        导出高清图片
+      </button>
+      <button onclick="printTable()" class="btn-warm text-white font-semibold px-6 py-3 rounded-xl flex items-center gap-2">
+        <i class="fas fa-print"></i>
+        打印表格
+      </button>
+    </div>
+    
+    <!-- 功能说明 -->
+    <div class="info-box">
+      <div class="info-title">
+        <i class="fas fa-info-circle"></i>
+        <span>导出功能说明</span>
+      </div>
+      <div class="info-content">
+        <p><strong>下载PDF</strong>：简洁版PDF，适合快速查看和电子设备阅读，文件较小。</p>
+        <p><strong>打印表格</strong>：美观版，适合打印。如需保存PDF，电脑打印界面选择「另存为PDF/Microsoft Print to PDF」；手机请使用支持打印导出PDF的浏览器（如Via浏览器）。</p>
+        <p><strong>导出高清图片</strong>：高分辨率PNG图片，适合分享查看。</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Plan Table Section -->
+  <section id="planTableSection" class="glass-panel rounded-3xl p-6 md:p-8 animate-slide-up" style="display: none;">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h2 id="tableTitle" class="text-xl font-bold text-gray-800">背诵计划表</h2>
+      <div class="flex items-center gap-4 text-sm text-gray-600">
+        <span>总学习天数: <strong id="statLearningDays">-</strong></span>
+        <span>总计划天数: <strong id="statTotalDays">-</strong></span>
+        <span>完成日期: <strong id="statEndDate">-</strong></span>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+      <div class="flex items-center gap-2">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background-color:#16a34a;"></span>
+        <span>新学内容</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background-color:#475569;"></span>
+        <span>复习内容</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background-color:#7c3aed;"></span>
+        <span>当晚复习</span>
+      </div>
+    </div>
+    
+    <div class="overflow-x-auto rounded-2xl border border-gray-200">
+      <table id="planTable" class="plan-table text-sm">
+        <thead>
+          <tr>
+            <th>周日</th>
+            <th>周一</th>
+            <th>周二</th>
+            <th>周三</th>
+            <th>周四</th>
+            <th>周五</th>
+            <th>周六</th>
+          </tr>
+        </thead>
+        <tbody id="planTableBody">
+          <!-- Table content will be generated here -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div class="glass-panel rounded-2xl p-8 flex flex-col items-center gap-4">
+      <div class="spinner"></div>
+      <p class="text-gray-700 font-medium" id="loadingText">正在生成计划表...</p>
+    </div>
+  </div>
+  
+</main>
+
+<!-- Footer -->
+<footer class="max-w-7xl mx-auto mt-8 mb-4">
+  <div class="glass-panel rounded-2xl px-6 py-4 text-center text-gray-500 text-sm">
+    <p>艾宾浩斯背诵计划表生成器 | 基于科学遗忘曲线的记忆规划工具</p>
+  </div>
+</footer>
+
+<script>
+// Ebbinghaus review intervals (in days)
+// 复习间隔：当天学的在之后第1、3、7、14、29天复习
+const REVIEW_INTERVALS = [1, 3, 7, 14, 29];
+
+// Set default date to today
+document.getElementById('startDate').valueAsDate = new Date();
+
+// Toast notification function
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideInRight 0.3s ease-out reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Show loading indicator
+function showLoading(text = '正在处理...') {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingIndicator').classList.remove('hidden');
+}
+
+// Hide loading indicator
+function hideLoading() {
+  document.getElementById('loadingIndicator').classList.add('hidden');
+}
+
+// Format unit range display
+function formatUnitRange(unitPrefix, startIdx, count, totalLists, reverseOrder) {
+  const actualStart = reverseOrder ? (totalLists - startIdx) : (startIdx + 1);
+  const actualEnd = reverseOrder ? (totalLists - startIdx - count + 1) : (startIdx + count);
+  
+  // Ensure we don't go beyond totalLists
+  const safeEnd = reverseOrder ? Math.max(actualEnd, 1) : Math.min(actualEnd, totalLists);
+  
+  if (count === 1) {
+    return `${unitPrefix} ${actualStart}`;
+  } else {
+    // Sort the numbers to ensure smaller number comes first
+    const min = Math.min(actualStart, safeEnd);
+    const max = Math.max(actualStart, safeEnd);
+    return `${unitPrefix} ${min}~${max}`;
+  }
+}
+
+// Generate the plan table
+function generatePlan() {
+  const planName = document.getElementById('planName').value.trim();
+  const unitPrefix = document.getElementById('unitPrefix').value.trim();
+  const startDateStr = document.getElementById('startDate').value;
+  const dailyNewCount = parseInt(document.getElementById('dailyNewCount').value);
+  const totalLists = parseInt(document.getElementById('totalLists').value);
+  const reverseOrder = document.getElementById('reverseOrder').checked;
+  
+  // Validation
+  if (!planName) {
+    showToast('请输入计划名称', 'error');
+    return;
+  }
+  if (!unitPrefix) {
+    showToast('请输入单元前缀', 'error');
+    return;
+  }
+  if (!startDateStr) {
+    showToast('请选择开始日期', 'error');
+    return;
+  }
+  if (!dailyNewCount || dailyNewCount < 1) {
+    showToast('每日新学数量必须大于0', 'error');
+    return;
+  }
+  if (!totalLists || totalLists < 1) {
+    showToast('总List数量必须大于0', 'error');
+    return;
+  }
+  
+  showLoading('正在生成计划表...');
+  
+  setTimeout(() => {
+    const startDate = new Date(startDateStr);
+    
+    // Calculate total days needed
+    const learningDays = Math.ceil(totalLists / dailyNewCount);
+    const lastReviewDay = learningDays - 1 + REVIEW_INTERVALS[REVIEW_INTERVALS.length - 1];
+    const totalDays = lastReviewDay + 1;
+    
+    // Generate schedule for each day
+    const schedule = [];
+    for (let day = 0; day < totalDays; day++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + day);
+      
+      const daySchedule = {
+        date: date,
+        newUnits: [],
+        reviewUnits: [],
+        eveningReviewUnits: []
+      };
+      
+      // Add new units for this day
+      const startIdx = day * dailyNewCount;
+      if (startIdx < totalLists) {
+        const remainingLists = totalLists - startIdx;
+        const actualCount = Math.min(dailyNewCount, remainingLists);
+        
+        const unitDisplay = formatUnitRange(unitPrefix, startIdx, actualCount, totalLists, reverseOrder);
+        daySchedule.newUnits.push(unitDisplay);
+        
+        // Evening review is the same as new units
+        daySchedule.eveningReviewUnits.push(unitDisplay);
+      }
+      
+      // Add review units based on Ebbinghaus intervals
+      for (const interval of REVIEW_INTERVALS) {
+        const reviewDay = day - interval;
+        if (reviewDay >= 0 && reviewDay < learningDays) {
+          const reviewStartIdx = reviewDay * dailyNewCount;
+          if (reviewStartIdx < totalLists) {
+            const remainingLists = totalLists - reviewStartIdx;
+            const actualCount = Math.min(dailyNewCount, remainingLists);
+            
+            const unitDisplay = formatUnitRange(unitPrefix, reviewStartIdx, actualCount, totalLists, reverseOrder);
+            daySchedule.reviewUnits.push(unitDisplay);
+          }
+        }
+      }
+      
+      schedule.push(daySchedule);
+    }
+    
+    // Render the table
+    renderTable(schedule, planName);
+    
+    // Update header stats
+    const endDate = schedule[schedule.length - 1].date;
+    document.getElementById('tableTitle').textContent = planName;
+    document.getElementById('statLearningDays').textContent = `${learningDays}天`;
+    document.getElementById('statTotalDays').textContent = `${totalDays}天`;
+    document.getElementById('statEndDate').textContent = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
+    
+    document.getElementById('planTableSection').style.display = 'block';
+    
+    hideLoading();
+    showToast('计划表生成成功！', 'success');
+    
+    // Scroll to table
+    setTimeout(() => {
+      document.getElementById('planTableSection').scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }, 500);
+}
+
+// Render the table
+function renderTable(schedule, planName) {
+  const tbody = document.getElementById('planTableBody');
+  tbody.innerHTML = '';
+  
+  // Group days by week
+  const weeks = [];
+  let currentWeek = [];
+  
+  for (const day of schedule) {
+    const dayOfWeek = day.date.getDay();
+    currentWeek[dayOfWeek] = day;
+    
+    if (dayOfWeek === 6) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+  
+  // Push the last week if it has any days
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
+  }
+  
+  // Render each week as a row
+  for (const week of weeks) {
+    const row = document.createElement('tr');
+    
+    // Day cells (Sunday to Saturday) - no date column
+    for (let i = 0; i < 7; i++) {
+      const cell = document.createElement('td');
+      cell.className = 'day-cell';
+      
+      const day = week[i];
+      if (day) {
+        const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
+        
+        let cellContent = `<div class="text-xs text-gray-400 mb-0.5">${dateStr}</div>`;
+        
+        // New units
+        if (day.newUnits.length > 0) {
+          cellContent += '<div class="space-y-0.5">';
+          for (const unit of day.newUnits) {
+            cellContent += `<div class="new-unit">${unit}</div>`;
+          }
+          cellContent += '</div>';
+        }
+        
+        // Review units (学的越早的排在越上面)
+        if (day.reviewUnits.length > 0) {
+          cellContent += '<div class="mt-1 space-y-0">';
+          for (const unit of [...day.reviewUnits].reverse()) {
+            cellContent += `<div class="review-unit">*${unit}</div>`;
+          }
+          cellContent += '</div>';
+        }
+        
+        // Evening review units (review today's new units)
+        if (day.eveningReviewUnits.length > 0) {
+          cellContent += '<div class="mt-1 space-y-0 pt-0.5 border-t border-gray-100">';
+          for (const unit of day.eveningReviewUnits) {
+            cellContent += `<div class="evening-review">*${unit}</div>`;
+          }
+          cellContent += '</div>';
+        }
+        
+        cell.innerHTML = cellContent;
+      } else {
+        cell.innerHTML = '<div class="text-gray-300 text-center">-</div>';
+      }
+      
+      row.appendChild(cell);
+    }
+    
+    tbody.appendChild(row);
+  }
+}
+
+// Generate and download PDF using autoTable
+function generateAndDownloadPDF() {
+  const tableSection = document.getElementById('planTableSection');
+  if (tableSection.style.display === 'none') {
+    // First generate the plan
+    generatePlan();
+    // Wait for the plan to be generated
+    setTimeout(() => {
+      downloadPDF();
+    }, 1000);
+  } else {
+    downloadPDF();
+  }
+}
+
+// Download PDF using autoTable
+function downloadPDF() {
+  const planName = document.getElementById('planName').value;
+  const unitPrefix = document.getElementById('unitPrefix').value;
+  const startDateStr = document.getElementById('startDate').value;
+  const dailyNewCount = parseInt(document.getElementById('dailyNewCount').value);
+  const totalLists = parseInt(document.getElementById('totalLists').value);
+  const reverseOrder = document.getElementById('reverseOrder').checked;
+  
+  showLoading('正在生成PDF...');
+  
+  // Get the schedule data
+  const startDate = new Date(startDateStr);
+  const learningDays = Math.ceil(totalLists / dailyNewCount);
+  const lastReviewDay = learningDays - 1 + REVIEW_INTERVALS[REVIEW_INTERVALS.length - 1];
+  const totalDays = lastReviewDay + 1;
+  
+  // Generate schedule data
+  const schedule = [];
+  for (let day = 0; day < totalDays; day++) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + day);
+    
+    const daySchedule = {
+      date: date,
+      newUnits: [],
+      reviewUnits: [],
+      eveningReviewUnits: []
+    };
+    
+    // Add new units for this day
+    const startIdx = day * dailyNewCount;
+    if (startIdx < totalLists) {
+      const remainingLists = totalLists - startIdx;
+      const actualCount = Math.min(dailyNewCount, remainingLists);
+      
+      const unitDisplay = formatUnitRange(unitPrefix, startIdx, actualCount, totalLists, reverseOrder);
+      daySchedule.newUnits.push(unitDisplay);
+      daySchedule.eveningReviewUnits.push(unitDisplay);
+    }
+    
+    // Add review units based on Ebbinghaus intervals
+    for (const interval of REVIEW_INTERVALS) {
+      const reviewDay = day - interval;
+      if (reviewDay >= 0 && reviewDay < learningDays) {
+        const reviewStartIdx = reviewDay * dailyNewCount;
+        if (reviewStartIdx < totalLists) {
+          const remainingLists = totalLists - reviewStartIdx;
+          const actualCount = Math.min(dailyNewCount, remainingLists);
+          
+          const unitDisplay = formatUnitRange(unitPrefix, reviewStartIdx, actualCount, totalLists, reverseOrder);
+          daySchedule.reviewUnits.push(unitDisplay);
+        }
+      }
+    }
+    
+    schedule.push(daySchedule);
+  }
+  
+  // Group days by week
+  const weeks = [];
+  let currentWeek = [];
+  
+  for (const day of schedule) {
+    const dayOfWeek = day.date.getDay();
+    currentWeek[dayOfWeek] = day;
+    
+    if (dayOfWeek === 6) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+  
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
+  }
+  
+  // Create PDF
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  
+  // 使用html2canvas生成标题图片，避免中文乱码
+  const titleDiv = document.createElement('div');
+  titleDiv.style.position = 'absolute';
+  titleDiv.style.left = '-9999px';
+  titleDiv.style.top = '0';
+  titleDiv.style.width = '500px';
+  titleDiv.style.height = '40px';
+  titleDiv.style.textAlign = 'center';
+  titleDiv.style.fontFamily = 'Arial, sans-serif';
+  titleDiv.style.fontSize = '20px';
+  titleDiv.style.fontWeight = 'bold';
+  titleDiv.style.color = '#16a34a';
+  titleDiv.style.lineHeight = '40px';
+  titleDiv.style.padding = '0';
+  titleDiv.style.margin = '0';
+  titleDiv.textContent = planName;
+  document.body.appendChild(titleDiv);
+  
+  html2canvas(titleDiv, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    logging: false,
+    height: 40,
+    width: 500
+  }).then(titleCanvas => {
+    document.body.removeChild(titleDiv);
+    
+    const titleImgData = titleCanvas.toDataURL('image/png');
+    const titleWidth = 100;
+    const titleHeight = (titleCanvas.height * titleWidth) / titleCanvas.width;
+    
+    // Add title image
+    pdf.addImage(titleImgData, 'PNG', 55, 8, titleWidth, titleHeight);
+    
+    // Add stats
+    pdf.setFontSize(9);
+    pdf.setTextColor(107, 114, 128);
+    const endDate = schedule[schedule.length - 1].date;
+    const statsText = `Learning: ${learningDays}d  Total: ${totalDays}d  End: ${endDate.getMonth() + 1}/${endDate.getDate()}`;
+    pdf.text(statsText, 105, 20, { align: 'center' });
+    
+    // Prepare table data
+    const head = [['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']];
+    const body = [];
+    
+    for (const week of weeks) {
+      const row = [];
+      for (let i = 0; i < 7; i++) {
+        const day = week[i];
+        if (day) {
+          const dateStr = `${day.date.getMonth() + 1}/${day.date.getDate()}`;
+          let cellContent = dateStr + '\n';
+          
+          // New units
+          if (day.newUnits.length > 0) {
+            day.newUnits.forEach(unit => {
+              cellContent += unit + '\n';
+            });
+          }
+          
+          // Review units (学的越早的排在越上面)
+          if (day.reviewUnits.length > 0) {
+            [...day.reviewUnits].reverse().forEach(unit => {
+              cellContent += '*' + unit + '\n';
+            });
+          }
+          
+          // Evening review units
+          if (day.eveningReviewUnits.length > 0) {
+            cellContent += '---\n';
+            day.eveningReviewUnits.forEach(unit => {
+              cellContent += '*' + unit + '\n';
+            });
+          }
+          
+          row.push(cellContent);
+        } else {
+          row.push('-');
+        }
+      }
+      body.push(row);
+    }
+    
+    // Add table using autoTable - 修复分页问题
+    pdf.autoTable({
+      head: head,
+      body: body,
+      startY: 25,
+      theme: 'grid',
+      styles: {
+        fontSize: 7,
+        cellPadding: 1.5,
+        overflow: 'linebreak',
+        valign: 'top',
+        lineColor: [229, 231, 235],
+        lineWidth: 0.1
+      },
+      headStyles: {
+        fillColor: [249, 250, 251],
+        textColor: [55, 65, 81],
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 9,
+        cellPadding: 1.5
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 25 }
+      },
+      margin: { top: 25, left: 10, right: 10, bottom: 10 },
+      // 关键修复：只保留rowPageBreak，移除pageBreak
+      rowPageBreak: 'avoid',
+      didDrawPage: function(data) {
+        // Add header on each page
+        if (data.pageNumber > 1) {
+          pdf.addImage(titleImgData, 'PNG', 55, 8, titleWidth, titleHeight);
+          pdf.setFontSize(9);
+          pdf.setTextColor(107, 114, 128);
+          pdf.text(statsText, 105, 20, { align: 'center' });
+        }
+      }
+    });
+    
+    // Save the PDF
+    pdf.save(`${planName}_背诵计划表.pdf`);
+    
+    hideLoading();
+    showToast('PDF已成功下载！', 'success');
+  }).catch(err => {
+    console.error(err);
+    hideLoading();
+    showToast('PDF生成失败，请重试', 'error');
+  });
+}
+
+// Export as high-resolution image - 修复透明度问题
+function exportImage() {
+  const tableSection = document.getElementById('planTableSection');
+  if (tableSection.style.display === 'none') {
+    showToast('请先生成计划表', 'error');
+    return;
+  }
+  
+  showLoading('正在导出高清图片...');
+  
+  const planName = document.getElementById('planName').value;
+  
+  // 创建一个新的容器，确保背景为纯白色
+  const exportContainer = document.createElement('div');
+  exportContainer.style.position = 'absolute';
+  exportContainer.style.left = '-9999px';
+  exportContainer.style.top = '0';
+  exportContainer.style.width = '800px';
+  exportContainer.style.background = '#ffffff';
+  exportContainer.style.padding = '20px';
+  exportContainer.style.boxSizing = 'border-box';
+  
+  // 克隆表格内容
+  const cloneSection = tableSection.cloneNode(true);
+  
+  // 移除所有可能影响透明度的样式
+  const allElements = cloneSection.querySelectorAll('*');
+  allElements.forEach(el => {
+    // 移除所有透明度设置
+    el.style.opacity = '1';
+    
+    // 确保背景色为纯色
+    if (el.style.backgroundColor === 'rgba(255, 255, 255, 0.75)' || 
+        el.style.backgroundColor === 'rgba(255, 255, 255, 0.8)' ||
+        el.style.backgroundColor === 'rgba(255, 255, 255, 0.9)') {
+      el.style.backgroundColor = '#ffffff';
+    }
+    
+    // 确保文字颜色足够深
+    if (el.classList.contains('new-unit')) {
+      el.style.color = '#16a34a';
+      el.style.fontWeight = '600';
+    } else if (el.classList.contains('review-unit')) {
+      el.style.color = '#475569';
+    } else if (el.classList.contains('evening-review')) {
+      el.style.color = '#7c3aed';
+    }
+    
+    // 移除所有可能影响渲染的CSS属性
+    el.style.backdropFilter = 'none';
+    el.style.webkitBackdropFilter = 'none';
+    el.style.filter = 'none';
+  });
+  
+  // 确保容器本身没有透明度
+  cloneSection.style.opacity = '1';
+  cloneSection.style.background = '#ffffff';
+  cloneSection.style.border = '1px solid #e5e7eb';
+  cloneSection.style.boxShadow = 'none';
+  cloneSection.style.borderRadius = '0';
+  
+  exportContainer.appendChild(cloneSection);
+  document.body.appendChild(exportContainer);
+  
+  // 使用更高清的设置
+  html2canvas(exportContainer, {
+    scale: 4, // 提高分辨率
+    backgroundColor: '#ffffff',
+    logging: false,
+    useCORS: true,
+    allowTaint: true,
+    foreignObjectRendering: false, // 禁用foreignObject渲染
+    onclone: function(clonedDoc) {
+      // 确保克隆的文档中所有元素都是不透明的
+      const clonedElements = clonedDoc.querySelectorAll('*');
+      clonedElements.forEach(el => {
+        el.style.opacity = '1';
+        el.style.backdropFilter = 'none';
+        el.style.webkitBackdropFilter = 'none';
+        el.style.filter = 'none';
+        
+        // 确保背景色为纯色
+        const computedStyle = window.getComputedStyle(el);
+        if (computedStyle.backgroundColor.includes('rgba') && 
+            computedStyle.backgroundColor.includes('0.7') ||
+            computedStyle.backgroundColor.includes('0.8') ||
+            computedStyle.backgroundColor.includes('0.9')) {
+          el.style.backgroundColor = '#ffffff';
+        }
+      });
+    }
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${planName}_背诵计划表.png`;
+    link.href = canvas.toDataURL('image/png', 1.0); // 使用最高质量
+    link.click();
+    
+    document.body.removeChild(exportContainer);
+    hideLoading();
+    showToast('高清图片导出成功！', 'success');
+  }).catch(err => {
+    console.error(err);
+    document.body.removeChild(exportContainer);
+    hideLoading();
+    showToast('图片导出失败，请重试', 'error');
+  });
+}
+
+// Print table
+function printTable() {
+  const tableSection = document.getElementById('planTableSection');
+  if (tableSection.style.display === 'none') {
+    showToast('请先生成计划表', 'error');
+    return;
+  }
+  
+  showToast('正在准备打印...', 'info');
+  setTimeout(() => {
+    window.print();
+  }, 500);
+}
+
+// Auto-generate on page load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    generatePlan();
+  }, 500);
+});
+</script>
+
+</body>
+</html>
