@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f3ec">
+<title>政治分析题模板 · 背诵系统</title>
+<style>
+:root{
+ --bg:#f6f3ec; --paper:#fffdf8; --ink:#1e232b; --ink2:#5b6572; --line:#e2dcd0;
+ --accent:#8c2b22; --accent2:#b8432f; --ok:#2f6b4f; --shadow:0 1px 2px rgba(30,35,43,.06),0 8px 24px rgba(30,35,43,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+ font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",system-ui,sans-serif;
+ -webkit-font-smoothing:antialiased;}
+.serif{font-family:"Songti SC","SimSun","Source Han Serif SC",serif}
+a{color:inherit}
+/* ---------- top ---------- */
+#top{position:sticky;top:0;z-index:30;background:rgba(246,243,236,.95);backdrop-filter:saturate(1.4) blur(8px);
+ border-bottom:1px solid var(--line);padding:12px 20px 10px;}
+.trow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:19px;letter-spacing:.5px;white-space:nowrap}
+.brand small{font-weight:400;color:var(--ink2);font-size:12px;margin-left:8px;letter-spacing:0}
+.search{flex:1;min-width:180px;max-width:340px;height:38px;border:1px solid var(--line);border-radius:9px;
+ padding:0 12px;font-size:14px;font-family:inherit;background:var(--paper);color:var(--ink);outline:none}
+.search:focus{border-color:#cfc7b7;box-shadow:0 0 0 3px rgba(140,43,34,.08)}
+.pbar{flex:1;min-width:120px;height:8px;background:#e7e2d6;border-radius:9px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s}
+.pnum{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink2);min-width:52px}
+.tbtn{min-height:36px;padding:0 12px;border:1px solid var(--line);background:var(--paper);border-radius:8px;
+ font-size:13px;cursor:pointer;color:var(--ink2);font-family:inherit}
+.tbtn:hover{border-color:#cfc7b7;color:var(--ink)}
+.tbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ---------- dashboard ---------- */
+.dash{margin-top:11px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:11px;padding:9px 12px;
+ cursor:pointer;font-family:inherit;color:var(--ink);display:flex;flex-direction:column;gap:1px;min-height:64px}
+.tile:hover{border-color:#d3caba;transform:translateY(-1px)}
+.tile .k{font-size:11px;color:var(--ink2);letter-spacing:1px}
+.tile .v{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1.15}
+.tile .v small{font-size:12px;font-weight:400;color:var(--ink2);margin-left:2px}
+.tile .s{font-size:11px;color:#9a927f;line-height:1.35}
+.tile.ok .v{color:var(--ok)}
+.tile.zero .v{color:#9a927f}
+/* ---------- filters ---------- */
+.filters{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);
+ font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.chip.on{background:#1e232b;color:#fff;border-color:#1e232b}
+.chip .c{opacity:.6;font-size:11px}
+/* ---------- grid ---------- */
+.grid{max-width:1180px;margin:0 auto;padding:20px 20px 90px;
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(302px,1fr));gap:14px;}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;
+ box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,border-color .15s;
+ display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-2px);border-color:#d3caba}
+.card.done{border-color:#c9d9cc;background:linear-gradient(180deg,#fffdf8,#f3f8f3)}
+.card.done::after{content:"已掌握";position:absolute;right:-30px;top:12px;transform:rotate(38deg);background:var(--ok);color:#fff;font-size:10px;padding:3px 34px;letter-spacing:1px}
+.card.duec{border-color:#e0b3ab}
+.ctop{display:flex;align-items:center;gap:8px}
+.no{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;color:var(--accent);background:#f7ece9;border-radius:6px;padding:3px 7px}
+.tag{font-size:11px;color:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+.tag.due{color:var(--accent);border-color:#e0b3ab;background:#fbeeeb}
+.card h3{margin:2px 0 0;font-size:20px;letter-spacing:1px;font-weight:700}
+.card .sub{margin:0;font-size:12px;color:var(--ink2);line-height:1.5}
+.card .afr{font-size:12px;color:#8a8377;line-height:1.5;height:34px;overflow:hidden}
+.nodes{display:flex;gap:4px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.nd{width:33px;height:26px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#9a927f;
+ font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+ font-variant-numeric:tabular-nums;letter-spacing:0;font-family:inherit}
+.nd.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.nd.due{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 2px #f6dcd6 inset}
+/* ---------- drawer ---------- */
+#mask{position:fixed;inset:0;background:rgba(24,26,30,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+#mask.on{opacity:1;pointer-events:auto}
+#drawer{position:fixed;right:0;top:0;bottom:0;width:min(760px,100%);background:var(--paper);z-index:41;
+ transform:translateX(102%);transition:transform .26s cubic-bezier(.2,.7,.2,1);
+ display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.14)}
+#drawer.on{transform:none}
+.dhead{padding:14px 18px 0;border-bottom:1px solid var(--line);background:var(--paper)}
+.dtitle{display:flex;align-items:flex-start;gap:10px}
+.dtitle h2{margin:0;font-size:22px;letter-spacing:.5px}
+.dtitle .meta{font-size:12px;color:var(--ink2);margin-top:4px}
+.xbtn{margin-left:auto;width:40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:18px;cursor:pointer;color:var(--ink2);font-family:inherit}
+.modes{display:flex;gap:8px;margin:12px 0 0}
+.mbtn{flex:1;min-height:44px;border:1px solid var(--line);border-bottom:none;background:#faf7f0;border-radius:10px 10px 0 0;font-size:14px;cursor:pointer;color:var(--ink2);font-family:inherit}
+.mbtn.on{background:var(--paper);color:var(--ink);font-weight:700;box-shadow:0 -2px 0 var(--accent) inset}
+.dbody{flex:1;overflow-y:auto;padding:16px 18px 24px;-webkit-overflow-scrolling:touch}
+.dfoot{border-top:1px solid var(--line);padding:10px 18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#faf7f0}
+.dfoot .hint{font-size:11px;color:#9a927f;margin-left:auto}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 0 3px;border-bottom:1px dashed var(--line);margin-bottom:12px}
+.tm{font-variant-numeric:tabular-nums;font-size:19px;font-weight:800;color:var(--ink2);letter-spacing:1px}
+.tm.warn{color:var(--accent)}
+.sw{font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:6px;margin-left:auto}
+.sw input{width:18px;height:18px}
+/* content */
+.sec-h{font-size:11px;letter-spacing:2px;color:#9a927f;margin:22px 0 8px;text-transform:uppercase}
+.sec-h:first-child{margin-top:0}
+.orig{font-size:17px;line-height:2.05;letter-spacing:.2px;margin:0 0 14px;text-indent:2em;color:#14181e}
+.chain{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;align-items:center}
+.chain b{background:#f7ece9;color:var(--accent);border-radius:7px;padding:5px 9px;font-size:13px;font-weight:600}
+.chain .ar{color:#c3bbaa;font-size:12px}
+.map{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.map td{border-bottom:1px dashed var(--line);padding:7px 6px;vertical-align:top;line-height:1.6}
+.map td:first-child{color:var(--accent);width:30%;font-weight:600}
+.story{font-size:15.5px;line-height:1.95;color:#242a33}
+.story b{color:var(--accent);font-weight:700;background:#fbeeeb;border-radius:3px;padding:0 2px}
+.hookbox{margin-top:18px;border:1px dashed #d9d0bf;border-radius:12px;padding:14px;text-align:center;background:#fdfaf3}
+.hookbox .t{font-size:11px;color:#9a927f;letter-spacing:2px}
+.hookbox .w{font-size:30px;font-weight:800;letter-spacing:6px;margin:6px 0 4px;color:var(--accent)}
+.hookbox .d{font-size:12px;color:var(--ink2)}
+.foldbox{border:1px dashed #d9d0bf;border-radius:12px;padding:20px;text-align:center;background:#fdfaf3}
+.foldbox .mut{margin-top:8px}
+.bk{color:#b9b1a0;cursor:pointer;user-select:none;border-bottom:1px dotted #d6cfc0}
+.bk.on{color:var(--accent);font-weight:700;border-bottom:none;background:#fbeeeb;border-radius:3px}
+.stbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.sbtn{min-height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+.sbtn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.datebox{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2)}
+.datebox input{min-height:38px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font-size:13px;background:#fff;font-family:inherit}
+.mut{font-size:12px;color:#9a927f;line-height:1.6}
+/* ---------- settings panel ---------- */
+#smask{position:fixed;inset:0;background:rgba(24,26,30,.46);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+#smask.on{opacity:1;pointer-events:auto}
+#panel{position:fixed;z-index:51;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;
+ width:min(720px,94vw);max-height:92vh;background:var(--paper);border-radius:16px;display:flex;flex-direction:column;
+ box-shadow:0 24px 80px rgba(0,0,0,.28);transition:.2s}
+#panel.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.phead{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.phead h2{margin:0;font-size:18px}
+.pbody{overflow-y:auto;padding:4px 18px 22px}
+.pbody section{padding:14px 0;border-bottom:1px dashed var(--line)}
+.pbody section:last-child{border-bottom:none}
+.pbody h3{margin:0 0 6px;font-size:14px;letter-spacing:.5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.row input[type=url],.row input[type=password],.row input[type=date]{min-height:40px;border:1px solid var(--line);border-radius:8px;
+ padding:0 10px;font-size:13px;background:#fff;font-family:inherit;flex:1;min-width:180px;color:var(--ink)}
+.row label{font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:5px}
+textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);border-radius:9px;padding:9px 10px;
+ font-size:12px;line-height:1.55;font-family:ui-monospace,Consolas,"Courier New",monospace;background:#fff;color:var(--ink);resize:vertical;word-break:break-all}
+.qrwrap{margin-top:10px;display:flex;justify-content:center}
+#qr{border:1px solid var(--line);border-radius:10px;background:#fff;max-width:100%}
+.filelbl{position:relative;overflow:hidden}
+.filelbl input{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.danger h3{color:var(--accent)}
+/* ---------- print ---------- */
+#printArea{display:none}
+@media print{
+ @page{size:A4 portrait;margin:13mm 14mm}
+ body{background:#fff}
+ #top,#mask,#drawer,#smask,#panel,.grid,#toast{display:none!important}
+ #printArea{display:block!important;color:#000}
+ #printArea h1{font-size:15pt;margin:0 0 2mm;letter-spacing:1px}
+ #printArea .pm{font-size:8.5pt;color:#555;margin-bottom:4mm}
+ #printArea .plabel{font-size:8pt;letter-spacing:3px;color:#888;margin:3mm 0 1.5mm}
+ #printArea p{font-size:10.5pt;line-height:1.75;margin:0 0 2.5mm;text-align:justify;text-indent:2em}
+ #printArea .ps{font-size:9.5pt;line-height:1.66;margin:0 0 2mm;text-align:justify}
+ #printArea{page-break-inside:avoid;break-inside:avoid}
+ #printArea .pc{page-break-inside:avoid;break-inside:avoid}
+}
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#1e232b;color:#fff;
+ font-size:13px;padding:11px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.22s;z-index:60;max-width:86vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.empty{grid-column:1/-1;text-align:center;color:#9a927f;font-size:13px;padding:60px 0}
+@media (max-width:760px){
+ .dash{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+ #top{padding:10px 12px 8px}
+ .brand{font-size:16px;flex:1 1 100%}
+ .brand small{display:none}
+ .search{max-width:none;order:2;flex:1 1 100%;height:44px}
+ .pbar{order:3;min-width:90px}
+ .pnum{order:3}
+ .tbtn{order:3;min-height:44px}
+ .grid{grid-template-columns:1fr;padding:12px 12px 90px;gap:12px}
+ .card h3{font-size:19px}
+ .nd{width:44px;height:44px;font-size:11px}
+ .mbtn{min-height:46px}
+ .chip{min-height:44px}
+ .orig{font-size:16.5px;line-height:2}
+ #drawer{width:100%}
+ .dfoot{padding:10px 12px 14px}
+ .dfoot .hint{display:none}
+ .dbody{padding:14px 12px 24px}
+ .sbtn{min-height:44px}
+ .tile{min-height:70px}
+ #panel{width:100vw;height:100vh;max-height:none;border-radius:0;top:0;left:0;transform:translate(0,12px);}
+ #panel.on{transform:none}
+}
+</style>
+</head>
+<body>
+
+<div id="top">
+  <div class="trow">
+    <div class="brand">政治分析题模板<small>27 篇 · 原文逐字</small></div>
+    <input class="search" id="q" type="search" placeholder="搜索：篇号 / 关键词 / 科目" autocomplete="off" aria-label="搜索">
+    <div class="pbar" aria-hidden="true"><i id="pfill"></i></div>
+    <div class="pnum" id="pnum">0/27</div>
+    <button class="tbtn" id="panelBtn">同步 · 设置</button>
+    <button class="tbtn" id="helpBtn">快捷键</button>
+  </div>
+  <div class="dash">
+    <button class="tile" id="tDue" title="点击跳到第一篇到期"><span class="k">今日待复习</span><span class="v" id="vDue">0<small>篇</small></span><span class="s" id="sDue">没有到期项目</span></button>
+    <button class="tile" id="tNew" title="点击跳到第一篇未开始"><span class="k">今日新背配额</span><span class="v" id="vNew">0<small>/2 篇</small></span><span class="s" id="sNew">建议从篇01 开始</span></button>
+    <button class="tile" id="tDone" title="点击只看已掌握"><span class="k">已掌握</span><span class="v" id="vDone">0<small>/27</small></span><span class="s">7 个节点全勾才算掌握</span></button>
+    <button class="tile" id="tStreak" title="连续打卡规则"><span class="k">连续打卡</span><span class="v" id="vStreak">0<small>天</small></span><span class="s">每天有任何操作即记一天</span></button>
+  </div>
+  <div class="filters">
+    <button class="chip on" data-f="all">全部 <span class="c" id="cAll"></span></button>
+    <button class="chip" data-f="马原">马原 <span class="c" id="c1"></span></button>
+    <button class="chip" data-f="新思想">新思想 <span class="c" id="c2"></span></button>
+    <button class="chip" data-f="毛中特史纲">毛中特史纲 <span class="c" id="c3"></span></button>
+    <button class="chip" data-f="思修">思修 <span class="c" id="c4"></span></button>
+    <button class="chip" data-f="当代">当代 <span class="c" id="c5"></span></button>
+    <button class="chip" id="onlyUn">只看未掌握</button>
+    <button class="chip" id="dueOnly">只看今日到期</button>
+    <button class="chip" id="onlyDone">只看已掌握</button>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="mask"></div>
+<div id="drawer" role="dialog" aria-modal="true" aria-label="单篇背诵">
+  <div class="dhead">
+    <div class="dtitle">
+      <div>
+        <h2 id="dTitle">篇</h2>
+        <div class="meta" id="dMeta"></div>
+      </div>
+      <button class="xbtn" id="closeBtn" aria-label="关闭">✕</button>
+    </div>
+    <div class="modes">
+      <button class="mbtn on" data-m="story">故事模式</button>
+      <button class="mbtn" data-m="text">原文模式</button>
+      <button class="mbtn" data-m="test">自测模式</button>
+    </div>
+  </div>
+  <div class="dbody" id="dBody"></div>
+  <div class="dfoot">
+    <button class="tbtn" id="prevBtn">← 上一篇</button>
+    <button class="tbtn" id="nextBtn">下一篇 →</button>
+    <button class="tbtn" id="printBtn">打印本篇</button>
+    <div class="datebox">首背日 <input type="date" id="firstDate"></div>
+    <span class="hint">←/→ 切篇 · 空格换模式 · Esc 返回</span>
+  </div>
+</div>
+
+<div id="smask"></div>
+<div id="panel" role="dialog" aria-modal="true" aria-label="进度同步与设置">
+  <div class="phead">
+    <h2>进度同步 · 设置</h2>
+    <button class="xbtn" id="panelClose" aria-label="关闭">✕</button>
+  </div>
+  <div class="pbody">
+    <section>
+      <h3>① 开始备考日</h3>
+      <div class="row"><input type="date" id="startDate"><span class="mut">只用于统计连续打卡，不填也能正常使用</span></div>
+      <div class="mut" id="streakNote"></div>
+    </section>
+
+    <section>
+      <h3>② 生成进度码（跨设备同步，免费）</h3>
+      <p class="mut">把全部进度压成一段字符串：换手机/换电脑时复制过去即可。图片二维码可让另一台设备扫。进度码只包含首背日与 7 个节点状态，不含原文。</p>
+      <div class="row">
+        <button class="sbtn pri" id="genCode">生成进度码</button>
+        <button class="sbtn" id="copyCode">复制</button>
+        <span class="mut" id="codeLen"></span>
+      </div>
+      <textarea id="codeOut" readonly placeholder="点「生成进度码」，这里会出现 ZZB1- 开头的字符串"></textarea>
+      <div class="qrwrap"><canvas id="qr" width="240" height="240" aria-label="进度码二维码"></canvas></div>
+      <div class="row">
+        <button class="sbtn" id="dlJson">下载 progress.json</button>
+        <label class="sbtn filelbl">从 progress.json 导入<input type="file" id="fileIn" accept=".json,application/json,text/plain"></label>
+      </div>
+    </section>
+
+    <section>
+      <h3>③ 导入进度码</h3>
+      <textarea id="codeIn" placeholder="粘贴 ZZB1- 开头的进度码（也接受 progress.json 内容）"></textarea>
+      <div class="row">
+        <label><input type="radio" name="imp" value="cover" checked> 覆盖本机进度</label>
+        <label><input type="radio" name="imp" value="merge"> 只补未完成的（合并）</label>
+        <button class="sbtn pri" id="importBtn">导入</button>
+      </div>
+      <div class="mut" id="impMsg"></div>
+    </section>
+
+    <section>
+      <h3>④ 可选：自建云同步</h3>
+      <p class="mut">不填地址＝完全本地，一个字都不会外传。填了才启用：保存后约 4 秒自动上传一次（防抖）。协议是 GET/PUT 同一个地址，请求头 <code>X-Auth</code> 带口令。免费 Worker 示例见「使用说明.md」。</p>
+      <div class="row"><input type="url" id="cloudUrl" placeholder="自建 Worker 的地址（可选）" inputmode="url"></div>
+      <div class="row"><input type="password" id="cloudToken" placeholder="口令（自定义，例如 8 位随机串）"></div>
+      <div class="row">
+        <button class="sbtn" id="saveCloud">保存设置</button>
+        <button class="sbtn" id="cloudPush">上传</button>
+        <button class="sbtn" id="cloudPull">拉取</button>
+        <span class="mut" id="cloudMsg">未启用</span>
+      </div>
+    </section>
+
+    <section class="danger">
+      <h3>⑤ 重置进度</h3>
+      <p class="mut">清空全部勾选、首背日、打卡记录与云同步设置。会二次确认。</p>
+      <div class="row"><button class="sbtn" id="resetBtn">重置进度</button></div>
+    </section>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<div id="toast"></div>
+
+<script>
+const DATA = [{"id": "01", "subject": "马原", "exam": "34", "title": "马原(通用模板)", "words": 190, "tw": "双体船", "cap": "造一条双体船（约270字）", "trigger": "**双体船** —— 两条船焊一起 → 分工不同 → 同一船坞 → 涨潮换货；合一念出四性五学。", "anchors": [["辩证统一", "马克思主义哲学认为A与B是辩证统一的"], ["相互区别（内容·地位·作用）", "二者相互区别，在内容、地位、作用上各有不同"], ["相互联系＋相互依存", "二者相互联系，相互依存"], ["共处统一整体", "共处于统一整体当中"], ["一定条件相互转化", "A和B在一定条件下可以相互转化"]], "paras": ["马克思主义哲学认为A与B是辩证统一的。A是        ，B是     ，二者相互区别，在内容、地位、作用上各有不同；二者相互联系，相互依存，共处于统一整体当中，A和B在一定条件下可以相互转化。", "马克思主义以其理论的科学性、立场的人民性、品格的实践性、体系的开放性不断彰显科学思想的伟力。我们要把马克思主义原理学深、悟透，并真正做到学而信、学而用、学而行，勇担时代赋予的实践使命。"], "paras_html": ["马克思主义哲学认为A与B是<span class=\"bk\" data-a=\"辩证统一\">▢▢▢▢</span>的。A是        ，B是     ，二者<span class=\"bk\" data-a=\"相互区别\">▢▢▢▢</span>，在内容、地位、作用上各有不同；二者<span class=\"bk\" data-a=\"相互联系\">▢▢▢▢</span>，<span class=\"bk\" data-a=\"相互依存\">▢▢▢▢</span>，共处于<span class=\"bk\" data-a=\"统一整体\">▢▢▢▢</span>当中，A和B在一定条件下可以<span class=\"bk\" data-a=\"相互转化\">▢▢▢▢</span>。", "马克思主义以其理论的<span class=\"bk\" data-a=\"科学性\">▢▢▢</span>、立场的<span class=\"bk\" data-a=\"人民性\">▢▢▢</span>、品格的<span class=\"bk\" data-a=\"实践性\">▢▢▢</span>、体系的<span class=\"bk\" data-a=\"开放性\">▢▢▢</span>不断彰显科学思想的伟力。我们要把马克思主义原理学深、悟透，并真正做到<span class=\"bk\" data-a=\"学而信\">▢▢▢</span>、<span class=\"bk\" data-a=\"学而用\">▢▢▢</span>、<span class=\"bk\" data-a=\"学而行\">▢▢▢</span>，勇担时代赋予的<span class=\"bk\" data-a=\"实践使命\">▢▢▢▢</span>。"], "story_html": "木匠要造一条双体船（<b>辩证统一</b>）。第一步量尺寸分工：左边船体叫A，右边叫B，A装货，B载人（<b>A是……，B是……</b>）。第二步各自派活：A管吃水、B管破浪，位置、作用全不一样（<b>相互区别，内容、地位、作用各有不同</b>）。第三步合拢：两条船用同一副钢梁焊住（<b>相互联系</b>），又各自分担一半浮力，少一边就翻船（<b>相互依存</b>），最后一起拴进同一个船坞（<b>共处于统一整体当中</b>）。第四步涨潮：水位一变，A的货挪给B，B的人挪给A（<b>在一定条件下相互转化</b>）。<br><br>船下水验收，盖四枚章：算得准（科学性）、乘客叫好（人民性）、下水能跑（实践性）、还能加挂新舱（开放性）——<b>四性</b>。接着走五道手续：学深（看懂图纸）→悟透（想通为什么）→学而信（签合同）→学而用（下水试航）→学而行（天天开船），最后把船开去送货（<b>勇担时代赋予的实践使命</b>）。"}, {"id": "02", "subject": "马原", "exam": "34", "title": "唯物论(模板)", "words": 171, "tw": "浇水渠", "cap": "修渠浇地（约250字）", "trigger": "**浇水渠** —— 看水 → 扛锄 → 摸规律 → 定章程，一条线走完。", "anchors": [["物质决定意识", "马克思主义唯物论认为物质决定意识"], ["意识能动反作用（认识＋改造）", "意识具有能动反作用，能够能动地认识和改造世界"], ["规律客观、不以人的意志为转移", "物质运动遵循客观规律，规律不以人的意志为转移"], ["能动性三动作：认识→把握→利用", "人可以充分发挥主观能动性去认识、把握并利用客观规律"], ["从实际出发→主客观统一", "坚持一切从实际出发、实事求是……做到主观与客观相统一"]], "paras": ["马克思主义唯物论认为物质决定意识，意识具有能动反作用，能够能动地认识和改造世界。物质运动遵循客观规律，规律不以人的意志为转移，人可以充分发挥主观能动性去认识、把握并利用客观规律。", "我们要坚持一切从实际出发、实事求是，尊重客观现实，立足客观条件，科学发挥主观能动性，做到主观与客观相统一，能动地认识世界、改造世界，妥善解决实践当中遇到的各类问题。"], "paras_html": ["马克思主义唯物论认为<span class=\"bk\" data-a=\"物质决定意识\">▢▢▢▢▢▢</span>，意识具有能动<span class=\"bk\" data-a=\"反作用\">▢▢▢</span>，能够能动地认识和改造世界。物质运动遵循<span class=\"bk\" data-a=\"客观规律\">▢▢▢▢</span>，规律不以人的意志为转移，人可以充分发挥<span class=\"bk\" data-a=\"主观能动性\">▢▢▢▢▢</span>去认识、把握并利用<span class=\"bk\" data-a=\"客观规律\">▢▢▢▢</span>。", "我们要坚持<span class=\"bk\" data-a=\"一切从实际出发\">▢▢▢▢▢▢▢</span>、<span class=\"bk\" data-a=\"实事求是\">▢▢▢▢</span>，尊重客观现实，立足客观条件，科学发挥<span class=\"bk\" data-a=\"主观能动性\">▢▢▢▢▢</span>，做到<span class=\"bk\" data-a=\"主观与客观相统一\">▢▢▢▢▢▢▢▢</span>，能动地认识世界、改造世界，妥善解决实践当中遇到的各类问题。"], "story_html": "山脚村子缺水。老天爷（物质）早定了水往低处流，人只能顺着来（<b>物质决定意识</b>）。但人不干等，扛着锄头就上了山（<b>意识具有能动反作用</b>）：一边趴地上看清沟形（认识世界），一边下锹改水道（改造世界）。水有脾气，只往低走，谁求都不改（<b>客观规律，不以人的意志为转移</b>）。人能做的三步：先摸清水怎么走（认识）、再摸透哪段能拐弯（把握）、最后拿它浇自家地（利用）——力气全使在规律上（<b>主观能动性</b>）。<br><br>村长随后立章程：先看自家几亩地、几口井（<b>一切从实际出发、实事求是</b>），不照抄邻村图纸（<b>尊重客观现实</b>）；再盘清现有的锄头、劳力（<b>立足客观条件</b>）；把劲只使在挖得通的那一段（<b>科学发挥主观能动性</b>）；图纸和地况对上了才动工（<b>主观与客观相统一</b>）；动工后一边看墒情一边改渠（<b>能动地认识世界、改造世界</b>）；最后把浇不上水的地块挨个解决（<b>妥善解决实践当中的各类问题</b>）。"}, {"id": "03", "subject": "马原", "exam": "34", "title": "辩证法(模板)", "words": 290, "tw": "修老桥", "cap": "修一座老桥（约290字）", "trigger": "**修老桥** —— 立牌（2-3-5）→ 验桥（三组矛盾）→ 施工（六动作）。", "anchors": [["两大总特征：联系、发展", "联系与发展是世界的两大总特征"], ["三大规律：对立统一、质量互变、否定之否定", "对立统一、质量互变、否定之否定构成三大基本规律"], ["五对范畴", "原因与结果……可能与现实这五对范畴"], ["矛盾＝内部对立统一＝根本动力", "矛盾体现事物内部对立统一关系，是事物发展的根本动力"], ["共性寓于个性、共性与个性有机统一", "共性寓于个性之中，任何现存事物都是共性与个性的有机统一"], ["三点要求：视角→两点重点→具体分析→转化条件→抓核心→有利方向", "第3段全句"]], "paras": ["马克思主义唯物辩证法揭示，联系与发展是世界的两大总特征。对立统一、质量互变、否定之否定构成三大基本规律。原因与结果、必然与偶然、现象与本质、内容与形式、可能与现实这五对范畴，从多维度阐释事物发展状态。", "矛盾专题万能模板：矛盾体现事物内部对立统一关系，是事物发展的根本动力。矛盾普遍存在，同时不同事物矛盾各有特点，共性寓于个性之中，任何现存事物都是共性与个性的有机统一。根本矛盾与非根本矛盾、主次矛盾和矛盾主次方面在一定条件下相互转化。", "要求我们立足普遍联系与永恒发展的辩证视角，坚持两点论和重点论相结合，做到具体问题具体分析，把握矛盾转化条件，抓住问题核心，推动事物朝着有利方向演进。"], "paras_html": ["马克思主义唯物辩证法揭示，联系与发展是世界的<span class=\"bk\" data-a=\"两大总特征\">▢▢▢▢▢</span>。<span class=\"bk\" data-a=\"对立统一\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"质量互变\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"否定之否定\">▢▢▢▢▢</span>构成<span class=\"bk\" data-a=\"三大基本规律\">▢▢▢▢▢▢</span>。原因与结果、必然与偶然、现象与本质、内容与形式、可能与现实这<span class=\"bk\" data-a=\"五对范畴\">▢▢▢▢</span>，从多维度阐释事物发展状态。", "矛盾专题万能模板：矛盾体现事物内部<span class=\"bk\" data-a=\"对立统一\">▢▢▢▢</span>关系，是事物发展的<span class=\"bk\" data-a=\"根本动力\">▢▢▢▢</span>。矛盾<span class=\"bk\" data-a=\"普遍存在\">▢▢▢▢</span>，同时不同事物矛盾各有特点，共性寓于个性之中，任何现存事物都是<span class=\"bk\" data-a=\"共性与个性\">▢▢▢▢▢</span>的<span class=\"bk\" data-a=\"有机统一\">▢▢▢▢</span>。<span class=\"bk\" data-a=\"根本矛盾\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"非根本矛盾\">▢▢▢▢▢</span>、主次矛盾和<span class=\"bk\" data-a=\"矛盾主次方面\">▢▢▢▢▢▢</span>在一定条件下<span class=\"bk\" data-a=\"相互转化\">▢▢▢▢</span>。", "要求我们立足<span class=\"bk\" data-a=\"普遍联系\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"永恒发展\">▢▢▢▢</span>的辩证视角，坚持<span class=\"bk\" data-a=\"两点论\">▢▢▢</span>和<span class=\"bk\" data-a=\"重点论\">▢▢▢</span>相结合，做到<span class=\"bk\" data-a=\"具体问题具体分析\">▢▢▢▢▢▢▢▢</span>，把握矛盾转化条件，抓住问题核心，推动事物朝着有利方向演进。"], "story_html": "<b>第一幕·挂牌画图。</b> 老桥要翻修，先立两块牌子：一块写\"联系\"（这头连着那头），一块写\"发展\"（木桥要换成石桥）——<b>两大总特征</b>。再定三道工序：一\"对缝\"，左右桥面往中间顶（<b>对立统一</b>）；二\"码石\"，一块块加到一定块数才成拱（<b>质量互变</b>）；三\"翻新\"，拆旧拱、砌新拱，新拱日后还要再翻（<b>否定之否定</b>）——<b>三大规律</b>。桥下摆五个工具箱：查病因（因果）、判运气（必然偶然）、辨表里（现象本质）、看用料样式（内容形式）、验图纸能否建成（可能现实）——<b>五对范畴</b>。<br><br><b>第二幕·验桥诊断。</b> 工头指出，桥的病根在桥墩里两块石头互顶：矛盾就在事物内部，也正是桥往前\"长\"的动力（<b>内部对立统一、根本动力</b>）。他先普查：座座桥都有这种顶（<b>普遍存在</b>）；再逐座看：石拱顶在拱脚、木桥顶在榫头（<b>各有特点</b>）；把各桥顶法收进一本《顶法手册》，手册的通用顶法又藏在每座桥的具体榫头上（<b>共性寓于个性</b>）——手册＋榫头才是一座完整的桥（<b>共性与个性的有机统一</b>）。然后分账：有的顶要命（<b>根本矛盾</b>）、有的只是小磕碰（<b>非根本矛盾</b>）；一桥多处病，先治要命那处（<b>主次矛盾</b>）；同一处病里，石裂为主、渗水为次（<b>矛盾主次方面</b>）；雨季一到，次级的渗水升级成要命的石裂（<b>一定条件下相互转化</b>）。<br><br><b>第三幕·施工。</b> 工头立三条规矩：抬头看整条河上下游（<b>普遍联系与永恒发展</b>）；两手都抓，重点压关键处（<b>两点论和重点论相结合</b>）；每桥单独开方，不抄别桥（<b>具体问题具体分析</b>）；等雨停、水位落到刻度才动大工（<b>把握矛盾转化条件</b>）；先治桥墩裂缝（<b>抓住问题核心</b>）；最后修到能过车过人不塌（<b>推动事物朝着有利方向演进</b>）。"}, {"id": "04", "subject": "马原", "exam": "34", "title": "认识论(模板)", "words": 163, "tw": "下水游泳", "cap": "学游泳（约240字）", "trigger": "**下水游泳** —— 下水 → 呛水 → 三性 → 两尺度 → 教练五条。", "anchors": [["实践是根基、实践决定认识", "实践是认识产生与发展的根基，实践决定认识"], ["认识对实践有反作用", "认识对实践具有反作用"], ["反复性→无限性→上升性", "认识的发展历经反复性、无限性、上升性的过程"], ["真理客观性＋两尺度依存", "真理具有客观性，真理尺度与价值尺度相互依存"], ["实践第一→检验深化发展→主客观统一→知行协同", "第2段全句"]], "paras": ["马克思主义认识论认为实践是认识产生与发展的根基，实践决定认识，认识对实践具有反作用。认识的发展历经反复性、无限性、上升性的过程。真理具有客观性，真理尺度与价值尺度相互依存，共同指引人类开展实践活动。", "坚持实践第一的根本立场，在持续实践中检验、深化与发展真理性认识，把握主客观统一，做到知行协同，依托正确认知推动实践不断向前推进。"], "paras_html": ["马克思主义认识论认为实践是认识产生与发展的根基，<span class=\"bk\" data-a=\"实践决定认识\">▢▢▢▢▢▢</span>，认识对实践具有<span class=\"bk\" data-a=\"反作用\">▢▢▢</span>。认识的发展历经<span class=\"bk\" data-a=\"反复性\">▢▢▢</span>、<span class=\"bk\" data-a=\"无限性\">▢▢▢</span>、<span class=\"bk\" data-a=\"上升性\">▢▢▢</span>的过程。真理具有客观性，<span class=\"bk\" data-a=\"真理尺度\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"价值尺度\">▢▢▢▢</span><span class=\"bk\" data-a=\"相互依存\">▢▢▢▢</span>，共同指引人类开展实践活动。", "坚持实践第一的根本立场，在持续实践中检验、深化与发展真理性认识，把握主客观统一，做到<span class=\"bk\" data-a=\"知行协同\">▢▢▢▢</span>，依托正确认知推动实践不断向前推进。"], "story_html": "想学会游泳，先得下水——水就是根（<b>实践是根基，实践决定认识</b>）。呛了几口才懂憋气，懂了憋气就敢划手（<b>认识对实践具有反作用</b>）。学的路上三种滋味：今天会浮、明天又忘（<b>反复性</b>）；换深水、换海水，总有新东西要学（<b>无限性</b>）；从瞎扑腾到横渡五十米，一级级往上（<b>上升性</b>）。呛的水是真水，不是梦里想的（<b>真理具有客观性</b>）；可光会游没用，还得算这水值不值得下、对身体好不好（<b>真理尺度与价值尺度相互依存</b>，共同指引你下不下水）。<br><br>教练定规矩：先下水，别在岸上背理论（<b>坚持实践第一</b>）；每次上岸回头验一遍上次动作（<b>检验</b>）、再抠细节（<b>深化</b>）、再把会的动作升级（<b>发展</b>）；动作要贴着水的实情（<b>把握主客观统一</b>）；知道怎么划就立刻划出来（<b>知行协同</b>）；最后拿学会的姿势去游得更远（<b>依托正确认知推动实践不断向前推进</b>）。"}, {"id": "05", "subject": "马原", "exam": "34", "title": "历史观(模板)", "words": 179, "tw": "建一座城", "cap": "建一座城（约260字）", "trigger": "**建一座城** —— 地基 → 两副齿轮 → 最好扳手 → 千万人垒 → 管事七条。", "anchors": [["社会存在决定社会意识、社会意识相对独立", "社会存在决定社会意识，社会意识具备相对独立性"], ["两对社会基本矛盾", "生产力与生产关系、经济基础与上层建筑构成社会基本矛盾"], ["生产力＝最终动力；科技＝第一生产力", "生产力是社会发展最终动力，科学技术是第一生产力"], ["人民群众＝主体与创造者", "人民群众是社会历史的主体与创造者"], ["七动作（规律→立场→大势→生产力→变革→实践→向前）", "第2段全句"]], "paras": ["马克思主义唯物史观认为社会存在决定社会意识，社会意识具备相对独立性。生产力与生产关系、经济基础与上层建筑构成社会基本矛盾，生产力是社会发展最终动力，科学技术是第一生产力，人民群众是社会历史的主体与创造者。", "我们要把握社会发展的客观历史规律，坚守群众立场，顺应时代发展大势，不断解放和发展生产力，依靠人民推进社会变革，自觉投身社会建设实践，助力社会稳步向前发展。"], "paras_html": ["马克思主义唯物史观认为<span class=\"bk\" data-a=\"社会存在\">▢▢▢▢</span>决定<span class=\"bk\" data-a=\"社会意识\">▢▢▢▢</span>，<span class=\"bk\" data-a=\"社会意识\">▢▢▢▢</span>具备<span class=\"bk\" data-a=\"相对独立性\">▢▢▢▢▢</span>。<span class=\"bk\" data-a=\"生产力\">▢▢▢</span>与<span class=\"bk\" data-a=\"生产关系\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"经济基础\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"上层建筑\">▢▢▢▢</span>构成社会基本矛盾，<span class=\"bk\" data-a=\"生产力\">▢▢▢</span>是社会发展<span class=\"bk\" data-a=\"最终动力\">▢▢▢▢</span>，科学技术是<span class=\"bk\" data-a=\"第一生产力\">▢▢▢▢▢</span>，<span class=\"bk\" data-a=\"人民群众\">▢▢▢▢</span>是社会历史的主体与创造者。", "我们要把握社会发展的客观历史规律，坚守群众立场，顺应时代发展大势，不断解放和发展<span class=\"bk\" data-a=\"生产力\">▢▢▢</span>，依靠人民推进<span class=\"bk\" data-a=\"社会变革\">▢▢▢▢</span>，自觉投身社会建设实践，助力社会稳步向前发展。"], "story_html": "先有地基，才有城里的说法和规矩：地基决定说法（<b>社会存在决定社会意识</b>）；可说法一旦立住，也会反过来改地基（<b>社会意识具备相对独立性</b>）。城靠两副齿轮转：一副是干活的人和分活的方式（<b>生产力与生产关系</b>），一副是账本和管家（<b>经济基础与上层建筑</b>）——两副就是城的骨架（<b>社会基本矛盾</b>）。所有齿轮里，干活那副转得最快、带得动全场（<b>生产力是社会发展最终动力</b>）；而最好用的新扳手（技术）比谁都好使（<b>科学技术是第一生产力</b>）；城是住在这里的千万人一砖一瓦垒的（<b>人民群众是社会历史的主体与创造者</b>）。<br><br>城建成后，管事守七条：照图纸和地势走、不硬改河（<b>把握客观历史规律</b>）；议事厅给住户留座位（<b>坚守群众立场</b>）；风向变了就调城门朝向（<b>顺应时代发展大势</b>）；先把工具和活计放开（<b>不断解放和发展生产力</b>）；换规矩让住户一起投票（<b>依靠人民推进社会变革</b>）；自己也搬进去住、一起修路（<b>自觉投身社会建设实践</b>）；最后城里一年比一年稳（<b>助力社会稳步向前发展</b>）。"}, {"id": "06", "subject": "马原", "exam": "34", "title": "马政经(模板)", "words": 180, "tw": "面包厂", "cap": "开一家面包厂（约270字）", "trigger": "**面包厂** —— 面包两用 → 一双手两面 → 两笔账合一账 → 剥削两端 → 四个看清。", "anchors": [["商品二因素：使用价值、价值", "商品包含使用价值与价值"], ["劳动二重性＝二因素根源", "劳动二重性是商品二因素根源"], ["技术构成→价值构成→有机构成→提高趋势", "资本技术构成决定资本价值构成，二者统一构成资本有机构成……不断提高的趋势"], ["私有制＝剥削基础；剩余价值＝劳动者劳动创造", "私有制是产生剥削的基础，剩余价值是由劳动者劳动创造"], ["四个\"看清\"：规律→局限→大势→指导", "第2段全句"]], "paras": ["商品包含使用价值与价值，劳动二重性是商品二因素根源。资本技术构成决定资本价值构成，二者统一构成资本有机构成，伴随劳动生产率提升呈现不断提高的趋势。私有制是产生剥削的基础，剩余价值是由劳动者劳动创造，揭示资本剥削的内在本质。", "我们要透过经济表象看清资本运行内在规律，认清资本主义制度的局限性，把握社会经济发展大势，坚持以科学理论指导我国社会主义市场经济高质量发展。"], "paras_html": ["商品包含<span class=\"bk\" data-a=\"使用价值\">▢▢▢▢</span>与价值，<span class=\"bk\" data-a=\"劳动二重性\">▢▢▢▢▢</span>是商品二因素根源。资本<span class=\"bk\" data-a=\"技术构成\">▢▢▢▢</span>决定资本<span class=\"bk\" data-a=\"价值构成\">▢▢▢▢</span>，二者统一构成资本<span class=\"bk\" data-a=\"有机构成\">▢▢▢▢</span>，伴随劳动生产率提升呈现不断提高的趋势。<span class=\"bk\" data-a=\"私有制\">▢▢▢</span>是产生<span class=\"bk\" data-a=\"剥削\">▢▢</span>的基础，<span class=\"bk\" data-a=\"剩余价值\">▢▢▢▢</span>是由劳动者劳动创造，揭示资本<span class=\"bk\" data-a=\"剥削\">▢▢</span>的内在本质。", "我们要透过经济表象看清资本运行内在规律，认清资本主义制度的局限性，把握社会经济发展大势，坚持以科学理论指导我国社会主义市场经济<span class=\"bk\" data-a=\"高质量发展\">▢▢▢▢▢</span>。"], "story_html": "面包出炉，一个能填肚子（<b>使用价值</b>），也能换钱（<b>价值</b>）——<b>商品二因素</b>。这两样从哪来？同一双手的两个面：一手在揉面（具体劳动）、一手在算工时（抽象劳动）——<b>劳动二重性是根源</b>。老板进厂先配硬件：几台烤箱配几个师傅（<b>技术构成</b>），先定下来，再把这套硬件折成多少钱（<b>价值构成</b>）——<b>技术构成决定价值构成</b>；两笔账合成一本总账（<b>有机构成</b>）。烤箱越换越大、师傅越用越少，这本总账就越往上翻（<b>随劳动生产率提升呈不断提高趋势</b>）。为什么老板一直赚？因为烤箱和面粉都归他（<b>私有制是产生剥削的基础</b>）；而面包里的钱是师傅揉出来的（<b>剩余价值由劳动者劳动创造</b>）——这正是剥削的本质（<b>揭示资本剥削的内在本质</b>）。<br><br>老板后来改看账本：不再只盯价签，而是看懂总账怎么记（<b>透过经济表象看清资本运行内在规律</b>）；明白厂子为何老压人工（<b>认清资本主义制度的局限性</b>）；再看整个行业往哪走（<b>把握社会经济发展大势</b>）；最后把学到的账法用来管好自家厂子（<b>坚持以科学理论指导我国社会主义市场经济高质量发展</b>）。"}, {"id": "07", "subject": "新思想", "exam": "35", "title": "2026年(通用模板)", "words": 304, "tw": "双喜厂庆", "cap": "双喜厂庆＋新年开工（约290字）", "trigger": "**双喜厂庆** —— 两喜 → 硬上 → 三个出来 → 六步走 → 收篇章。", "anchors": [["两件喜事：105周年＋“十五五”开局", "2026年是建党 105周年，也是“十五五”规划的开局之年"], ["党中央坚强领导＋迎难而上砥砺奋进", "在以习近平同志为核心的党中央坚强领导下，我们迎难而上、砥砺奋进"], ["三个“出来”：拼、干、奋斗", "党和人民一道拼出来、干出来、奋斗出来的"], ["集中统一领导（第二段起点）", "紧紧依靠党中央的集中统一领导"], ["六抓手中的前五项（质量→新质→安全→改革开放→攻坚克难）", "牢牢把握高质量发展……凝心聚力攻坚克难"], ["巩固态势＋填空＋谱写篇章", "持续巩固拓展良好发展态势……崭新篇章"]], "paras": ["2026年是建党 105周年，也是“十五五”规划的开局之年。在以习近平同志为核心的党中央坚强领导下，我们迎难而上、砥砺奋进，在                      等方面取得一系列崭新的实践成果。事实充分昭示，新时代的伟大成就是党和人民一道拼出来、干出来、奋斗出来的，彰显中国式现代化蕴含的蓬勃生机与显著制度优势。", "新征程上，我们要紧紧依靠党中央的集中统一领导，牢牢把握高质量发展这一首要任务，着力发展新质生产力，统筹发展和安全，坚定不移深化改革扩大开放，凝心聚力攻坚克难，持续巩固拓展良好发展态势，                   ，奋力谱写以中国式现代化全面推进强国建设、民族复兴伟业的崭新篇章。"], "paras_html": ["2026年是建党 105周年，也是“<span class=\"bk\" data-a=\"十五五\">▢▢▢</span>”规划的开局之年。在以习近平同志为核心的党中央坚强领导下，我们迎难而上、砥砺奋进，在                      等方面取得一系列崭新的实践成果。事实充分昭示，新时代的伟大成就是党和人民一道拼出来、干出来、奋斗出来的，彰显<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>蕴含的蓬勃生机与显著<span class=\"bk\" data-a=\"制度优势\">▢▢▢▢</span>。", "新征程上，我们要紧紧依靠党中央的集中统一领导，牢牢把握<span class=\"bk\" data-a=\"高质量发展\">▢▢▢▢▢</span>这一<span class=\"bk\" data-a=\"首要任务\">▢▢▢▢</span>，着力发展<span class=\"bk\" data-a=\"新质生产力\">▢▢▢▢▢</span>，<span class=\"bk\" data-a=\"统筹发展和安全\">▢▢▢▢▢▢▢</span>，坚定不移<span class=\"bk\" data-a=\"深化改革扩大开放\">▢▢▢▢▢▢▢▢</span>，凝心聚力<span class=\"bk\" data-a=\"攻坚克难\">▢▢▢▢</span>，持续巩固拓展良好发展态势，                   ，奋力谱写以<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>全面推进强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>伟业的崭新篇章。"], "story_html": "<b>上段·年终大会。</b> 厂子今年两件喜事：建厂一百零五年（<b>建党 105周年</b>），又正好是第五个五年计划开工的头一年（<b>“十五五”开局之年</b>）。厂长带着全厂（<b>党中央坚强领导</b>），顶着原料涨价硬上（<b>迎难而上、砥砺奋进</b>），在产量、质量、销路等方面干出新成绩（<b>在＿＿等方面取得一系列崭新的实践成果</b>）。年终账本摊开：这些不是天上掉的，是干部和工人一起拼、一起干、一起熬出来的（<b>拼出来、干出来、奋斗出来</b>），也说明这条新产线有生气、有制度优势（<b>中国式现代化蕴含的蓬勃生机与显著制度优势</b>）。<br><br><b>下段·新年开工。</b> 全厂照六条走：听厂长统一调度（<b>集中统一领导</b>）→ 产量质量一起顶上去（<b>高质量发展这一首要任务</b>）→ 上那台最新的智能机器（<b>发展新质生产力</b>）→ 一边赶工一边查安全阀（<b>统筹发展和安全</b>）→ 开门做外贸、把老规矩改掉（<b>深化改革扩大开放</b>）→ 全厂合力攻最难的那道工序（<b>凝心聚力攻坚克难</b>）→ 把去年的好势头接着往上推（<b>持续巩固拓展良好发展态势</b>）→ 补一句自家今年的小目标（<b>＿＿＿</b>）→ 把厂子做成百年名厂（<b>谱写强国建设、民族复兴伟业的崭新篇章</b>）。"}, {"id": "08", "subject": "新思想", "exam": "35", "title": "二十届五中全会专题(模板)", "words": 248, "tw": "修老宅", "cap": "给老宅做体检＋翻修（约280字）", "trigger": "**修老宅** —— 三本账 → 自己先拆 → 认主梁 → 带整街。", "anchors": [["会议定位：新征程上一次十分重要的会议", "党的二十届五中全会是新征程上一次十分重要的会议"], ["三情：世情、国情、党情", "立足世情国情党情深刻变化"], ["直面大党独有难题→自我革命的历史自觉", "会议直面大党独有难题，彰显党推进自我革命的高度历史自觉"], ["自我革命＝永葆先进性纯洁性的关键→政治根基", "勇于自我革命，是我们党永葆先进性纯洁性的关键……政治根基"], ["两个确立→两个维护", "深刻领悟“两个确立”的决定性意义，自觉做到“两个维护”"], ["政绩观：重潜功、忌短视→为民造福→自我革命引领社会革命→政治保证", "第2段后半"]], "paras": ["党的二十届五中全会是新征程上一次十分重要的会议。立足世情国情党情深刻变化，会议直面大党独有难题，彰显党推进自我革命的高度历史自觉。勇于自我革命，是我们党永葆先进性纯洁性的关键，为各项事业稳步前行筑牢坚实的政治根基。", "学习领会全会精神，就要深刻领悟“两个确立”的决定性意义，自觉做到“两个维护”。广大党员干部要牢固树立正确政绩观，重潜功、忌短视，始终把为民造福作为干事创业的出发点。发扬彻底的自我革命精神，以自我革命引领社会革命，为推进中国式现代化、实现强国建设、民族复兴的宏伟目标提供坚强政治保证。"], "paras_html": ["党的二十届五中全会是新征程上一次十分重要的会议。立足世情国情党情深刻变化，会议直面<span class=\"bk\" data-a=\"大党独有难题\">▢▢▢▢▢▢</span>，彰显党推进<span class=\"bk\" data-a=\"自我革命\">▢▢▢▢</span>的高度历史自觉。勇于<span class=\"bk\" data-a=\"自我革命\">▢▢▢▢</span>，是我们党永葆<span class=\"bk\" data-a=\"先进性纯洁性\">▢▢▢▢▢▢</span>的关键，为各项事业稳步前行筑牢坚实的政治根基。", "学习领会全会精神，就要深刻领悟“<span class=\"bk\" data-a=\"两个确立\">▢▢▢▢</span>”的决定性意义，自觉做到“<span class=\"bk\" data-a=\"两个维护\">▢▢▢▢</span>”。广大党员干部要牢固树立<span class=\"bk\" data-a=\"正确政绩观\">▢▢▢▢▢</span>，重潜功、忌短视，始终把<span class=\"bk\" data-a=\"为民造福\">▢▢▢▢</span>作为干事创业的出发点。发扬彻底的<span class=\"bk\" data-a=\"自我革命\">▢▢▢▢</span>精神，以<span class=\"bk\" data-a=\"自我革命\">▢▢▢▢</span>引领<span class=\"bk\" data-a=\"社会革命\">▢▢▢▢</span>，为推进<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>、实现强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>的宏伟目标提供坚强<span class=\"bk\" data-a=\"政治保证\">▢▢▢▢</span>。"], "story_html": "<b>上段·开会体检。</b> 老宅开了搬进新街区后最重要的一次全体住户会（<b>新征程上一次十分重要的会议</b>）。会前先摸三本账：外面街区的变化（<b>世情</b>）、自家院子的变化（<b>国情</b>）、家里人的变化（<b>党情</b>）——<b>三情深刻变化</b>。会上点名家里几桩连自己都难办的老毛病（<b>直面大党独有难题</b>），老管家站起来说：这屋子我自己先拆、先修（<b>彰显推进自我革命的高度历史自觉</b>）。因为只有年年自己修，屋子才不老、不脏（<b>勇于自我革命是永葆先进性纯洁性的关键</b>），也才撑得住后面所有活（<b>筑牢坚实的政治根基</b>）。<br><br><b>下段·立规矩。</b> 会后定六条：先认准家里那根主梁是有决定性的（<b>两个确立的决定性意义</b>）→ 再守着主梁不动（<b>做到“两个维护”</b>）→ 管事的记长远账，不图眼前好看（<b>重潜功、忌短视</b>）→ 凡事从住户好处起头（<b>把为民造福作为出发点</b>）→ 修屋下狠手、不留死角（<b>发扬彻底的自我革命精神</b>）→ 屋子修好再带整条街一起翻新（<b>以自我革命引领社会革命</b>）→ 最后这屋子才配当新街区的样板（<b>提供坚强政治保证</b>）。"}, {"id": "09", "subject": "新思想", "exam": "35", "title": "十五五规划专题(模板)", "words": 255, "tw": "修山路", "cap": "修一条上山的路（约280字）", "trigger": "**修山路** —— 画图（五年）→ 三动词 → 2035 → 全村施工。", "anchors": [["五年规划＝治国理政重要方式、彰显制度优势", "制定和实施五年规划，是党治国理政的重要方式，彰显我国独特的制度优势"], ["“十五五”＝关键时期＋复杂严峻内外环境", "“十五五”处于中国式现代化推进的关键时期，面对复杂严峻的内外环境"], ["全局性部署（未来五年）", "规划对未来五年发展作出全局性部署"], ["三动词：锚定高质量发展→发展新质生产力→统筹发展和安全", "它锚定高质量发展，着力发展新质生产力，统筹发展和安全"], ["2035远景目标＋战略眼光", "为迈向 2035年远景目标筑牢坚实基础，展现出党中央深邃的战略眼光"], ["落地五步：凝聚力量→对接部署→应对风险→求真务实→蓝图变成果", "第2段全句"]], "paras": ["制定和实施五年规划，是党治国理政的重要方式，彰显我国独特的制度优势。“十五五”处于中国式现代化推进的关键时期，面对复杂严峻的内外环境，规划对未来五年发展作出全局性部署。它锚定高质量发展，着力发展新质生产力，统筹发展和安全，为迈向 2035年远景目标筑牢坚实基础，展现出党中央深邃的战略眼光。", "推动“十五五”规划落地见效，是全社会共同的使命。我们应当凝聚各方面力量，主动对接顶层部署，沉着应对各类风险挑战。坚持求真务实抓落实，以苦干实干把规划描绘的发展蓝图转化为现实成果，在接续奋斗中奋力书写中国式现代化的新篇章。"], "paras_html": ["制定和实施五年规划，是党<span class=\"bk\" data-a=\"治国理政\">▢▢▢▢</span>的重要方式，彰显我国独特的<span class=\"bk\" data-a=\"制度优势\">▢▢▢▢</span>。“<span class=\"bk\" data-a=\"十五五\">▢▢▢</span>”处于<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>推进的关键时期，面对复杂严峻的内外环境，规划对未来五年发展作出全局性部署。它锚定<span class=\"bk\" data-a=\"高质量发展\">▢▢▢▢▢</span>，着力发展<span class=\"bk\" data-a=\"新质生产力\">▢▢▢▢▢</span>，<span class=\"bk\" data-a=\"统筹发展和安全\">▢▢▢▢▢▢▢</span>，为迈向 2035年远景目标筑牢坚实基础，展现出党中央深邃的战略眼光。", "推动“<span class=\"bk\" data-a=\"十五五\">▢▢▢</span>”规划落地见效，是全社会共同的使命。我们应当凝聚各方面力量，主动对接顶层部署，沉着应对各类风险挑战。坚持求真务实抓落实，以苦干实干把规划描绘的发展蓝图转化为现实成果，在接续奋斗中奋力书写<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>的新篇章。"], "story_html": "<b>上段·画图。</b> 村里修路从不是随手一挖，而是先开会、后画图——这是村里办事的老办法（<b>党治国理政的重要方式，彰显制度优势</b>）。这回修的是第五段路，正卡在半山腰最险处（<b>“十五五”处于关键时期</b>）；山上落石、山下积水（<b>复杂严峻的内外环境</b>）；图纸一次画满五年（<b>对未来五年发展作出全局性部署</b>）；路先对准镇上集市（<b>锚定高质量发展</b>）；调来新买的挖掘机（<b>着力发展新质生产力</b>）；路边同时装护栏（<b>统筹发展和安全</b>）；这一段通了，山顶新城才接得上（<b>为迈向 2035年远景目标筑牢坚实基础</b>）；画图的老工程师一眼看到十年后（<b>党中央深邃的战略眼光</b>）。<br><br><b>下段·施工。</b> 图纸落地，全村一起干：凑齐人、料、车（<b>凝聚各方面力量</b>）→ 照图纸一段段往上接（<b>主动对接顶层部署</b>）→ 遇塌方先清再走（<b>沉着应对各类风险挑战</b>）→ 不搞花架子，一米一米实打实（<b>坚持求真务实抓落实</b>）→ 把纸上的线变成脚下的路（<b>把发展蓝图转化为现实成果</b>）→ 修完这段修下段，一路修到山顶（<b>在接续奋斗中书写新篇章</b>）。"}, {"id": "10", "subject": "新思想", "exam": "35", "title": "民生专题(模板)", "words": 236, "tw": "送水到户", "cap": "小区送水到户（约280字）", "trigger": "**送水到户** —— 送水 → 当考卷 → 修最漏 → 直通厨房。", "anchors": [["人民至上＝价值追求；为民造福＝政绩观", "坚持人民至上是……价值追求，为民造福彰显……政绩观"], ["民生＝社会稳定之基", "民生是社会稳定之基"], ["共同富裕的方向", "推进中国式现代化，必须牢牢锚定共同富裕的方向"], ["补齐薄弱环节→回应诉求→红利直达基层", "新时代持续补齐民生领域薄弱环节，回应群众现实诉求，让发展的红利直达基层"], ["初心使命（上段收尾）", "深刻诠释我们党始终不变的初心使命"], ["六件事：安危冷暖→公共服务→社会保障→切身利益→首创精神→民智民力→磅礴力量", "第2段全句"]], "paras": ["坚持人民至上是中国共产党一以贯之的价值追求，为民造福彰显共产党人的政绩观。民生是社会稳定之基，推进中国式现代化，必须牢牢锚定共同富裕的方向。新时代持续补齐民生领域薄弱环节，回应群众现实诉求，让发展的红利直达基层，深刻诠释我们党始终不变的初心使命。", "踏上新征程，要始终把人民安危冷暖放在工作的突出位置。健全基本公共服务体系，完善社会保障机制，切实维护好群众切身利益。充分激发人民群众的首创精神，汇聚民智民力，依靠广大人民的磅礴力量，为推进强国建设、民族复兴凝聚深厚的民心根基。"], "paras_html": ["坚持人民至上是中国共产党一以贯之的价值追求，<span class=\"bk\" data-a=\"为民造福\">▢▢▢▢</span>彰显共产党人的政绩观。民生是社会稳定之基，推进<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>，必须牢牢锚定<span class=\"bk\" data-a=\"共同富裕\">▢▢▢▢</span>的方向。新时代持续补齐民生领域薄弱环节，回应群众现实诉求，让发展的红利直达基层，深刻诠释我们党始终不变的<span class=\"bk\" data-a=\"初心使命\">▢▢▢▢</span>。", "踏上新征程，要始终把人民安危冷暖放在工作的突出位置。健全<span class=\"bk\" data-a=\"基本公共服务体系\">▢▢▢▢▢▢▢▢</span>，完善<span class=\"bk\" data-a=\"社会保障机制\">▢▢▢▢▢▢</span>，切实维护好群众切身利益。充分激发<span class=\"bk\" data-a=\"人民群众\">▢▢▢▢</span>的<span class=\"bk\" data-a=\"首创精神\">▢▢▢▢</span>，汇聚民智民力，依靠广大人民的磅礴力量，为推进强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>凝聚深厚的<span class=\"bk\" data-a=\"民心根基\">▢▢▢▢</span>。"], "story_html": "<b>上段·老主任的规矩。</b> 小区主任年年先给顶楼老人送水（<b>坚持人民至上是价值追求</b>）；他把送水当成自己的考卷（<b>为民造福彰显政绩观</b>）；因为水管一断，整栋楼就要吵（<b>民生是社会稳定之基</b>）；小区要升级成新式公寓，前提是家家有水（<b>必须牢牢锚定共同富裕的方向</b>）；他先修最漏的那几户（<b>补齐民生领域薄弱环节</b>）；谁家夜里没水当天就修（<b>回应群众现实诉求</b>）；水从总闸直接接到每户厨房，中间不过二道手（<b>让发展的红利直达基层</b>）；他说这是当年立下的规矩（<b>诠释始终不变的初心使命</b>）。<br><br><b>下段·新一年七件事。</b> 每天先看谁家断水（<b>把人民安危冷暖放在突出位置</b>）→ 供水站、卫生点建齐（<b>健全基本公共服务体系</b>）→ 给老人孩子上保险（<b>完善社会保障机制</b>）→ 谁家地被占先赔（<b>维护群众切身利益</b>）→ 让住户自己想节水办法（<b>激发人民群众的首创精神</b>）→ 开业主大会收点子（<b>汇聚民智民力</b>）→ 全楼一起出力修总管道（<b>依靠广大人民的磅礴力量</b>）→ 楼稳了小区才稳（<b>凝聚深厚的民心根基</b>）。"}, {"id": "11", "subject": "新思想", "exam": "35", "title": "经济专题(模板)", "words": 242, "tw": "造车厂", "cap": "开一家汽车厂（约290字）", "trigger": "**造车厂** —— 心得指路 → 一条链 → 三台发动机 → 全国一个价 → 自己造芯。", "anchors": [["首要任务＝高质量发展", "高质量发展是全面建设社会主义现代化国家的首要任务"], ["习近平经济思想＝科学指引", "习近平经济思想为我国经济工作提供科学指引"], ["立足“十五五”开局之年；稳中求进、提质增效", "立足“十五五”开局之年，坚持稳中求进、提质增效"], ["因地制宜发展新质生产力→现代化产业体系→扩大内需", "因地制宜发展新质生产力，加快构建现代化产业体系，实施扩大内需战略"], ["质的有效提升＋量的合理增长→巩固回升向好→夯实物质基础", "努力实现质的有效提升和量的合理增长……夯实中国式现代化的物质基础"], ["下段五步：改革→统一大市场→稳预期→激发活力→统筹安全→科技自立自强→新动能", "第2段全句"]], "paras": ["高质量发展是全面建设社会主义现代化国家的首要任务。习近平经济思想为我国经济工作提供科学指引。立足“十五五”开局之年，坚持稳中求进、提质增效，因地制宜发展新质生产力，加快构建现代化产业体系，实施扩大内需战略，努力实现质的有效提升和量的合理增长，持续巩固回升向好态势，夯实中国式现代化的物质基础。", "新征程上，要持续深化改革，建设全国统一大市场，着力稳定市场预期，充分激发各类经营主体活力。更好统筹发展和安全，推动科技自立自强，不断塑造发展新动能，为强国建设、民族复兴筑牢坚实的物质技术根基。"], "paras_html": ["<span class=\"bk\" data-a=\"高质量发展\">▢▢▢▢▢</span>是全面建设社会主义现代化国家的<span class=\"bk\" data-a=\"首要任务\">▢▢▢▢</span>。习近平经济思想为我国经济工作提供科学指引。立足“<span class=\"bk\" data-a=\"十五五\">▢▢▢</span>”开局之年，坚持<span class=\"bk\" data-a=\"稳中求进\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"提质增效\">▢▢▢▢</span>，因地制宜发展<span class=\"bk\" data-a=\"新质生产力\">▢▢▢▢▢</span>，加快构建<span class=\"bk\" data-a=\"现代化产业体系\">▢▢▢▢▢▢▢</span>，实施<span class=\"bk\" data-a=\"扩大内需\">▢▢▢▢</span>战略，努力实现质的有效提升和量的合理增长，持续巩固回升向好态势，夯实<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>的<span class=\"bk\" data-a=\"物质基础\">▢▢▢▢</span>。", "新征程上，要持续深化改革，建设<span class=\"bk\" data-a=\"全国统一大市场\">▢▢▢▢▢▢▢</span>，着力稳定市场预期，充分激发各类经营主体活力。更好<span class=\"bk\" data-a=\"统筹发展和安全\">▢▢▢▢▢▢▢</span>，推动<span class=\"bk\" data-a=\"科技自立自强\">▢▢▢▢▢▢</span>，不断塑造发展<span class=\"bk\" data-a=\"新动能\">▢▢▢</span>，为强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>筑牢坚实的物质技术根基。"], "story_html": "<b>上段·造车。</b> 厂里立下头号任务：把车造好（<b>高质量发展是首要任务</b>）；老师傅那本《造车心得》是全厂的指路书（<b>习近平经济思想提供科学指引</b>）；今年正好第五个五年计划头一年（<b>立足“十五五”开局之年</b>）；不求快但求稳，每步都提质量（<b>稳中求进、提质增效</b>）；靠山吃山，山里有铝就做铝车身（<b>因地制宜发展新质生产力</b>）；零件厂、总装厂、4S店串成一条链（<b>加快构建现代化产业体系</b>）；先把门口排队的人请进来买（<b>实施扩大内需战略</b>）；车更好、也卖得更多（<b>质的有效提升和量的合理增长</b>）；销量从跌到涨一路向上（<b>持续巩固回升向好态势</b>）；厂里有了钱才谈得上别的（<b>夯实物质基础</b>）。<br><br><b>下段·新年新动作。</b> 把老旧的审批流程砍掉（<b>持续深化改革</b>）→ 全国分店一个价、一张订单通行（<b>建设全国统一大市场</b>）→ 给经销商吃定心丸、别乱降价（<b>着力稳定市场预期</b>）→ 国营民营合资都敢投钱（<b>激发各类经营主体活力</b>）→ 一边扩产一边查安全隐患（<b>更好统筹发展和安全</b>）→ 发动机自己造，不等别人给（<b>推动科技自立自强</b>）→ 把电池、智驾做成新增长点（<b>不断塑造发展新动能</b>）→ 厂子和技术都立住（<b>筑牢物质技术根基</b>）。"}, {"id": "12", "subject": "毛中特史纲", "exam": "36", "title": "建党105周年专题", "words": 248, "tw": "百年渡船", "cap": "百年渡船（约290字）", "trigger": "**百年渡船** —— 划船 → 三段水路 → 三段台阶 → 交舵四件事。", "anchors": [["一百零五载：栉风沐雨、砥砺前行", "一百零五载栉风沐雨，砥砺前行"], ["初心使命＝为人民谋幸福＋为民族谋复兴", "中国共产党坚守为中国人民谋幸福、为中华民族谋复兴的初心使命"], ["三个时期：革命、建设、改革", "在革命、建设、改革各时期勇担重任"], ["两个\"人民\"：依靠人民、为了人民", "党始终坚持依靠人民、为了人民"], ["三次飞跃：站起来→富起来→强起来", "从站起来、富起来到强起来的伟大飞跃"], ["定位四句：核心力量／最本质特征＋最大制度优势／领航掌舵／四件事", "第2段全句"]], "paras": ["一百零五载栉风沐雨，砥砺前行。中国共产党坚守为中国人民谋幸福、为中华民族谋复兴的初心使命，在革命、建设、改革各时期勇担重任。党始终坚持依靠人民、为了人民，带领中华民族迎来从站起来、富起来到强起来的伟大飞跃，创造了彪炳史册的人间奇迹。", "历史和实践昭示，党是引领中国进步的核心力量，党的领导是中国特色社会主义最本质特征与最大制度优势。新时代历史性成就，根本在于习近平总书记领航掌舵。新征程上，我们要传承伟大建党精神，坚持党的全面领导，推进自我革命，奋力谱写中国式现代化新篇章，向着民族伟大复兴奋勇前进。"], "paras_html": ["一百零五载栉风沐雨，砥砺前行。中国共产党坚守为中国人民谋幸福、为中华民族谋复兴的<span class=\"bk\" data-a=\"初心使命\">▢▢▢▢</span>，在革命、建设、改革各时期勇担重任。党始终坚持依靠人民、为了人民，带领中华民族迎来从<span class=\"bk\" data-a=\"站起来\">▢▢▢</span>、<span class=\"bk\" data-a=\"富起来\">▢▢▢</span>到<span class=\"bk\" data-a=\"强起来\">▢▢▢</span>的伟大飞跃，创造了彪炳史册的<span class=\"bk\" data-a=\"人间奇迹\">▢▢▢▢</span>。", "历史和实践昭示，党是引领中国进步的<span class=\"bk\" data-a=\"核心力量\">▢▢▢▢</span>，党的领导是中国特色社会主义<span class=\"bk\" data-a=\"最本质特征\">▢▢▢▢▢</span>与最大<span class=\"bk\" data-a=\"制度优势\">▢▢▢▢</span>。新时代历史性成就，根本在于习近平总书记领航掌舵。新征程上，我们要传承伟大<span class=\"bk\" data-a=\"建党精神\">▢▢▢▢</span>，坚持党的全面领导，推进<span class=\"bk\" data-a=\"自我革命\">▢▢▢▢</span>，奋力谱写<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>新篇章，向着民族伟大复兴奋勇前进。"], "story_html": "<b>上段·划船。</b> 一条大河上有艘船，划了一百零五年，风雨一直打在船板上，桨没停过（<b>一百零五载栉风沐雨，砥砺前行</b>）。船头刻着两行字：让岸上人过好日子、让整条河都兴旺（<b>为中国人民谋幸福、为中华民族谋复兴的初心使命</b>）。船过三段水路——闹革命的急流、搞建设的浅滩、改革开放的宽江，每段都有人抢着摇桨（<b>在革命、建设、改革各时期勇担重任</b>）；摇桨的规矩是：岸上人出钱出力，船就往岸上靠（<b>依靠人民、为了人民</b>）。船把人从泥滩送上坡地，再送上高岸——三段台阶（<b>从站起来、富起来到强起来</b>）；岸上人为这奇迹立碑（<b>彪炳史册的人间奇迹</b>）。<br><br><b>下段·交舵。</b> 老船长交舵时说了四句：这船一直是河上带路的（<b>引领中国进步的核心力量</b>）；船和河是一体的（<b>最本质特征与最大制度优势</b>）；这几年能过险滩，全靠新掌舵人看水（<b>根本在于习近平总书记领航掌舵</b>）；新舵手上任办四件事：把船头刻的字重新漆亮（<b>传承伟大建党精神</b>）、舵盘不假手于人（<b>坚持党的全面领导</b>）、先补船底漏洞（<b>推进自我革命</b>）、再写新河志（<b>奋力谱写中国式现代化新篇章</b>），最后把船开到河尽头（<b>向着民族伟大复兴奋勇前进</b>）。"}, {"id": "13", "subject": "毛中特史纲", "exam": "36", "title": "长征胜利90周年专题", "words": 217, "tw": "夜突围", "cap": "夜突围（约280字）", "trigger": "**夜突围** —— 月亮 → 四道关 → 两个品格 → 新队伍七步。", "anchors": [["九十载岁月流转，精神历久弥新", "九十载岁月流转，长征精神历久弥新"], ["长征胜利＝转危为安的关键", "长征的伟大胜利，是中国革命转危为安的关键"], ["四道关：破封锁→越山水→钢铁意志→铸就精神", "冲破重重封锁，跨越万水千山，以钢铁意志战胜无数艰难险阻，铸就了伟大长征精神"], ["两大品格：理想信念＋不怕牺牲", "彰显了共产党人坚定的理想信念与不怕牺牲的革命品格"], ["一代人有一代人的长征", "一代人有一代人的长征"], ["七动作：血脉→精神→风险→重任→新长征路→强国复兴→历史篇章", "第2段全句"]], "paras": ["九十载岁月流转，长征精神历久弥新。长征的伟大胜利，是中国革命转危为安的关键。在艰苦卓绝的斗争中，我们党领导红军冲破重重封锁，跨越万水千山，以钢铁意志战胜无数艰难险阻，铸就了伟大长征精神，充分彰显了共产党人坚定的理想信念与不怕牺牲的革命品格。", "一代人有一代人的长征，在习近平总书记的坚强领导下，我们赓续红色血脉，传承长征精神，直面风险挑战，勇担时代重任，走好新时代的长征路，奋力推进强国建设、民族复兴，奋力书写属于我们这一代人的历史篇章。"], "paras_html": ["九十载岁月流转，<span class=\"bk\" data-a=\"长征精神\">▢▢▢▢</span>历久弥新。长征的伟大胜利，是中国革命<span class=\"bk\" data-a=\"转危为安\">▢▢▢▢</span>的关键。在艰苦卓绝的斗争中，我们党领导红军冲破重重封锁，跨越万水千山，以钢铁意志战胜无数艰难险阻，铸就了伟大<span class=\"bk\" data-a=\"长征精神\">▢▢▢▢</span>，充分彰显了共产党人坚定的<span class=\"bk\" data-a=\"理想信念\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"不怕牺牲\">▢▢▢▢</span>的革命品格。", "一代人有一代人的长征，在习近平总书记的坚强领导下，我们<span class=\"bk\" data-a=\"赓续红色血脉\">▢▢▢▢▢▢</span>，传承<span class=\"bk\" data-a=\"长征精神\">▢▢▢▢</span>，直面风险挑战，勇担时代重任，走好新时代的长征路，奋力推进强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>，奋力书写属于我们这一代人的历史篇章。"], "story_html": "<b>上段·突围。</b> 队伍被围在山坳里，九十年前的月亮还照在那条路上（<b>九十载岁月流转，长征精神历久弥新</b>）。那一夜突围成功，整支队伍才没被吃掉（<b>长征的伟大胜利，是中国革命转危为安的关键</b>）。突围要过四道关：撕开包围圈（<b>冲破重重封锁</b>）、翻过一道道山趟过一条条河（<b>跨越万水千山</b>）、咬着牙扛住冻饿（<b>以钢铁意志战胜无数艰难险阻</b>）、走完全程队伍才有了自己的旗号和规矩（<b>铸就了伟大长征精神</b>）。走完这一趟，外人一看就知道这队伍信什么、敢不敢拿命换（<b>坚定的理想信念与不怕牺牲的革命品格</b>）。<br><br><b>下段·新一代。</b> 九十年后村口又起了新队伍，走的是另一条路（<b>一代人有一代人的长征</b>）；领队在地图前定线（<b>习近平总书记的坚强领导</b>）；出发先到老碑前取火（<b>赓续红色血脉</b>）；把老队伍的走法抄在本上（<b>传承长征精神</b>）；遇塌方绕、遇狼群守（<b>直面风险挑战</b>）；背包里装着这一代该扛的活（<b>勇担时代重任</b>）；沿着新修的路走完全程（<b>走好新时代的长征路</b>）；把路修到山顶新城（<b>奋力推进强国建设、民族复兴</b>）；最后在路尽头立一块新碑（<b>书写属于我们这一代人的历史篇章</b>）。"}, {"id": "14", "subject": "毛中特史纲", "exam": "36", "title": "社会主义制度确立70周年专题", "words": 244, "tw": "盖大屋", "cap": "盖一座大屋（约290字）", "trigger": "**盖大屋** —— 1956打桩 → 改梁换柱 → 认主梁 → 扩新城。", "anchors": [["七十载沧桑巨变＋磅礴伟力", "七十载沧桑巨变，社会主义制度彰显磅礴伟力"], ["1956年确立＋最深刻最伟大的社会变革", "1956年社会主义制度确立，实现了中国历史上最深刻最伟大的社会变革"], ["根本政治前提＋制度基础", "为当代中国一切发展进步奠定根本政治前提和制度基础"], ["四动作：立足国情→完善体系→战胜风险→取得成就", "七十年来，我国立足本国国情……取得举世瞩目的发展成就"], ["两个印证：生命力＋优越性", "充分印证社会主义制度的强大生命力和显著优越性"], ["下段七步：两个确立→制度自信→党的领导→完善创新→发挥优势→中国式现代化→伟大复兴", "第2段全句"]], "paras": ["七十载沧桑巨变，社会主义制度彰显磅礴伟力。1956年社会主义制度确立，实现了中国历史上最深刻最伟大的社会变革，为当代中国一切发展进步奠定根本政治前提和制度基础。七十年来，我国立足本国国情，不断完善中国特色社会主义制度体系，战胜各类风险挑战，取得举世瞩目的发展成就，充分印证社会主义制度的强大生命力和显著优越性。", "新征程上，我们要深刻领悟“两个确立”的决定性意义，坚定制度自信，坚持党的全面领导，持续推进制度完善与创新，充分发挥制度优势，奋力推进中国式现代化，为实现中华民族伟大复兴不懈奋斗。"], "paras_html": ["七十载沧桑巨变，<span class=\"bk\" data-a=\"社会主义制度\">▢▢▢▢▢▢</span>彰显磅礴伟力。1956年<span class=\"bk\" data-a=\"社会主义制度\">▢▢▢▢▢▢</span>确立，实现了中国历史上最深刻最伟大的<span class=\"bk\" data-a=\"社会变革\">▢▢▢▢</span>，为当代中国一切发展进步奠定根本<span class=\"bk\" data-a=\"政治前提\">▢▢▢▢</span>和<span class=\"bk\" data-a=\"制度基础\">▢▢▢▢</span>。七十年来，我国立足本国国情，不断完善中国特色<span class=\"bk\" data-a=\"社会主义制度\">▢▢▢▢▢▢</span>体系，战胜各类风险挑战，取得举世瞩目的发展成就，充分印证<span class=\"bk\" data-a=\"社会主义制度\">▢▢▢▢▢▢</span>的强大<span class=\"bk\" data-a=\"生命力\">▢▢▢</span>和显著<span class=\"bk\" data-a=\"优越性\">▢▢▢</span>。", "新征程上，我们要深刻领悟“<span class=\"bk\" data-a=\"两个确立\">▢▢▢▢</span>”的决定性意义，坚定制度自信，坚持党的全面领导，持续推进制度完善与创新，充分发挥<span class=\"bk\" data-a=\"制度优势\">▢▢▢▢</span>，奋力推进<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>，为实现中华民族伟大复兴不懈奋斗。"], "story_html": "<b>上段·打桩。</b> 1956年村里打下第一根桩，一座大屋开工（<b>1956年社会主义制度确立</b>）；这是村里从没有过的大改（<b>实现了中国历史上最深刻最伟大的社会变革</b>）；屋基一浇，后面所有房、路、渠才有着落（<b>为当代中国一切发展进步奠定根本政治前提和制度基础</b>）。七十年里，大屋按自家院子的地形改梁换柱（<b>立足本国国情，不断完善中国特色社会主义制度体系</b>）；风来关窗、水来筑堤（<b>战胜各类风险挑战</b>）；年年收成上账，外人看了都点头（<b>取得举世瞩目的发展成就</b>）；七十年不倒不塌，还越住越宽敞（<b>强大生命力和显著优越性</b>）。头一句说的\"七十载沧桑巨变、磅礴伟力\"，就是这座屋子的分量（<b>七十载沧桑巨变，彰显磅礴伟力</b>）。<br><br><b>下段·新住户。</b> 新房客搬进来办七件事：先认准承重那根主梁（<b>两个确立的决定性意义</b>）→ 不信别家的图纸、信这屋的梁（<b>坚定制度自信</b>）→ 钥匙只交一把给管事的（<b>坚持党的全面领导</b>）→ 每年检修、加装新设备（<b>持续推进制度完善与创新</b>）→ 把屋子的好处用足（<b>充分发挥制度优势</b>）→ 把屋扩成整片新城（<b>奋力推进中国式现代化</b>）→ 一辈辈住下去（<b>为实现中华民族伟大复兴不懈奋斗</b>）。"}, {"id": "15", "subject": "毛中特史纲", "exam": "36", "title": "理论(模板)", "words": 236, "tw": "两把料", "cap": "老图纸与两把料（约280字）", "trigger": "**两把料** —— 老图 → 地基料 → 榫卯料 → 新总图 → 守正创新。", "anchors": [["四个\"立/兴\"：立党立国、兴党兴国＋根本指导思想", "马克思主义是我们立党立国、兴党兴国的根本指导思想"], ["两个结合：具体实际＋优秀传统文化", "同中国具体实际相结合、同中华优秀传统文化相结合"], ["持续推进理论探索→一系列重大理论成果", "持续推进理论探索，形成一系列重大理论成果"], ["指引三大事业：革命、建设、改革", "指引革命、建设、改革事业不断向前"], ["新时代：立足变局→创立思想→新的飞跃", "立足时代变局，创立习近平新时代中国特色社会主义思想，实现……新的飞跃"], ["下段四步：两个结合路径→守正创新→思想合力→民族复兴", "牢牢把握“两个结合”根本路径，坚持守正创新，凝聚……思想合力，奋力奔赴……宏伟目标"]], "paras": ["马克思主义是我们立党立国、兴党兴国的根本指导思想。百余年以来，中国共产党坚持把马克思主义基本原理同中国具体实际相结合、同中华优秀传统文化相结合，持续推进理论探索，形成一系列重大理论成果，指引革命、建设、改革事业不断向前。", "进入新时代，以习近平同志为核心的党中央立足时代变局，创立习近平新时代中国特色社会主义思想，实现马克思主义中国化时代化新的飞跃。新征程上，我们要牢牢把握“两个结合”根本路径，坚持守正创新，凝聚起推进中国式现代化的强大思想合力，奋力奔赴民族复兴的宏伟目标。"], "paras_html": ["马克思主义是我们立党立国、兴党兴国的根本指导思想。百余年以来，中国共产党坚持把马克思主义基本原理同中国具体实际相结合、同<span class=\"bk\" data-a=\"中华优秀传统文化\">▢▢▢▢▢▢▢▢</span>相结合，持续推进理论探索，形成一系列重大理论成果，指引革命、建设、改革事业不断向前。", "进入新时代，以习近平同志为核心的党中央立足时代变局，创立习近平新时代中国特色社会主义思想，实现马克思主义<span class=\"bk\" data-a=\"中国化时代化\">▢▢▢▢▢▢</span>新的飞跃。新征程上，我们要牢牢把握“<span class=\"bk\" data-a=\"两个结合\">▢▢▢▢</span>”根本路径，坚持<span class=\"bk\" data-a=\"守正创新\">▢▢▢▢</span>，凝聚起推进<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>的强大思想合力，奋力奔赴<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>的宏伟目标。"], "story_html": "<b>上段·改图。</b> 村里盖房全靠一张老图纸（<b>马克思主义是立党立国、兴党兴国的根本指导思想</b>）。百余年里木匠干了两件事：把老图纸的尺寸按自家地基重算（<b>同中国具体实际相结合</b>），又把祖上传的榫卯手艺接进去（<b>同中华优秀传统文化相结合</b>）——这就是<b>两把料</b>。边干边改图（<b>持续推进理论探索</b>）；改出一套又一套新图册（<b>形成一系列重大理论成果</b>）；革命、建设、改革三段工程都照图册走（<b>指引革命、建设、改革事业不断向前</b>）。<br><br><b>下段·新工地。</b> 到了新工地，老师傅看着变了的地形重画一张总图（<b>立足时代变局，创立习近平新时代中国特色社会主义思想</b>）；新图比老图高出一截（<b>实现马克思主义中国化时代化新的飞跃</b>）；还是照\"两把料\"配（<b>牢牢把握“两个结合”根本路径</b>）；老榫卯不丢、新尺寸要用（<b>坚持守正创新</b>）；全村工匠按一张图施工（<b>凝聚起强大思想合力</b>）；最后把房子盖到山顶（<b>奋力奔赴民族复兴的宏伟目标</b>）。"}, {"id": "16", "subject": "毛中特史纲", "exam": "36", "title": "孙中山诞辰160周年专题", "words": 229, "tw": "撬闸门", "cap": "撬闸门（约280字）", "trigger": "**撬闸门** —— 撬开 → 但没改地契 → 新队伍捡钥匙 → 新广场鞠躬。", "anchors": [["近代底色：半殖民地半封建社会＋山河破碎、民生凋敝", "近代中国沦为半殖民地半封建社会，山河破碎、民生凋敝"], ["志士仁人：前赴后继、探求救国救民道路", "无数仁人志士前赴后继、探求救国救民的道路"], ["孙中山三事：辛亥革命→推翻君主专制→打开闸门", "孙中山先生领导辛亥革命，推翻君主专制制度，打开中国进步的闸门"], ["一个转折：\"但未能彻底改变旧中国的社会性质\"", "但未能彻底改变旧中国的社会性质"], ["共产党两事：应运而生＋继承遗志、完成未竟事业", "中国共产党应运而生，继承革命先驱的遗志，完成其未竟的民族独立与人民解放事业"], ["下段七步：新方位→领导→缅怀→汲取→凝聚→勇毅前行→中国式现代化→中国梦", "第2段全句"]], "paras": ["近代中国沦为半殖民地半封建社会，山河破碎、民生凋敝，无数仁人志士前赴后继、探求救国救民的道路。孙中山先生领导辛亥革命，推翻君主专制制度，打开中国进步的闸门，但未能彻底改变旧中国的社会性质。中国共产党应运而生，继承革命先驱的遗志，完成其未竟的民族独立与人民解放事业。", "站在新的历史方位，在习近平总书记的坚强领导下，我们缅怀孙中山先生振兴中华的宏伟夙愿，汲取近代求索的历史启示，凝聚海内外中华儿女力量，勇毅前行，奋力推进中国式现代化，共圆中华民族伟大复兴的中国梦。"], "paras_html": ["近代中国沦为<span class=\"bk\" data-a=\"半殖民地半封建社会\">▢▢▢▢▢▢▢▢▢</span>，山河破碎、民生凋敝，无数仁人志士前赴后继、探求救国救民的道路。孙中山先生领导<span class=\"bk\" data-a=\"辛亥革命\">▢▢▢▢</span>，推翻<span class=\"bk\" data-a=\"君主专制\">▢▢▢▢</span>制度，打开中国进步的闸门，但未能彻底改变旧中国的社会性质。中国共产党应运而生，继承革命先驱的遗志，完成其未竟的民族独立与人民解放事业。", "站在新的历史方位，在习近平总书记的坚强领导下，我们缅怀孙中山先生振兴中华的宏伟夙愿，汲取近代求索的历史启示，凝聚海内外中华儿女力量，勇毅前行，奋力推进<span class=\"bk\" data-a=\"中国式现代化\">▢▢▢▢▢▢</span>，共圆中华民族伟大复兴的中国梦。"], "story_html": "<b>上段·旧城。</b> 老城被外人占了半截，城墙塌、街市空（<b>沦为半殖民地半封建社会，山河破碎、民生凋敝</b>）；一拨拨人举着火把找门（<b>无数仁人志士前赴后继、探求救国救民的道路</b>）；有位先生带人撬开了城门上的大闸（<b>孙中山先生领导辛亥革命，推翻君主专制制度</b>）；闸一开，光透进来，人才敢往外走（<b>打开中国进步的闸门</b>）；可城墙还是别人的、地契还是旧的（<b>但未能彻底改变旧中国的社会性质</b>）；后来一支新队伍进了城（<b>中国共产党应运而生</b>）；他们捡起先生掉在地上的钥匙（<b>继承革命先驱的遗志</b>）；把城门彻底拆了、把地契重新分（<b>完成其未竟的民族独立与人民解放事业</b>）。<br><br><b>下段·新广场。</b> 如今站在城门旧址的新广场上（<b>站在新的历史方位</b>）；新市长在台上讲话（<b>习近平总书记的坚强领导</b>）；大家先给先生的碑鞠一躬（<b>缅怀振兴中华的宏伟夙愿</b>）；再看碑上刻的旧地图、旧伤疤（<b>汲取近代求索的历史启示</b>）；把散在世界各地的同乡请回来（<b>凝聚海内外中华儿女力量</b>）；一起往前走（<b>勇毅前行</b>）；把旧城扩成新城（<b>奋力推进中国式现代化</b>）；最后圆了先生当年说的那个梦（<b>共圆中华民族伟大复兴的中国梦</b>）。"}, {"id": "17", "subject": "毛中特史纲", "exam": "36", "title": "毛泽东逝世五十周年专题", "words": 212, "tw": "搬三山", "cap": "搬三山（约270字）", "trigger": "**搬三山** —— 搬山 → 挂牌 → 合账 → 木箱 → 续写。", "anchors": [["身份：第一代中央领导集体的核心", "毛泽东同志是党的第一代中央领导集体的核心"], ["第一段事业：新民主主义革命→推翻三座大山→缔造新中国", "历经艰苦卓绝的新民主主义革命，推翻……三座大山，缔造中华人民共和国"], ["第二段事业：社会主义改造→确立社会主义基本制度", "领导完成社会主义改造，确立社会主义基本制度"], ["两个\"根本\"：筑牢根本前提＋留下思想财富与历史经验", "为当代中国发展进步筑牢根本前提，留下宝贵的思想财富与历史经验"], ["三项活的灵魂：实事求是、群众路线、独立自主", "坚守实事求是、群众路线、独立自主"], ["下段五步：回望→传承→坚守→接续→续写", "第2段全句"]], "paras": ["毛泽东同志是党的第一代中央领导集体的核心。他带领人民历经艰苦卓绝的新民主主义革命，推翻压在中国人民头上的三座大山，缔造中华人民共和国；领导完成社会主义改造，确立社会主义基本制度，为当代中国发展进步筑牢根本前提，留下宝贵的思想财富与历史经验。", "回望伟人奋斗征程，在习近平总书记的坚强领导下，我们传承毛泽东思想的立场观点方法，坚守实事求是、群众路线、独立自主，接续推进强国建设、民族复兴，在新时代实践中续写先辈孜孜以求的宏伟事业。"], "paras_html": ["毛泽东同志是党的<span class=\"bk\" data-a=\"第一代中央领导集体\">▢▢▢▢▢▢▢▢▢</span>的核心。他带领人民历经艰苦卓绝的<span class=\"bk\" data-a=\"新民主主义革命\">▢▢▢▢▢▢▢</span>，推翻压在中国人民头上的<span class=\"bk\" data-a=\"三座大山\">▢▢▢▢</span>，缔造中华人民共和国；领导完成<span class=\"bk\" data-a=\"社会主义改造\">▢▢▢▢▢▢</span>，确立社会主义基本制度，为当代中国发展进步筑牢根本前提，留下宝贵的思想财富与历史经验。", "回望伟人奋斗征程，在习近平总书记的坚强领导下，我们传承毛泽东思想的立场观点方法，坚守<span class=\"bk\" data-a=\"实事求是\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"群众路线\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"独立自主\">▢▢▢▢</span>，接续推进强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>，在新时代实践中续写先辈孜孜以求的宏伟事业。"], "story_html": "<b>上段·搬山立宅。</b> 老宅门前压着三座大山，谁家都出不了门（<b>推翻压在中国人民头上的三座大山</b>）；领头的是庄稼人出身的指挥（<b>党的第一代中央领导集体的核心</b>）；他带着全村打了很久很久的硬仗（<b>历经艰苦卓绝的新民主主义革命</b>）；一块块撬石、一车车运土，把三座山搬平（<b>推翻三座大山</b>）；山平了才在新地上立柱挂牌（<b>缔造中华人民共和国</b>）；接着把各家的地、各家的铺子合成一本账（<b>领导完成社会主义改造</b>）；账一合，新规矩就立住（<b>确立社会主义基本制度</b>）；后面的路、房、渠都靠这块地（<b>为当代中国发展进步筑牢根本前提</b>）；老指挥还留下一只木箱：一叠笔记、一把旧尺（<b>留下宝贵的思想财富与历史经验</b>）。<br><br><b>下段·续写。</b> 五十年后村里人打开那只木箱（<b>回望伟人奋斗征程</b>）；新书记站在田头（<b>习近平总书记的坚强领导</b>）；学笔记里的看法、说法、做法（<b>传承毛泽东思想的立场观点方法</b>）；用旧尺量地、不虚报（<b>实事求是</b>）；开村民大会听意见（<b>群众路线</b>）；自家的事自家定（<b>独立自主</b>）；接着把路修到山顶、粮仓修满（<b>接续推进强国建设、民族复兴</b>）；把那箱笔记续写下去（<b>在新时代实践中续写先辈孜孜以求的宏伟事业</b>）。"}, {"id": "18", "subject": "思修", "exam": "37", "title": "英雄与精神专题", "words": 183, "tw": "碑廊", "cap": "修一条碑廊（约280字）", "trigger": "**碑廊** —— 刻碑 → 排成廊 → 硬骨气＋想家 → 新人刻新碑。", "anchors": [["精神源自奋斗实践＋模范人物躬身践行", "伟大精神源自党领导人民的奋斗实践，一代代模范人物躬身践行"], ["构筑精神谱系", "构筑起中华民族精神谱系"], ["品格＋情怀→感召力→共识→支撑", "榜样蕴含崇高品格与家国情怀，具备强大感召力，能够凝聚社会共识，为民族复兴提供持久深厚的精神支撑"], ["下段前四步：读内涵→传精神→吸养分→立追求", "读懂榜样事迹的时代内涵，传承伟大精神，汲取榜样养分。坚定崇高理想追求"], ["下段后四步：转化实干→赓血脉→厚情怀→砥砺奋进→焕发生机", "把精神力量转化为实干行动，赓续红色血脉，厚植家国情怀，立足现实砥砺奋进"]], "paras": ["伟大精神源自党领导人民的奋斗实践，一代代模范人物躬身践行，构筑起中华民族精神谱系。榜样蕴含崇高品格与家国情怀，具备强大感召力，能够凝聚社会共识，为民族复兴提供持久深厚的精神支撑。", "我们要读懂榜样事迹的时代内涵，传承伟大精神，汲取榜样养分。坚定崇高理想追求，把精神力量转化为实干行动，赓续红色血脉，厚植家国情怀，立足现实砥砺奋进，让伟大民族精神在新时代不断焕发蓬勃生机。"], "paras_html": ["伟大精神源自党领导人民的奋斗实践，一代代模范人物躬身践行，构筑起中华<span class=\"bk\" data-a=\"民族精神\">▢▢▢▢</span>谱系。榜样蕴含<span class=\"bk\" data-a=\"崇高品格\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"家国情怀\">▢▢▢▢</span>，具备强大<span class=\"bk\" data-a=\"感召力\">▢▢▢</span>，能够凝聚<span class=\"bk\" data-a=\"社会共识\">▢▢▢▢</span>，为<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>提供持久深厚的<span class=\"bk\" data-a=\"精神支撑\">▢▢▢▢</span>。", "我们要读懂榜样事迹的时代内涵，传承伟大精神，汲取榜样养分。坚定崇高理想追求，把精神力量转化为实干行动，<span class=\"bk\" data-a=\"赓续红色血脉\">▢▢▢▢▢▢</span>，厚植<span class=\"bk\" data-a=\"家国情怀\">▢▢▢▢</span>，立足现实砥砺奋进，让伟大<span class=\"bk\" data-a=\"民族精神\">▢▢▢▢</span>在新时代不断焕发蓬勃生机。"], "story_html": "<b>上段·刻碑。</b> 老村口那条碑廊不是凭空刻的，是一代代人在工地上干出来的（<b>伟大精神源自党领导人民的奋斗实践</b>）；每块碑都是一个人弯着腰干活的样子（<b>一代代模范人物躬身践行</b>）；碑一块接一块排成廊（<b>构筑起中华民族精神谱系</b>）；碑上刻两样东西：硬骨气和想家的心（<b>崇高品格与家国情怀</b>）；路过的人看了就想跟着干（<b>强大感召力</b>）；全村围碑廊议事、拿一个主意（<b>凝聚社会共识</b>）；碑廊立在风里不倒，路就有依靠（<b>持久深厚的精神支撑</b>）。<br><br><b>下段·新人刻碑。</b> 年轻人干八件事：先读碑上的字、看碑后的故事（<b>读懂榜样事迹的时代内涵</b>）→ 接着老工匠的手法做（<b>传承伟大精神</b>）→ 从碑缝取土垫自家地基（<b>汲取榜样养分</b>）→ 立志也刻一块碑（<b>坚定崇高理想追求</b>）→ 把想刻的字先变成今天的活（<b>把精神力量转化为实干行动</b>）→ 到老碑前接火种（<b>赓续红色血脉</b>）→ 把家书带在身上（<b>厚植家国情怀</b>）→ 就在老街上一锤一锤干（<b>立足现实砥砺奋进</b>），碑廊又添了新的一块（<b>焕发蓬勃生机</b>）。"}, {"id": "19", "subject": "思修", "exam": "37", "title": "国家与青年专题", "words": 191, "tw": "搭戏台", "cap": "搭戏台（约280字）", "trigger": "**搭戏台** —— 搭台 → 后生上台 → 班主叮嘱 → 满场灯火。", "anchors": [["机遇：民族复兴带来的时代机遇", "民族复兴为青年带来宝贵时代机遇"], ["平台：国家发展搭建的广阔平台", "国家发展为青年建功立业搭建广阔平台"], ["定位：未来＋希望＋休戚与共", "青年是国家的未来、民族的希望，个人命运与国家民族命运休戚与共"], ["使命：时代呼唤青年主动扛起历史使命", "时代发展呼唤青年主动扛起属于自己的历史使命"], ["下段五步：嘱托→听党话跟党走→融入事业→锤炼本领攻坚→实干奉献→绽放光彩", "第2段全句"]], "paras": ["民族复兴为青年带来宝贵时代机遇，国家发展为青年建功立业搭建广阔平台。青年是国家的未来、民族的希望，个人命运与国家民族命运休戚与共，时代发展呼唤青年主动扛起属于自己的历史使命。", "当代青年要牢记习近平总书记谆谆嘱托，坚定不移听党话、跟党走。自觉将个人理想追求融入强国建设、民族复兴的伟大事业，锤炼过硬本领、勇于攻坚克难，以实干拼搏奉献祖国、服务人民，在新时代火热实践中绽放绚丽的青春光彩。"], "paras_html": ["<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>为青年带来宝贵<span class=\"bk\" data-a=\"时代机遇\">▢▢▢▢</span>，国家发展为青年建功立业搭建<span class=\"bk\" data-a=\"广阔平台\">▢▢▢▢</span>。青年是国家的未来、民族的希望，个人命运与国家民族命运<span class=\"bk\" data-a=\"休戚与共\">▢▢▢▢</span>，时代发展呼唤青年主动扛起属于自己的<span class=\"bk\" data-a=\"历史使命\">▢▢▢▢</span>。", "当代青年要牢记习近平总书记谆谆嘱托，坚定不移<span class=\"bk\" data-a=\"听党话\">▢▢▢</span>、<span class=\"bk\" data-a=\"跟党走\">▢▢▢</span>。自觉将个人理想追求融入强国建设、<span class=\"bk\" data-a=\"民族复兴\">▢▢▢▢</span>的伟大事业，锤炼<span class=\"bk\" data-a=\"过硬本领\">▢▢▢▢</span>、勇于<span class=\"bk\" data-a=\"攻坚克难\">▢▢▢▢</span>，以实干拼搏奉献祖国、服务人民，在新时代火热实践中绽放绚丽的<span class=\"bk\" data-a=\"青春光彩\">▢▢▢▢</span>。"], "story_html": "<b>上段·搭台。</b> 村里要唱大戏，先给年轻人搭台（<b>民族复兴为青年带来宝贵时代机遇</b>）；台板、灯、锣鼓全是村里置办的（<b>国家发展为青年建功立业搭建广阔平台</b>）；上台的是十七八岁的后生（<b>青年是国家的未来、民族的希望</b>）；他们唱得好不好，跟全村的脸面绑在一起（<b>个人命运与国家民族命运休戚与共</b>）；台下有人喊：这台子该你们上（<b>时代发展呼唤青年主动扛起属于自己的历史使命</b>）。<br><br><b>下段·开戏。</b> 开戏前老班主站在台口叮嘱（<b>牢记习近平总书记谆谆嘱托</b>）；班主说往东就往东，一步不落（<b>坚定不移听党话、跟党走</b>）；后生把自家小段子并进整台大戏（<b>将个人理想追求融入强国建设、民族复兴的伟大事业</b>）；练嗓练到哑、练身段练到疼（<b>锤炼过硬本领</b>）；唱不上去的高腔硬顶上去（<b>勇于攻坚克难</b>）；不摆花架子，一句一句真唱、给台下人听（<b>以实干拼搏奉献祖国、服务人民</b>）；最后在满场灯火里唱完（<b>在新时代火热实践中绽放绚丽的青春光彩</b>）。"}, {"id": "20", "subject": "思修", "exam": "37", "title": "道德专题", "words": 178, "tw": "筑堤", "cap": "筑一道堤（约280字）", "trigger": "**筑堤** —— 老泥 → 红土 → 新料 → 三层台阶 → 加高。", "anchors": [["定性：道德＝重要的社会意识形态", "道德是重要的社会意识形态"], ["四个来源动词：植根→赓续→立足→凝聚", "植根于中华优秀传统文化，赓续红色革命道德，立足新时代社会实践，凝聚全社会共同价值追求"], ["两个作用：维系和谐＋推进文明进步", "是维系社会和谐、推进社会文明进步不可或缺的精神力量"], ["三层德：明大德→守公德→严私德", "做到明大德、守公德、严私德"], ["三段传承：传统美德→革命道德→个人品德", "传承中华传统美德，弘扬革命道德，锤炼个人品德"], ["落地：践行核心价值观→崇德向善助推文明建设", "积极践行社会主义核心价值观，以崇德向善的实际行动助推社会文明建设"]], "paras": ["道德是重要的社会意识形态。社会主义道德植根于中华优秀传统文化，赓续红色革命道德，立足新时代社会实践，凝聚全社会共同价值追求，是维系社会和谐、推进社会文明进步不可或缺的精神力量。", "新时代公民应当恪守社会主义道德要求，做到明大德、守公德、严私德。自觉传承中华传统美德，弘扬革命道德，锤炼个人品德，积极践行社会主义核心价值观，以崇德向善的实际行动助推社会文明建设。"], "paras_html": ["道德是重要的<span class=\"bk\" data-a=\"社会意识形态\">▢▢▢▢▢▢</span>。社会主义道德植根于<span class=\"bk\" data-a=\"中华优秀传统文化\">▢▢▢▢▢▢▢▢</span>，赓续<span class=\"bk\" data-a=\"红色革命道德\">▢▢▢▢▢▢</span>，立足新时代社会实践，凝聚全社会共同价值追求，是维系社会和谐、推进社会文明进步不可或缺的精神力量。", "新时代公民应当恪守社会主义道德要求，做到<span class=\"bk\" data-a=\"明大德\">▢▢▢</span>、<span class=\"bk\" data-a=\"守公德\">▢▢▢</span>、<span class=\"bk\" data-a=\"严私德\">▢▢▢</span>。自觉传承中华<span class=\"bk\" data-a=\"传统美德\">▢▢▢▢</span>，弘扬<span class=\"bk\" data-a=\"革命道德\">▢▢▢▢</span>，锤炼<span class=\"bk\" data-a=\"个人品德\">▢▢▢▢</span>，积极践行社会主义<span class=\"bk\" data-a=\"核心价值观\">▢▢▢▢▢</span>，以<span class=\"bk\" data-a=\"崇德向善\">▢▢▢▢</span>的实际行动助推社会文明建设。"], "story_html": "<b>上段·筑堤。</b> 村里要筑一道堤护住田（<b>道德是重要的社会意识形态</b>）；堤脚先扎进老河床的老泥（<b>植根于中华优秀传统文化</b>）；再掺进当年修渠留下的红土（<b>赓续红色革命道德</b>）；夯土用的都是今年新挖的料（<b>立足新时代社会实践</b>）；全村人一起把堤线定下来（<b>凝聚全社会共同价值追求</b>）；堤在，田不荒、村不吵（<b>维系社会和谐</b>），日子也一年年往好里过（<b>推进社会文明进步</b>）——这道堤缺不了（<b>不可或缺的精神力量</b>）。<br><br><b>下段·上堤。</b> 新住户上堤干活走三层台阶：最上一层管全村（<b>明大德</b>）、中间一层管街坊（<b>守公德</b>）、最下一层管自家院子（<b>严私德</b>）——<b>三层台阶</b>；接着把老堤的土法接着用（<b>传承中华传统美德</b>）；红土再夯一遍（<b>弘扬革命道德</b>）；自家院墙也刷干净（<b>锤炼个人品德</b>）；每天按堤上的刻度线做事（<b>积极践行社会主义核心价值观</b>）；最后一锹一锹把堤加高（<b>以崇德向善的实际行动助推社会文明建设</b>）。"}, {"id": "21", "subject": "思修", "exam": "37", "title": "法治专题", "words": 178, "tw": "立公秤", "cap": "立一杆公秤（约280字）", "trigger": "**立公秤** —— 立秤 → 三人掌秤 → 四连 → 擦亮挂村口。", "anchors": [["法治＝治国理政的基本方式", "法治是治国理政的基本方式"], ["全面依法治国＝国家治理的深刻变革", "全面依法治国是国家治理的深刻变革"], ["体现党和人民共同意志", "我国社会主义法治体现党和人民共同意志"], ["三者有机统一：党的领导、人民当家作主、依法治国", "坚持党的领导、人民当家作主、依法治国有机统一"], ["两个根基：公平正义＋长治久安", "是筑牢社会公平正义与国家长治久安的根基"], ["下段五步：尊崇→尊法学法守法用法→内外→权利义务→参与实践→贡献青春", "第2段全句"]], "paras": ["法治是治国理政的基本方式，全面依法治国是国家治理的深刻变革。我国社会主义法治体现党和人民共同意志，坚持党的领导、人民当家作主、依法治国有机统一，是筑牢社会公平正义与国家长治久安的根基。", "新时代公民要尊崇法律权威，做到尊法学法守法用法。将法治观念内化于心、外化于行，依法行使权利、履行义务，积极参与法治实践，为建设一个更加公正、更加美好的法治中国贡献青春力量。"], "paras_html": ["法治是<span class=\"bk\" data-a=\"治国理政\">▢▢▢▢</span>的基本方式，全面<span class=\"bk\" data-a=\"依法治国\">▢▢▢▢</span>是国家治理的深刻变革。我国社会主义法治体现党和人民共同意志，坚持党的领导、人民<span class=\"bk\" data-a=\"当家作主\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"依法治国\">▢▢▢▢</span><span class=\"bk\" data-a=\"有机统一\">▢▢▢▢</span>，是筑牢社会<span class=\"bk\" data-a=\"公平正义\">▢▢▢▢</span>与国家<span class=\"bk\" data-a=\"长治久安\">▢▢▢▢</span>的根基。", "新时代公民要尊崇<span class=\"bk\" data-a=\"法律权威\">▢▢▢▢</span>，做到<span class=\"bk\" data-a=\"尊法学法守法用法\">▢▢▢▢▢▢▢▢</span>。将法治观念<span class=\"bk\" data-a=\"内化于心\">▢▢▢▢</span>、<span class=\"bk\" data-a=\"外化于行\">▢▢▢▢</span>，依法行使权利、履行义务，积极参与法治实践，为建设一个更加公正、更加美好的法治中国贡献青春力量。"], "story_html": "<b>上段·立秤。</b> 村里断纠纷不靠喊，靠一杆公秤（<b>法治是治国理政的基本方式</b>）；这秤一立，分粮分地全改了老办法（<b>全面依法治国是国家治理的深刻变革</b>）；秤砣上刻着全村人的名字（<b>体现党和人民共同意志</b>）；秤杆三处同时受力才准：支书掌秤（<b>党的领导</b>）、村民抬秤（<b>人民当家作主</b>）、秤星定死（<b>依法治国</b>）——<b>三者有机统一</b>；秤准了谁也不吃亏（<b>筑牢社会公平正义</b>），村子也长久安稳（<b>国家长治久安</b>）。<br><br><b>下段·用秤。</b> 新住户用秤守五条：先把秤供在堂屋正中（<b>尊崇法律权威</b>）；学看秤星（<b>尊法学法</b>）；会看还得会守（<b>守法</b>）；会守还得会用（<b>用法</b>）——<b>四连</b>；把刻度记心里、手上也照做（<b>内化于心、外化于行</b>）；自家粮自己称（<b>依法行使权利</b>）；该交的公粮不少（<b>履行义务</b>）；每月来校一次秤（<b>积极参与法治实践</b>）；最后擦亮秤挂到村口（<b>为建设更加公正、更加美好的法治中国贡献青春力量</b>）。"}, {"id": "22", "subject": "思修", "exam": "37", "title": "人生价值专题", "words": 171, "tw": "分井水", "cap": "分井水（约260字）", "trigger": "**分井水** —— 打井 → 量最缺水 → 挑到别人家 → 自己喝上 → 记桶数。", "anchors": [["两分：社会价值＋自我价值", "人生价值分为社会价值与自我价值"], ["根本尺度＝社会价值", "社会价值是评价人生价值的根本尺度"], ["依托社会客观条件", "人生价值的实现依托社会客观条件"], ["投身服务人民、奉献社会→协同发展", "只有投身服务人民、奉献社会的实践，才能实现个人与社会的协同发展"], ["下段五步：树立价值观→奉献追求→立足岗位→融入洪流→实现价值升华→答卷", "第2段全句"]], "paras": ["人生价值分为社会价值与自我价值，社会价值是评价人生价值的根本尺度。人生价值的实现依托社会客观条件，只有投身服务人民、奉献社会的实践，才能实现个人与社会的协同发展。", "新时代青年应当树立正确的人生价值观，以奉献社会为价值追求。立足岗位脚踏实地拼搏奋斗，把个人成长融入时代洪流，在服务人民的实践中更好地实现人生价值、升华人生境界，书写精彩的人生答卷。"], "paras_html": ["人生价值分为<span class=\"bk\" data-a=\"社会价值\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"自我价值\">▢▢▢▢</span>，<span class=\"bk\" data-a=\"社会价值\">▢▢▢▢</span>是评价人生价值的<span class=\"bk\" data-a=\"根本尺度\">▢▢▢▢</span>。人生价值的实现依托社会客观条件，只有投身服务人民、奉献社会的实践，才能实现个人与社会的<span class=\"bk\" data-a=\"协同发展\">▢▢▢▢</span>。", "新时代青年应当树立正确的人生价值观，以奉献社会为价值追求。立足岗位脚踏实地拼搏奋斗，把个人成长融入时代洪流，在服务人民的实践中更好地实现人生价值、升华<span class=\"bk\" data-a=\"人生境界\">▢▢▢▢</span>，书写精彩的人生答卷。"], "story_html": "<b>上段·打井分水。</b> 村里打了一口井，水要分给全村（<b>人生价值分为社会价值与自我价值</b>）；分水头一把尺子量的是\"谁家最缺水\"，不是\"谁家最会说\"（<b>社会价值是评价人生价值的根本尺度</b>）；井得先有水脉、有砖、有绳子（<b>依托社会客观条件</b>）；只有把水一桶桶挑到别人家（<b>投身服务人民、奉献社会的实践</b>）；挑水的人自己也喝上了（<b>实现个人与社会的协同发展</b>）。<br><br><b>下段·接班挑水。</b> 年轻人接手这口井，先把水瓢挂到井边（<b>树立正确的人生价值观</b>）；每次先给别人舀（<b>以奉献社会为价值追求</b>）；每天按时挑、不挑半桶（<b>立足岗位脚踏实地拼搏奋斗</b>）；把自家小桶并进村里的大水车（<b>把个人成长融入时代洪流</b>）；挑水路上顺手修井台（<b>在服务人民的实践中更好地实现人生价值、升华人生境界</b>）；最后在井边记下这一年挑了多少桶（<b>书写精彩的人生答卷</b>）。"}, {"id": "23", "subject": "当代", "exam": "38", "title": "当代(通用模板)", "words": 206, "tw": "雾中救援", "cap": "雾中救援（约280字）", "trigger": "**雾中救援** —— 四条线断 → 发救援图 → 拉架 → 开到雾散。", "anchors": [["两类风险交织；四大赤字", "传统与非传统风险交织，和平、发展、安全、治理四大赤字愈发突出"], ["理念契合宪章宗旨原则＋提供中国方案", "人类命运共同体理念契合联合国宪章宗旨原则，为破解全球困境提供中国方案"], ["维护联合国核心地位", "中国坚定维护联合国核心地位"], ["两个合作领域＋劝和促谈", "积极参与气候、公共卫生领域合作，面对地区热点坚持劝和促谈"], ["捍卫国际公平正义", "以实际行动捍卫国际公平正义"], ["下段六步：反阵营对抗→尊重道路→多边平台→治理变革→共同价值→共克时艰→共同体建设", "第2段全句"]], "paras": ["当今世界传统与非传统风险交织，和平、发展、安全、治理四大赤字愈发突出。人类命运共同体理念契合联合国宪章宗旨原则，为破解全球困境提供中国方案。中国坚定维护联合国核心地位，积极参与气候、公共卫生领域合作，面对地区热点坚持劝和促谈，以实际行动捍卫国际公平正义。", "中国反对阵营对抗，尊重各国自主选择发展道路。依托多边平台汇聚国际合力，推动全球治理体系变革，践行全人类共同价值，携手各国共克时艰，扎实推进人类命运共同体建设。"], "paras_html": ["当今世界<span class=\"bk\" data-a=\"传统与非传统风险\">▢▢▢▢▢▢▢▢</span>交织，和平、发展、安全、治理<span class=\"bk\" data-a=\"四大赤字\">▢▢▢▢</span>愈发突出。<span class=\"bk\" data-a=\"人类命运共同体\">▢▢▢▢▢▢▢</span>理念契合<span class=\"bk\" data-a=\"联合国宪章\">▢▢▢▢▢</span>宗旨原则，为破解全球困境提供<span class=\"bk\" data-a=\"中国方案\">▢▢▢▢</span>。中国坚定维护联合国核心地位，积极参与气候、公共卫生领域合作，面对地区热点坚持<span class=\"bk\" data-a=\"劝和促谈\">▢▢▢▢</span>，以实际行动捍卫<span class=\"bk\" data-a=\"国际公平正义\">▢▢▢▢▢▢</span>。", "中国反对<span class=\"bk\" data-a=\"阵营对抗\">▢▢▢▢</span>，尊重各国自主选择发展道路。依托<span class=\"bk\" data-a=\"多边平台\">▢▢▢▢</span>汇聚国际合力，推动<span class=\"bk\" data-a=\"全球治理体系\">▢▢▢▢▢▢</span>变革，践行<span class=\"bk\" data-a=\"全人类共同价值\">▢▢▢▢▢▢▢</span>，携手各国<span class=\"bk\" data-a=\"共克时艰\">▢▢▢▢</span>，扎实推进<span class=\"bk\" data-a=\"人类命运共同体\">▢▢▢▢▢▢▢</span>建设。"], "story_html": "<b>上段·出海救援。</b> 海上起了大雾，老风险（风浪）和新风险（暗礁、病毒）一起来（<b>传统与非传统风险交织</b>）；四条救生线全断了：淡水（和平）、粮食（发展）、救生圈（安全）、调度（治理）——<b>四大赤字</b>。这时一条船打出旗语：按海上老规矩办（<b>理念契合联合国宪章宗旨原则</b>）；它给所有船发了一份救援图（<b>提供中国方案</b>）；坚持由港务局统一调度（<b>坚定维护联合国核心地位</b>）；主动去灭邻船的油火、送药（<b>积极参与气候、公共卫生领域合作</b>）；两条船撞上，它站中间拉架（<b>面对地区热点坚持劝和促谈</b>）；最后把落水的人都捞上来（<b>以实际行动捍卫国际公平正义</b>）。<br><br><b>下段·不改规矩。</b> 这条船不拉帮结派（<b>反对阵营对抗</b>）；每艘船走哪条航线都随它（<b>尊重各国自主选择发展道路</b>）；用公共频道呼叫所有船（<b>依托多边平台汇聚国际合力</b>）；把旧调度规则改一改（<b>推动全球治理体系变革</b>）；按\"人人有份\"的规矩分水（<b>践行全人类共同价值</b>）；风浪里互相拖一把（<b>携手各国共克时艰</b>）；一直开到雾散（<b>扎实推进人类命运共同体建设</b>）。"}, {"id": "24", "subject": "当代", "exam": "38", "title": "外交(模板)", "words": 190, "tw": "串门", "cap": "串门（约270字）", "trigger": "**串门** —— 请进来 → 登门 → 听最深那家 → 教邻居开店。", "anchors": [["背景：百年变局加速演进＋动荡不安", "当今世界百年变局加速演进，动荡与不安持续蔓延"], ["两种形式：元首外交＋主场多边外事活动", "通过一系列元首外交与主场多边外事活动"], ["三动作：沟通对话→加强协调→倾听南方呼声", "积极开展对外沟通对话，主动加强同世界各国的协调，重视倾听全球南方国家的呼声"], ["务实行动对冲不确定性", "以务实外交行动对冲世界的不确定性"], ["展现负责任大国历史担当", "充分展现负责任大国的历史担当"], ["下段五步：赋能世界→拓展广度深度→尊重主权道路→维护大局稳定→贡献中国力量", "第2段全句"]], "paras": ["当今世界百年变局加速演进，动荡与不安持续蔓延。通过一系列元首外交与主场多边外事活动，中国积极开展对外沟通对话，主动加强同世界各国的协调，重视倾听全球南方国家的呼声，以务实外交行动对冲世界的不确定性，充分展现负责任大国的历史担当。", "中国坚持以自身发展赋能世界，持续拓展多边协作的广度与深度。始终尊重各国主权与发展道路选择，努力维护全球大局总体稳定，为世界和平发展事业不断贡献中国力量。"], "paras_html": ["当今世界<span class=\"bk\" data-a=\"百年变局\">▢▢▢▢</span>加速演进，动荡与不安持续蔓延。通过一系列<span class=\"bk\" data-a=\"元首外交\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"主场多边\">▢▢▢▢</span>外事活动，中国积极开展对外沟通对话，主动加强同世界各国的协调，重视倾听<span class=\"bk\" data-a=\"全球南方\">▢▢▢▢</span>国家的呼声，以务实外交行动对冲世界的<span class=\"bk\" data-a=\"不确定性\">▢▢▢▢</span>，充分展现负责任大国的<span class=\"bk\" data-a=\"历史担当\">▢▢▢▢</span>。", "中国坚持以自身发展<span class=\"bk\" data-a=\"赋能世界\">▢▢▢▢</span>，持续拓展多边协作的广度与深度。始终尊重各国主权与发展道路选择，努力维护全球大局总体稳定，为世界和平发展事业不断贡献中国力量。"], "story_html": "<b>上段·走动。</b> 街上风声鹤唳，谁家都关着门（<b>百年变局加速演进，动荡与不安持续蔓延</b>）；这户人家先请街坊到自家院里坐（<b>主场多边外事活动</b>），再挨家登门（<b>元首外交</b>）；进门先递茶、先听人说（<b>积极开展对外沟通对话</b>）；把几家约到一张桌上对时间（<b>主动加强同世界各国的协调</b>）；巷子最深那几家说话没人听，他专门去听（<b>重视倾听全球南方国家的呼声</b>）；别人怕的事他先去办（<b>以务实外交行动对冲世界的不确定性</b>）；街坊都说这户靠得住（<b>充分展现负责任大国的历史担当</b>）。<br><br><b>下段·带邻居。</b> 他家铺子越开越好，还教邻居一起开（<b>坚持以自身发展赋能世界</b>）；串门越走越远、越聊越深（<b>持续拓展多边协作的广度与深度</b>）；从不问人家屋里怎么摆（<b>始终尊重各国主权与发展道路选择</b>）；街上一乱他就出面稳（<b>努力维护全球大局总体稳定</b>）；有难处他先搭手（<b>为世界和平发展事业不断贡献中国力量</b>）。"}, {"id": "25", "subject": "当代", "exam": "38", "title": "经贸与全球化(模板)", "words": 189, "tw": "开大集", "cap": "重开大集市（约280字）", "trigger": "**开大集** —— 冷市三病 → 全开门 → 改规矩 → 填平南北 → 热市。", "anchors": [["三重症状：复苏乏力＋保护主义＋供应链承压", "全球经济复苏乏力，贸易保护主义暗流涌动，全球产业链供应链承压"], ["高水平对外开放", "中国坚持高水平对外开放"], ["依托多边平台深化合作＋维护多边贸易体制", "依托各类多边平台深化务实合作，维护多边贸易体制"], ["反对排他性阵营→推动世界经济走出困境", "反对排他性阵营，努力推动世界经济走出困境"], ["开放是鲜明标识；制度型开放＋超大规模市场", "开放是当代中国的鲜明标识。中国稳步推进制度型开放，释放超大规模市场优势"], ["弥合南北鸿沟→普惠包容→凝聚共识→注入动力", "着力弥合南北发展鸿沟，推动经济全球化普惠包容发展……注入源源不断的动力"]], "paras": ["当前全球经济复苏乏力，贸易保护主义暗流涌动，全球产业链供应链承压。中国坚持高水平对外开放，依托各类多边平台深化务实合作，维护多边贸易体制，反对排他性阵营，努力推动世界经济走出困境。", "开放是当代中国的鲜明标识。中国稳步推进制度型开放，释放超大规模市场优势，着力弥合南北发展鸿沟，推动经济全球化普惠包容发展。以互利经贸合作凝聚全球共识，破解发展困境，为世界共同繁荣注入源源不断的动力。"], "paras_html": ["当前全球经济复苏乏力，贸易保护主义暗流涌动，全球产业链供应链承压。中国坚持<span class=\"bk\" data-a=\"高水平对外开放\">▢▢▢▢▢▢▢</span>，依托各类<span class=\"bk\" data-a=\"多边平台\">▢▢▢▢</span>深化务实合作，维护<span class=\"bk\" data-a=\"多边贸易体制\">▢▢▢▢▢▢</span>，反对<span class=\"bk\" data-a=\"排他性\">▢▢▢</span>阵营，努力推动世界经济走出困境。", "开放是当代中国的鲜明标识。中国稳步推进<span class=\"bk\" data-a=\"制度型开放\">▢▢▢▢▢</span>，释放<span class=\"bk\" data-a=\"超大规模市场\">▢▢▢▢▢▢</span>优势，着力弥合<span class=\"bk\" data-a=\"南北发展鸿沟\">▢▢▢▢▢▢</span>，推动经济全球化<span class=\"bk\" data-a=\"普惠包容\">▢▢▢▢</span>发展。以互利经贸合作凝聚全球共识，破解发展困境，为世界共同繁荣注入源源不断的动力。"], "story_html": "<b>上段·冷市。</b> 大集市冷清了，摊位空着（<b>全球经济复苏乏力</b>）；有人偷偷在巷口拦客（<b>贸易保护主义暗流涌动</b>）；货车进不来、货卸不下（<b>全球产业链供应链承压</b>）；东头那家把大门全打开（<b>坚持高水平对外开放</b>）；请各街商会到自家场地摆摊（<b>依托各类多边平台深化务实合作</b>）；定一条规矩：谁来都能卖、价签公开（<b>维护多边贸易体制</b>）；谁拉小圈子拦客就罚（<b>反对排他性阵营</b>）；市场一天天热起来（<b>努力推动世界经济走出困境</b>）。<br><br><b>下段·热市。</b> 这家的门一直开着，门口挂\"开市\"牌（<b>开放是当代中国的鲜明标识</b>）；先改自家摆摊规矩（<b>稳步推进制度型开放</b>）；把最大的库房腾出来（<b>释放超大规模市场优势</b>）；北街南街的差价一点点填平（<b>着力弥合南北发展鸿沟</b>）；小摊也能进、大铺也不挤（<b>推动经济全球化普惠包容发展</b>）；买卖双方一起定行价（<b>以互利经贸合作凝聚全球共识</b>）；把冷市做成热市（<b>破解发展困境</b>）；每天都有新货车进场（<b>为世界共同繁荣注入源源不断的动力</b>）。"}, {"id": "26", "subject": "当代", "exam": "38", "title": "中国倡议(模板)", "words": 205, "tw": "修跨国铁路", "cap": "修一条跨国铁路（约270字）", "trigger": "**修跨国铁路** —— 大主意 → 四套方案 → 修火车备预案 → 村会分工。", "anchors": [["背景：百年变局→各类时代难题", "面对世界百年变局带来的各类时代难题"], ["两大倡议：命运共同体＋“一带一路”", "先后提出构建人类命运共同体、共建“一带一路”等重大倡议"], ["四大全球倡议", "相继推出四大全球倡议"], ["从互联互通实践到危机方案", "从互联互通的合作实践到应对全球性危机的方案构想"], ["系统完整的国际公共产品→指明前进方向", "形成一套系统完整的国际公共产品，为人类社会发展指明前进方向"], ["下段：非抽象→共商共建共享→发展中国家→四重诉求→光明前景", "第2段全句"]], "paras": ["面对世界百年变局带来的各类时代难题，中国先后提出构建人类命运共同体、共建“一带一路”等重大倡议，相继推出四大全球倡议。从互联互通的合作实践到应对全球性危机的方案构想，形成一套系统完整的国际公共产品，为人类社会发展指明前进方向。", "这些倡议并非抽象理念，而是扎根现实的行动指南。中国秉持共商共建共享，深化同世界各国特别是广大发展中国家合作，兼顾发展、文明、安全、治理多重诉求，助力各国携手开创人类共同发展的光明前景。"], "paras_html": ["面对世界<span class=\"bk\" data-a=\"百年变局\">▢▢▢▢</span>带来的各类时代难题，中国先后提出构建<span class=\"bk\" data-a=\"人类命运共同体\">▢▢▢▢▢▢▢</span>、共建“<span class=\"bk\" data-a=\"一带一路\">▢▢▢▢</span>”等重大倡议，相继推出四大<span class=\"bk\" data-a=\"全球倡议\">▢▢▢▢</span>。从<span class=\"bk\" data-a=\"互联互通\">▢▢▢▢</span>的合作实践到应对全球性危机的方案构想，形成一套系统完整的国际<span class=\"bk\" data-a=\"公共产品\">▢▢▢▢</span>，为人类社会发展指明前进方向。", "这些倡议并非抽象理念，而是扎根现实的行动指南。中国秉持<span class=\"bk\" data-a=\"共商共建共享\">▢▢▢▢▢▢</span>，深化同世界各国特别是广大发展中国家合作，兼顾发展、文明、安全、治理多重诉求，助力各国携手开创人类共同发展的光明前景。"], "story_html": "<b>上段·出方案。</b> 各村的难题堆成山（<b>各类时代难题</b>）；有人先提一个大主意：把路修通、把院墙打通（<b>构建人类命运共同体、共建“一带一路”</b>）；接着又连出四套方案（<b>相继推出四大全球倡议</b>）；先修通火车（<b>互联互通的合作实践</b>）；再备好救火的预案（<b>应对全球性危机的方案构想</b>）；图册、桥梁、药箱凑成一套家当（<b>系统完整的国际公共产品</b>）；路牌一立，各村都知道往哪走（<b>为人类社会发展指明前进方向</b>）。<br><br><b>下段·开工。</b> 这套方案不是挂在墙上的画（<b>并非抽象理念，而是扎根现实的行动指南</b>）；开工前先开村会、一起出工、一起分利（<b>秉持共商共建共享</b>）；把最穷那几村排在队伍前面（<b>深化同广大发展中国家合作</b>）；修路时同时顾四件事：吃饱（<b>发展</b>）、识字（<b>文明</b>）、不打架（<b>安全</b>）、有规矩（<b>治理</b>）——<b>四重诉求</b>；最后各村一起把路修到地平线（<b>助力各国携手开创人类共同发展的光明前景</b>）。"}, {"id": "27", "subject": "当代", "exam": "38", "title": "数字人工智能全球治理专题", "words": 190, "tw": "大水泵", "cap": "村里第一台大水泵（约270字）", "trigger": "**大水泵** —— 装泵 → 钥匙自留 → 闸口不加锁 → 立规补穷村。", "anchors": [["两大课题：人工智能、数据治理", "人工智能、数据治理成为全球性时代课题"], ["借助世界人工智能大会倡导", "中国借助世界人工智能大会倡导"], ["三个\"应/坚持/推动/反对\"：公共产品→数字主权→有序流动→反对壁垒霸权", "人工智能应成为……公共产品，坚持维护各国数字主权，推动数据安全有序流动，反对技术壁垒与数字霸权"], ["参与规则构建＋提升数字能力＋弥合鸿沟", "主动参与新兴领域规则构建，助力发展中国家提升数字能力，弥合数字鸿沟"], ["两个理念：智能向善、开放合作", "秉持智能向善、开放合作的理念"], ["普惠共享→公正合理的数智治理体系→增添新动力", "推动前沿技术普惠共享，携手各国打造公正合理的数智治理体系，为人类共同发展增添新动力"]], "paras": ["新一轮科技革命浪潮下，人工智能、数据治理成为全球性时代课题。中国借助世界人工智能大会倡导，人工智能应成为造福全人类的公共产品，坚持维护各国数字主权，推动数据安全有序流动，反对技术壁垒与数字霸权。", "中国主动参与新兴领域规则构建，助力发展中国家提升数字能力，弥合数字鸿沟。秉持智能向善、开放合作的理念，推动前沿技术普惠共享，携手各国打造公正合理的数智治理体系，为人类共同发展增添新动力。"], "paras_html": ["新一轮科技革命浪潮下，人工智能、数据治理成为全球性时代课题。中国借助世界人工智能大会倡导，人工智能应成为造福全人类的<span class=\"bk\" data-a=\"公共产品\">▢▢▢▢</span>，坚持维护各国<span class=\"bk\" data-a=\"数字主权\">▢▢▢▢</span>，推动<span class=\"bk\" data-a=\"数据安全\">▢▢▢▢</span>有序流动，反对<span class=\"bk\" data-a=\"技术壁垒\">▢▢▢▢</span>与<span class=\"bk\" data-a=\"数字霸权\">▢▢▢▢</span>。", "中国主动参与新兴领域规则构建，助力发展中国家提升<span class=\"bk\" data-a=\"数字能力\">▢▢▢▢</span>，弥合<span class=\"bk\" data-a=\"数字鸿沟\">▢▢▢▢</span>。秉持<span class=\"bk\" data-a=\"智能向善\">▢▢▢▢</span>、开放合作的理念，推动前沿技术<span class=\"bk\" data-a=\"普惠共享\">▢▢▢▢</span>，携手各国打造公正合理的<span class=\"bk\" data-a=\"数智治理体系\">▢▢▢▢▢▢</span>，为人类共同发展增添新动力。"], "story_html": "<b>上段·装泵。</b> 村里来了一台能自己算水、自己分水的新机器（<b>人工智能、数据治理成为全球性时代课题</b>）；用得好全村都省力（<b>应成为造福全人类的公共产品</b>）；村长在国际集市上喊话（<b>借助世界人工智能大会倡导</b>）；每家水泵的钥匙自己拿（<b>维护各国数字主权</b>）；水怎么流、账怎么记都留痕（<b>推动数据安全有序流动</b>）；谁想在闸口加锁收费，全村不许（<b>反对技术壁垒与数字霸权</b>）。<br><br><b>下段·立规。</b> 机器的规矩村里人一起订（<b>主动参与新兴领域规则构建</b>）；穷村没钱买机器，富村帮着教（<b>助力发展中国家提升数字能力</b>）；先把没机器的村补上（<b>弥合数字鸿沟</b>）；机器只朝好的方向用、谁都能上手（<b>秉持智能向善、开放合作的理念</b>）；新机器新种子先给穷村试（<b>推动前沿技术普惠共享</b>）；全村一台总控、账目公开（<b>打造公正合理的数智治理体系</b>）；机器转起来，村子往前一步（<b>为人类共同发展增添新动力</b>）。"}];
+const NODES = ['D1','D2','D4','D7','D14','D30','冲刺'];
+const IVL   = [1,2,4,7,14,30,null];
+const KEY   = 'zzbs_progress_v3';
+const OLDKEY= 'zzbs_progress_v2';
+const SUBJ  = ['马原','新思想','毛中特史纲','思修','当代'];
+const TIMER0 = 480;
+
+let S = load();
+let cur = null, mode = 'story', storyOpen = false;
+let timer = { left: TIMER0, run: false };
+let cloudTimer = null, cloudMuted = false;
+
+/* ---------------- 基础工具 ---------------- */
+function pad(n){ return String(n).padStart(2,'0'); }
+function dstr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function today(){ return dstr(new Date()); }
+function addDays(s,k){
+  const p = s.split('-');
+  const dt = new Date(+p[0], +p[1]-1, +p[2]);
+  dt.setDate(dt.getDate()+k);
+  return dstr(dt);
+}
+const EPOCH = Date.UTC(2020,0,1);
+function daysOf(s){ if(!s) return 0; const t = Date.UTC(+s.slice(0,4), +s.slice(5,7)-1, +s.slice(8,10)); return Math.round((t-EPOCH)/86400000); }
+function dateOf(n){ if(!n) return ''; const d = new Date(EPOCH + n*86400000); return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); }
+
+/* ---------------- 状态 ---------------- */
+function load(){
+  let d = {};
+  try{ d = JSON.parse(localStorage.getItem(KEY) || '{}'); }catch(e){ d = {}; }
+  if(!d.e){
+    try{
+      const o = JSON.parse(localStorage.getItem(OLDKEY) || '{}');
+      if(o.e) d = { e:o.e, f:o.f, onlyUn:o.onlyUn, cur:o.cur };
+    }catch(e){}
+  }
+  return {
+    e: d.e || {}, f: d.f || 'all', onlyUn: !!d.onlyUn, onlyDone: !!d.onlyDone, dueOnly: !!d.dueOnly,
+    cur: d.cur || null, start: d.start || '', day: d.day || {},
+    cloud: d.cloud || { url:'', token:'' }, fold: d.fold === undefined ? true : !!d.fold,
+    lastSync: d.lastSync || '', q: ''
+  };
+}
+function save(sync){
+  S.cur = cur;
+  const o = { e:S.e, f:S.f, onlyUn:S.onlyUn, onlyDone:S.onlyDone, dueOnly:S.dueOnly, cur:S.cur,
+    start:S.start, day:S.day, cloud:S.cloud, fold:S.fold, lastSync:S.lastSync };
+  try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){}
+  if(sync) queueCloud();
+}
+function rec(id){
+  if(!S.e[id]) S.e[id] = { n:[0,0,0,0,0,0,0], first:'' };
+  return S.e[id];
+}
+function isDone(id){ return rec(id).n.every(v=>v); }
+function started(id){ const r = rec(id); return !!r.first || r.n.some(v=>v); }
+function markDay(){ S.day[today()] = 1; }
+function streak(){
+  const d = new Date();
+  let n = 0;
+  if(!S.day[dstr(d)]) d.setDate(d.getDate()-1);
+  while(S.day[dstr(d)] && n < 5000){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+
+/* ---------------- 复习到期 ---------------- */
+function dueInfo(id){
+  const r = rec(id);
+  const out = [];
+  if(!r.first) return { has:false, due:false, late:false, list:[] };
+  const t = today();
+  for(let i=0;i<6;i++){
+    if(!r.n[i] && IVL[i] != null){
+      const d = addDays(r.first, IVL[i]);
+      if(d <= t) out.push({ i, d });
+    }
+  }
+  return { has:true, due: out.length>0, list: out, late: out.some(o=>o.d < t) };
+}
+function dueList(){ return DATA.filter(e=>dueInfo(e.id).due); }
+function newList(){ return DATA.filter(e=>!started(e.id)); }
+
+/* ---------------- 首页 ---------------- */
+function visible(){
+  const q = (S.q||'').trim().toLowerCase();
+  return DATA.filter(e=>{
+    if(S.f!=='all' && e.subject!==S.f) return false;
+    if(S.onlyUn && isDone(e.id)) return false;
+    if(S.onlyDone && !isDone(e.id)) return false;
+    if(S.dueOnly && !dueInfo(e.id).due) return false;
+    if(q){
+      const hay = (e.id+' '+e.subject+' '+e.exam+' '+e.title+' '+e.tw+' '+(e.trigger||'')+' '+
+        e.anchors.map(a=>a[0]+' '+a[1]).join(' ')).toLowerCase();
+      if(hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+}
+function render(){
+  const g = document.getElementById('grid');
+  const list = visible();
+  g.innerHTML = list.map(e=>{
+    const r = rec(e.id), di = dueInfo(e.id);
+    const nodes = NODES.map((n,i)=>{
+      const on = r.n[i] ? ' on' : '';
+      const due = (!r.n[i] && di.has && IVL[i]!=null && addDays(r.first,IVL[i]) <= today()) ? ' due' : '';
+      return `<button class="nd${on}${due}" data-id="${e.id}" data-i="${i}" title="篇${e.id} · 第${i+1}节点 ${n}">${n}</button>`;
+    }).join('');
+    const chain = e.anchors.slice(0,3).map(a=>a[0]).join(' · ');
+    return `<article class="card${isDone(e.id)?' done':''}${di.due?' duec':''}" data-id="${e.id}">
+      <div class="ctop"><span class="no">${e.id}</span><span class="tag">${e.subject} ${e.exam}题</span>
+        <span class="tag">${e.words}字</span>${di.due?'<span class="tag due">到期</span>':''}</div>
+      <h3>${e.tw || e.title}</h3>
+      <p class="sub">${e.title}</p>
+      <div class="afr">${chain}</div>
+      <div class="nodes">${nodes}</div>
+    </article>`;
+  }).join('') || `<div class="empty">${S.q?'没有匹配「'+S.q+'」的篇目':'这个筛选下没有篇目'}</div>`;
+
+  const done = DATA.filter(e=>isDone(e.id)).length;
+  document.getElementById('pfill').style.width = (done/DATA.length*100)+'%';
+  document.getElementById('pnum').textContent = done+'/'+DATA.length;
+
+  const cnt = { all: DATA.length };
+  DATA.forEach(e=>cnt[e.subject] = (cnt[e.subject]||0)+1);
+  document.getElementById('cAll').textContent = cnt.all;
+  SUBJ.forEach((s,i)=>document.getElementById('c'+(i+1)).textContent = cnt[s]||0);
+  document.getElementById('onlyUn').classList.toggle('on', S.onlyUn);
+  document.getElementById('onlyDone').classList.toggle('on', S.onlyDone);
+  document.getElementById('dueOnly').classList.toggle('on', S.dueOnly);
+  document.querySelectorAll('.chip[data-f]').forEach(b=>b.classList.toggle('on', b.dataset.f === S.f));
+
+  renderDash();
+}
+function renderDash(){
+  const due = dueList(), nl = newList();
+  const done = DATA.filter(e=>isDone(e.id)).length;
+  const st = streak();
+  const stNew = DATA.filter(e=>rec(e.id).first === today()).length;
+
+  const vDue = document.getElementById('vDue');
+  vDue.innerHTML = due.length + '<small>篇</small>';
+  document.getElementById('tDue').classList.toggle('zero', due.length===0);
+  document.getElementById('tDue').classList.toggle('ok', due.length===0);
+  document.getElementById('sDue').textContent = due.length ? ('第一篇：篇'+due[0].id+' '+due[0].tw) : '没有到期项目';
+
+  document.getElementById('vNew').innerHTML = Math.min(stNew,2) + '<small>/2 篇</small>';
+  document.getElementById('sNew').textContent = stNew >= 2 ? '今日配额已完成'
+    : (nl.length ? ('建议：篇'+nl[0].id + (nl[1] ? '、篇'+nl[1].id : '')) : '27 篇都已开始');
+
+  document.getElementById('vDone').innerHTML = done + '<small>/'+DATA.length+'</small>';
+  document.getElementById('tDone').classList.toggle('ok', done>0);
+
+  document.getElementById('vStreak').innerHTML = st + '<small>天</small>';
+  document.getElementById('tStreak').classList.toggle('ok', st>0);
+}
+
+/* ---------------- 抽屉 ---------------- */
+function open(id, m){
+  const prev = cur;
+  cur = id; if(m) mode = m;
+  if(prev !== id){ storyOpen = false; timer.left = TIMER0; timer.run = false; }
+  const e = DATA.find(x=>x.id===id); if(!e) return;
+  const r = rec(id);
+  document.getElementById('dTitle').textContent = `篇${e.id}　${e.title}`;
+  document.getElementById('dMeta').textContent = `${e.subject} · ${e.exam}题 · 原文 ${e.words} 字 · 触发词「${e.tw}」`;
+  document.getElementById('firstDate').value = r.first || '';
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.toggle('on', b.dataset.m === mode));
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('mask').classList.add('on');
+  drawBody(); makePrint(); save(false); render();
+}
+function close(){
+  document.getElementById('drawer').classList.remove('on');
+  document.getElementById('mask').classList.remove('on');
+  cur = null; save(false); render();
+}
+function toolsHTML(){
+  return `<div class="tools">
+    <button class="sbtn" id="tStart">${timer.run ? '计时中' : '开始 8:00 默写'}</button>
+    <button class="sbtn" id="tPause">${timer.run ? '暂停' : (timer.left < TIMER0 ? '继续' : '暂停')}</button>
+    <button class="sbtn" id="tReset2">重置</button>
+    <span class="tm${timer.left < 60 ? ' warn' : ''}" id="tmDisp">${fmt(timer.left)}</span>
+    <label class="sw"><input type="checkbox" id="foldChk" ${S.fold?'checked':''}> 先抓手后故事</label>
+  </div>`;
+}
+function fmt(s){ return pad(Math.floor(s/60)) + ':' + pad(s%60); }
+function drawBody(){
+  const e = DATA.find(x=>x.id === cur); if(!e) return;
+  const b = document.getElementById('dBody');
+  const anchors = `<div class="sec-h">骨架抓手（按原文顺序）</div>
+    <div class="chain">${e.anchors.map((a,i)=>`<b>${i+1}. ${a[0]}</b>`).join('<span class="ar">→</span>')}</div>
+    <table class="map">${e.anchors.map(a=>`<tr><td>${a[0]}</td><td>${a[1]}</td></tr>`).join('')}</table>`;
+  const hook = `<div class="hookbox"><div class="t">回 忆 触 发 词</div><div class="w">${e.tw}</div>
+    <div class="d">${e.trigger.replace(/\*\*/g,'').replace(e.tw,'').replace(/^——?\s*/,'')}</div></div>`;
+
+  if(mode === 'story'){
+    const folded = S.fold && !storyOpen;
+    b.innerHTML = toolsHTML() + anchors +
+      `<div class="sec-h">流程故事${e.cap?'：'+e.cap:''}</div>` +
+      (folded
+        ? `<div class="foldbox"><button class="sbtn pri" id="unfold">展开流程故事</button>
+           <div class="mut">先照上面的抓手顺序复述一遍，再展开核对</div></div>`
+        : `<div class="story">${e.story_html}</div>` + hook);
+  }else if(mode === 'text'){
+    b.innerHTML = toolsHTML() + `<div class="sec-h">原文（一字不改）</div>` +
+      e.paras.map(p=>`<p class="orig serif">${p.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</p>`).join('') + anchors;
+  }else{
+    b.innerHTML = toolsHTML() + `<div class="stbar">
+        <button class="sbtn pri" id="showAll">全部显示</button>
+        <button class="sbtn" id="hideAll">重新遮挡</button>
+        <span class="mut">点 ▢ 逐个显形；▢ 的个数＝字数</span>
+      </div>
+      <div class="sec-h">填空自测</div>` +
+      e.paras_html.map(p=>`<p class="orig serif">${p}</p>`).join('') +
+      `<div class="sec-h">抓手提示</div><div class="chain">${e.anchors.map((a,i)=>`<b>${i+1}. ${a[0]}</b>`).join('<span class="ar">→</span>')}</div>`;
+    document.getElementById('showAll').onclick = ()=>b.querySelectorAll('.bk').forEach(s=>reveal(s,true));
+    document.getElementById('hideAll').onclick = ()=>b.querySelectorAll('.bk').forEach(s=>reveal(s,false));
+  }
+}
+function reveal(sp, on){
+  if(on){ sp.textContent = sp.dataset.a; sp.classList.add('on'); }
+  else { sp.textContent = '▢'.repeat(sp.dataset.a.length); sp.classList.remove('on'); }
+}
+
+/* ---------------- 默写倒计时 ---------------- */
+function paintTimer(){
+  const el = document.getElementById('tmDisp');
+  if(!el) return;
+  el.textContent = fmt(timer.left);
+  el.classList.toggle('warn', timer.left < 60);
+  const st = document.getElementById('tStart'), pa = document.getElementById('tPause');
+  if(st) st.textContent = timer.run ? '计时中' : '开始 8:00 默写';
+  if(pa) pa.textContent = timer.run ? '暂停' : (timer.left < TIMER0 ? '继续' : '暂停');
+}
+function onTimeUp(){
+  toast('8 分钟到：停笔，进入核对');
+  beep();
+}
+setInterval(()=>{
+  if(!timer.run) return;
+  timer.left--;
+  if(timer.left <= 0){ timer.left = 0; timer.run = false; paintTimer(); onTimeUp(); return; }
+  paintTimer();
+}, 1000);
+function beep(){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    const ac = new AC();
+    [0, 0.22, 0.44].forEach(t=>{
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+      g.gain.setValueAtTime(0.0001, ac.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.18, ac.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.18);
+      o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.2);
+    });
+    setTimeout(()=>{ try{ ac.close(); }catch(e){} }, 900);
+  }catch(e){}
+}
+
+/* ---------------- 进度码 ---------------- */
+function b64e(bytes){
+  let s = '';
+  for(let i=0;i<bytes.length;i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64d(txt){
+  let s = txt.replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length % 4) s += '=';
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function packCode(){
+  const bytes = [1];
+  const sd = daysOf(S.start);
+  bytes.push((sd>>8)&255, sd&255);
+  DATA.forEach(e=>{ const d = daysOf(rec(e.id).first); bytes.push((d>>8)&255, d&255); });
+  const bits = new Uint8Array(24);
+  DATA.forEach((e,k)=>{
+    rec(e.id).n.forEach((v,i)=>{ if(v){ const b = k*7+i; bits[b>>3] |= (1<<(b&7)); } });
+  });
+  for(let i=0;i<24;i++) bytes.push(bits[i]);
+  return 'ZZB1-' + b64e(bytes);
+}
+function unpackCode(txt){
+  let s = (txt||'').trim().replace(/\s+/g,'');
+  if(!s) throw new Error('内容为空');
+  if(!/^ZZB1-/.test(s)) throw new Error('格式不对：应以 ZZB1- 开头');
+  let raw;
+  try{ raw = b64d(s.slice(5)); }catch(e){ throw new Error('解码失败：字符串里有非法字符'); }
+  if(raw.length !== 81) throw new Error('长度不对：应为 81 字节，实际 '+raw.length);
+  if(raw[0] !== 1) throw new Error('版本不支持：v'+raw[0]);
+  const out = { start: dateOf((raw[1]<<8)|raw[2]), e:{} };
+  let p = 3;
+  DATA.forEach(e=>{
+    const d = (raw[p]<<8)|raw[p+1]; p += 2;
+    out.e[e.id] = { first: dateOf(d), n:[0,0,0,0,0,0,0] };
+  });
+  const base = p;
+  for(let k=0;k<DATA.length;k++){
+    for(let i=0;i<7;i++){
+      const b = k*7+i;
+      out.e[DATA[k].id].n[i] = (raw[base+(b>>3)] >> (b&7)) & 1;
+    }
+  }
+  return out;
+}
+function importProgress(parsed, how){
+  if(how === 'merge'){
+    DATA.forEach(e=>{
+      const t = rec(e.id), s = parsed.e[e.id];
+      if(!s) return;
+      t.first = t.first || s.first || '';
+      for(let i=0;i<7;i++) t.n[i] = t.n[i] || s.n[i];
+    });
+    S.start = S.start || parsed.start || '';
+  }else{
+    S.e = {};
+    DATA.forEach(e=>{
+      const s = parsed.e[e.id];
+      S.e[e.id] = { first: s ? (s.first||'') : '', n: s ? s.n.slice() : [0,0,0,0,0,0,0] };
+    });
+    S.start = parsed.start || '';
+  }
+  markDay(); save(true); render();
+  return summarize();
+}
+function summarize(){
+  let nodes = 0, firsts = 0;
+  DATA.forEach(e=>{ const r = rec(e.id); nodes += r.n.filter(v=>v).length; if(r.first) firsts++; });
+  return `已记录：${DATA.length} 篇 · 勾选 ${nodes} 个节点 · 首背日 ${firsts} 篇 · 已掌握 ${DATA.filter(e=>isDone(e.id)).length} 篇`;
+}
+function exportJSON(){
+  return JSON.stringify({
+    app:'zzbs-progress', v:1, exportedAt:new Date().toISOString(),
+    start:S.start, entries:S.e, day:S.day, code:packCode()
+  }, null, 1);
+}
+
+/* ---------------- 二维码（纯 JS，byte 模式，ECC L，版本 1–15） ---------------- */
+const QR = (function(){
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  (function(){ let x=1; for(let i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&0x100) x^=0x11d; } for(let i=255;i<512;i++) EXP[i]=EXP[i-255]; })();
+  function mul(a,b){ return (a===0||b===0) ? 0 : EXP[LOG[a]+LOG[b]]; }
+  const TOTAL = [-1,26,44,70,100,134,172,196,242,292,346,404,466,532,581,655];
+  const ECL   = [-1,7,10,15,20,26,18,20,24,30,18,20,24,26,30,22];
+  const BLK   = [-1,1,1,1,1,1,2,2,2,2,4,4,4,4,4,6];
+  const ALIGN = [null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70]];
+
+  function rsDiv(degree){
+    const r = new Array(degree).fill(0); r[degree-1] = 1; let root = 1;
+    for(let i=0;i<degree;i++){
+      for(let j=0;j<degree;j++){ r[j] = mul(r[j], root); if(j+1 < degree) r[j] ^= r[j+1]; }
+      root = mul(root, 2);
+    }
+    return r;
+  }
+  function rsRem(data, div){
+    const res = new Array(div.length).fill(0);
+    for(const b of data){
+      const factor = b ^ res.shift();
+      res.push(0);
+      for(let i=0;i<div.length;i++) res[i] ^= mul(div[i], factor);
+    }
+    return res;
+  }
+  function maskFn(m, x, y){
+    switch(m){
+      case 0: return (x+y)%2 === 0;
+      case 1: return y%2 === 0;
+      case 2: return x%3 === 0;
+      case 3: return (x+y)%3 === 0;
+      case 4: return (Math.floor(y/2)+Math.floor(x/3))%2 === 0;
+      case 5: return ((x*y)%2 + (x*y)%3) === 0;
+      case 6: return (((x*y)%2 + (x*y)%3)%2) === 0;
+      default:return (((x+y)%2 + (x*y)%3)%2) === 0;
+    }
+  }
+  function penalty(mod, size){
+    let p = 0;
+    // 行/列连续同色
+    for(let y=0;y<size;y++){
+      let run = 1;
+      for(let x=1;x<=size;x++){
+        const same = x < size && mod[y][x] === mod[y][x-1];
+        if(same){ run++; }
+        else { if(run >= 5) p += 3 + (run - 5); run = 1; }
+      }
+    }
+    for(let x=0;x<size;x++){
+      let run = 1;
+      for(let y=1;y<=size;y++){
+        const same = y < size && mod[y][x] === mod[y-1][x];
+        if(same){ run++; }
+        else { if(run >= 5) p += 3 + (run - 5); run = 1; }
+      }
+    }
+    // 2x2 同色块
+    for(let y=0;y<size-1;y++) for(let x=0;x<size-1;x++){
+      const v = mod[y][x];
+      if(v === mod[y][x+1] && v === mod[y+1][x] && v === mod[y+1][x+1]) p += 3;
+    }
+    // 1:1:3:1:1 与四格空白
+    for(let y=0;y<size;y++) for(let x=0;x<size-6;x++){
+      if(mod[y][x] && !mod[y][x+1] && mod[y][x+2] && mod[y][x+3] && mod[y][x+4] && !mod[y][x+5] && mod[y][x+6]){
+        const left = x>=4 && !mod[y][x-1] && !mod[y][x-2] && !mod[y][x-3] && !mod[y][x-4];
+        const right = x+10 < size && !mod[y][x+7] && !mod[y][x+8] && !mod[y][x+9] && !mod[y][x+10];
+        if(left || right) p += 40;
+      }
+    }
+    for(let x=0;x<size;x++) for(let y=0;y<size-6;y++){
+      if(mod[y][x] && !mod[y+1][x] && mod[y+2][x] && mod[y+3][x] && mod[y+4][x] && !mod[y+5][x] && mod[y+6][x]){
+        const up = y>=4 && !mod[y-1][x] && !mod[y-2][x] && !mod[y-3][x] && !mod[y-4][x];
+        const down = y+10 < size && !mod[y+7][x] && !mod[y+8][x] && !mod[y+9][x] && !mod[y+10][x];
+        if(up || down) p += 40;
+      }
+    }
+    // 黑白比例
+    let dark = 0;
+    for(let y=0;y<size;y++) for(let x=0;x<size;x++) dark += mod[y][x];
+    const pct = dark*100/(size*size);
+    p += Math.floor(Math.abs(pct-50)/5)*10;
+    return p;
+  }
+
+  function encode(text){
+    for(let i=0;i<text.length;i++){ if(text.charCodeAt(i) > 255) throw new Error('只支持 ASCII'); }
+    let v = 0;
+    for(let t=1;t<=15;t++){
+      const dataCw = TOTAL[t] - ECL[t]*BLK[t];
+      const cap = Math.floor((dataCw*8 - 4 - (t<10?8:16))/8);
+      if(text.length <= cap){ v = t; break; }
+    }
+    if(!v) throw new Error('内容过长，无法生成二维码');
+    const dataCw = TOTAL[v] - ECL[v]*BLK[v];
+    const bits = [];
+    const put = (val,len)=>{ for(let i=len-1;i>=0;i--) bits.push((val>>i)&1); };
+    put(4,4); put(text.length, v<10?8:16);
+    for(let i=0;i<text.length;i++) put(text.charCodeAt(i), 8);
+    const need = dataCw*8;
+    for(let i=0;i<4 && bits.length<need;i++) bits.push(0);
+    while(bits.length % 8) bits.push(0);
+    let padByte = 0;
+    while(bits.length < need){ put(padByte++ % 2 === 0 ? 0xEC : 0x11, 8); }
+
+    const words = [];
+    for(let i=0;i<dataCw;i++){
+      let b = 0; for(let j=0;j<8;j++) b = (b<<1) | bits[i*8+j];
+      words.push(b);
+    }
+    const blocks = BLK[v], ecLen = ECL[v];
+    const shortLen = Math.floor(dataCw / blocks);
+    const numShort = blocks - dataCw % blocks;
+    const div = rsDiv(ecLen);
+    const dataBlocks = [], ecBlocks = [];
+    let ptr = 0;
+    for(let i=0;i<blocks;i++){
+      const len = shortLen + (i < numShort ? 0 : 1);
+      const d = words.slice(ptr, ptr+len); ptr += len;
+      dataBlocks.push(d); ecBlocks.push(rsRem(d, div));
+    }
+    const out = [];
+    for(let i=0;i<=shortLen;i++) for(let b=0;b<blocks;b++) if(i < dataBlocks[b].length) out.push(dataBlocks[b][i]);
+    for(let i=0;i<ecLen;i++) for(let b=0;b<blocks;b++) out.push(ecBlocks[b][i]);
+
+    const size = v*4 + 17;
+    const base = Array.from({length:size},()=>new Array(size).fill(0));
+    const fn = Array.from({length:size},()=>new Array(size).fill(false));
+    const setF = (x,y,val)=>{ if(x<0||y<0||x>=size||y>=size) return; base[y][x] = val?1:0; fn[y][x] = true; };
+
+    for(let i=0;i<size;i++){ setF(6,i,i%2===0); setF(i,6,i%2===0); }
+    const finder = (cx,cy)=>{
+      for(let dy=-4;dy<=4;dy++) for(let dx=-4;dx<=4;dx++){
+        const d = Math.max(Math.abs(dx),Math.abs(dy));
+        setF(cx+dx, cy+dy, d!==2 && d!==4);
+      }
+    };
+    finder(3,3); finder(size-4,3); finder(3,size-4);
+    const ap = ALIGN[v];
+    for(let i=0;i<ap.length;i++) for(let j=0;j<ap.length;j++){
+      const x = ap[i], y = ap[j];
+      if((x===6&&y===6) || (x===6&&y===size-7) || (x===size-7&&y===6)) continue;
+      for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){
+        setF(x+dx, y+dy, Math.max(Math.abs(dx),Math.abs(dy)) !== 1);
+      }
+    }
+    setF(8, size-8, 1);
+    function drawFormat(bits){
+      const gb = i => (bits>>i)&1;
+      for(let i=0;i<=5;i++) setF(8,i,gb(i));
+      setF(8,7,gb(6)); setF(8,8,gb(7)); setF(7,8,gb(8));
+      for(let i=9;i<15;i++) setF(14-i,8,gb(i));
+      for(let i=0;i<8;i++) setF(size-1-i,8,gb(i));
+      for(let i=8;i<15;i++) setF(8,size-15+i,gb(i));
+      setF(8,size-8,1);
+    }
+    drawFormat(0);
+    if(v >= 7){
+      let rem = v;
+      for(let i=0;i<12;i++) rem = (rem<<1) ^ (((rem>>>11)&1) * 0x1F25);
+      const vb = (v<<12) | rem;
+      for(let i=0;i<18;i++){
+        const bit = (vb>>i)&1, a = size-11+(i%3), b = Math.floor(i/3);
+        setF(a,b,bit); setF(b,a,bit);
+      }
+    }
+
+    let idx = 0;
+    for(let right=size-1; right>=1; right-=2){
+      if(right === 6) right = 5;
+      for(let vert=0; vert<size; vert++){
+        for(let j=0;j<2;j++){
+          const x = right-j;
+          const upward = ((right+1) & 2) === 0;
+          const y = upward ? size-1-vert : vert;
+          if(!fn[y][x]){
+            let bit = 0;
+            if(idx < out.length*8) bit = (out[idx>>3] >> (7-(idx&7))) & 1;
+            base[y][x] = bit; idx++;
+          }
+        }
+      }
+    }
+
+    let best = null, bestScore = Infinity, bestMask = 0;
+    for(let m=0;m<8;m++){
+      const grid = base.map(r=>r.slice());
+      for(let y=0;y<size;y++) for(let x=0;x<size;x++) if(!fn[y][x] && maskFn(m,x,y)) grid[y][x] ^= 1;
+      // 写格式位（ECC L → 01）
+      const d = (1<<3) | m;
+      let rem = d;
+      for(let i=0;i<10;i++) rem = (rem<<1) ^ (((rem>>>9)&1) * 0x537);
+      const fbits = ((d<<10)|rem) ^ 0x5412;
+      const gb = i => (fbits>>i)&1;
+      const setG = (x,y,v)=>{ grid[y][x] = v?1:0; };
+      for(let i=0;i<=5;i++) setG(8,i,gb(i));
+      setG(8,7,gb(6)); setG(8,8,gb(7)); setG(7,8,gb(8));
+      for(let i=9;i<15;i++) setG(14-i,8,gb(i));
+      for(let i=0;i<8;i++) setG(size-1-i,8,gb(i));
+      for(let i=8;i<15;i++) setG(8,size-15+i,gb(i));
+      setG(8,size-8,1);
+      const sc = penalty(grid, size);
+      if(sc < bestScore){ bestScore = sc; best = grid; bestMask = m; }
+    }
+    return { matrix: best, version: v, mask: bestMask };
+  }
+  return { encode };
+})();
+function drawQR(text){
+  const cv = document.getElementById('qr');
+  const r = QR.encode(text);
+  const m = r.matrix, n = m.length, quiet = 4, total = n + quiet*2;
+  const cell = Math.min(8, Math.max(2, Math.floor(280/total)));
+  const px = cell*total;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = px*dpr; cv.height = px*dpr;
+  cv.style.width = px+'px'; cv.style.height = px+'px';
+  const g = cv.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0,0,cv.width,cv.height);
+  g.fillStyle = '#1e232b';
+  for(let y=0;y<n;y++) for(let x=0;x<n;x++){
+    if(m[y][x]) g.fillRect((x+quiet)*cell*dpr, (y+quiet)*cell*dpr, cell*dpr, cell*dpr);
+  }
+}
+
+/* ---------------- 云同步（可选） ---------------- */
+function queueCloud(){
+  if(cloudMuted || !S.cloud || !S.cloud.url) return;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(()=>cloudPut(true), 4000);
+}
+async function cloudPut(silent){
+  if(!S.cloud || !S.cloud.url) return false;
+  try{
+    const resp = await fetch(S.cloud.url + '?key=zzbs', {
+      method:'PUT',
+      headers:{ 'X-Auth': S.cloud.token || '', 'Content-Type':'application/json' },
+      body: JSON.stringify({ v:1, code: packCode(), at: new Date().toISOString() })
+    });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    cloudMuted = true;
+    S.lastSync = new Date().toLocaleString('zh-CN', { hour12:false });
+    save(false);
+    cloudMuted = false;
+    setCloudMsg('已上传 · ' + S.lastSync);
+    if(!silent) toast('已上传到云端');
+    return true;
+  }catch(e){
+    setCloudMsg('上传失败：' + (e.message||e) + '（检查地址/口令/CORS）');
+    if(!silent) toast('上传失败');
+    return false;
+  }
+}
+async function cloudPull(){
+  if(!S.cloud || !S.cloud.url){ toast('请先填写同步服务地址'); return; }
+  setCloudMsg('拉取中…');
+  try{
+    const resp = await fetch(S.cloud.url + '?key=zzbs', { headers:{ 'X-Auth': S.cloud.token || '' } });
+    if(resp.status === 404){ setCloudMsg('云端暂无数据（先上传一次）'); return; }
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const j = await resp.json();
+    const code = j.code || (j.data && j.data.code);
+    if(!code) throw new Error('返回里没有 code 字段');
+    const parsed = unpackCode(code);
+    if(!confirm('拉取会覆盖本机进度（勾选与首背日），确定继续？')){ setCloudMsg('已取消拉取'); return; }
+    const msg = importProgress(parsed, 'cover');
+    setCloudMsg('已拉取 · ' + new Date().toLocaleString('zh-CN', { hour12:false }));
+    toast('云端进度已覆盖本机：' + msg);
+  }catch(e){
+    setCloudMsg('拉取失败：' + (e.message||e));
+    toast('拉取失败');
+  }
+}
+function setCloudMsg(t){
+  const el = document.getElementById('cloudMsg');
+  if(el) el.textContent = t;
+}
+
+/* ---------------- 设置面板 ---------------- */
+function openPanel(){
+  document.getElementById('smask').classList.add('on');
+  document.getElementById('panel').classList.add('on');
+  document.getElementById('startDate').value = S.start || '';
+  document.getElementById('cloudUrl').value = (S.cloud && S.cloud.url) || '';
+  document.getElementById('cloudToken').value = (S.cloud && S.cloud.token) || '';
+  document.getElementById('streakNote').textContent =
+    `当前连续打卡 ${streak()} 天。规则：当天有任何勾选/首背日/导入操作即记 1 天；断一天，从下一天重新起算。`;
+  setCloudMsg(S.cloud && S.cloud.url ? ('云同步已启用' + (S.lastSync ? ' · 上次 ' + S.lastSync : '')) : '未启用（纯本地）');
+}
+function closePanel(){
+  document.getElementById('smask').classList.remove('on');
+  document.getElementById('panel').classList.remove('on');
+}
+
+/* ---------------- 打印 ---------------- */
+function makePrint(){
+  const pa = document.getElementById('printArea');
+  const e = DATA.find(x=>x.id === cur);
+  if(!e){ pa.innerHTML = '<p>请先在页面中选择一篇，再点「打印本篇」。</p>'; return; }
+  const safe = s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  pa.innerHTML = `<div class="pc"><h1>篇${e.id}　${e.title}</h1>
+    <div class="pm">${e.subject} · ${e.exam}题 · ${e.words}字 · 触发词「${e.tw}」 · 复习节点 D1/D2/D4/D7/D14/D30</div>
+    <div class="plabel">原 文</div>
+    ${e.paras.map(p=>`<p class="serif">${safe(p)}</p>`).join('')}
+    <div class="plabel">流 程 故 事（${e.cap}）</div>
+    <p class="ps">${e.story_html.replace(/<b>/g,'').replace(/<\/b>/g,'')}</p>
+    <div class="plabel">抓 手</div>
+    <p class="ps">${e.anchors.map(a=>a[0]).join(' → ')}</p></div>`;
+}
+
+/* ---------------- 交互 ---------------- */
+function toast(t){
+  const el = document.getElementById('toast');
+  el.textContent = t; el.classList.add('on');
+  clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('on'), 2200);
+}
+function step(k){
+  const list = visible(); if(!list.length) return;
+  let i = list.findIndex(e=>e.id === cur);
+  i = (i<0 ? 0 : i+k+list.length) % list.length;
+  open(list[i].id);
+}
+async function copyText(t){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(t); return true; }
+  }catch(e){}
+  try{
+    const ta = document.getElementById('codeOut');
+    ta.removeAttribute('readonly'); ta.focus(); ta.select();
+    const ok = document.execCommand('copy');
+    ta.setAttribute('readonly','readonly');
+    return ok;
+  }catch(e){ return false; }
+}
+
+document.addEventListener('click', ev=>{
+  const bk = ev.target.closest('.bk');
+  if(bk){ reveal(bk, !bk.classList.contains('on')); return; }
+  const nd = ev.target.closest('.nd');
+  if(nd){
+    ev.stopPropagation();
+    const r = rec(nd.dataset.id);
+    const i = +nd.dataset.i;
+    r.n[i] = r.n[i] ? 0 : 1;
+    markDay(); save(true); render();
+    if(ev.target.closest('.nd')) paintTimer();
+    return;
+  }
+  const card = ev.target.closest('.card');
+  if(card){ open(card.dataset.id); return; }
+
+  const id = ev.target.id;
+  if(id === 'unfold'){ storyOpen = true; drawBody(); return; }
+  if(id === 'tStart'){
+    if(timer.left === 0) timer.left = TIMER0;
+    timer.run = true; paintTimer(); return;
+  }
+  if(id === 'tPause'){
+    if(!timer.run && timer.left === TIMER0){ toast('先点「开始 8:00 默写」'); return; }
+    timer.run = !timer.run; paintTimer(); return;
+  }
+  if(id === 'tReset2'){ timer.left = TIMER0; timer.run = false; paintTimer(); toast('计时已重置为 8:00'); return; }
+});
+
+document.addEventListener('change', ev=>{
+  if(ev.target.id === 'foldChk'){
+    S.fold = ev.target.checked;
+    storyOpen = !S.fold;
+    save(false);
+    drawBody();
+  }
+});
+
+document.getElementById('mask').onclick = close;
+document.getElementById('closeBtn').onclick = close;
+document.getElementById('prevBtn').onclick = ()=>step(-1);
+document.getElementById('nextBtn').onclick = ()=>step(1);
+document.getElementById('printBtn').onclick = ()=>{ makePrint(); window.print(); };
+document.getElementById('helpBtn').onclick = ()=>{
+  alert('快捷键\n← / → ：切上一篇 / 下一篇\n空格  ：故事 → 原文 → 自测 循环\nEsc   ：关闭抽屉 / 关闭设置\n\n仪表盘：待复习点一下跳到第一篇到期，新背配额点一下跳到第一篇未开始。\n节点：卡片上 D1…D30 点一下打勾，自动存本地。\n默写：抽屉顶部 8:00 倒计时，可暂停/重置。');
+};
+document.getElementById('panelBtn').onclick = openPanel;
+document.getElementById('panelClose').onclick = closePanel;
+document.getElementById('smask').onclick = closePanel;
+
+document.querySelectorAll('.mbtn').forEach(b=>b.onclick = ()=>{ mode = b.dataset.m; open(cur, mode); });
+document.querySelectorAll('.chip[data-f]').forEach(b=>b.onclick = ()=>{ S.f = b.dataset.f; save(false); render(); });
+document.getElementById('onlyUn').onclick = ()=>{ S.onlyUn = !S.onlyUn; if(S.onlyUn) S.onlyDone = false; save(false); render(); };
+document.getElementById('onlyDone').onclick = ()=>{ S.onlyDone = !S.onlyDone; if(S.onlyDone) S.onlyUn = false; save(false); render(); };
+document.getElementById('dueOnly').onclick = ()=>{ S.dueOnly = !S.dueOnly; save(false); render(); };
+
+document.getElementById('q').oninput = ev=>{ S.q = ev.target.value; render(); };
+
+document.getElementById('tDue').onclick = ()=>{
+  const l = dueList();
+  if(l.length) open(l[0].id);
+  else toast('今天没有到期项目（先给篇目填首背日，系统才会排 D1…D30）');
+};
+document.getElementById('tNew').onclick = ()=>{
+  const l = newList();
+  if(l.length) open(l[0].id);
+  else toast('27 篇都已经开始过了');
+};
+document.getElementById('tDone').onclick = ()=>{ S.onlyDone = !S.onlyDone; if(S.onlyDone) S.onlyUn = false; save(false); render(); };
+document.getElementById('tStreak').onclick = ()=>{
+  toast(`连续打卡 ${streak()} 天：每天有勾选/填首背日/导入即记一天，断一天重新起算`);
+};
+
+document.getElementById('firstDate').onchange = ev=>{
+  const r = rec(cur);
+  r.first = ev.target.value;
+  if(r.first) markDay();
+  save(true); render();
+  toast(r.first ? '首背日已存：'+r.first+'（D1 起算已排）' : '已清除首背日');
+};
+
+/* 进度码 */
+document.getElementById('genCode').onclick = ()=>{
+  const code = packCode();
+  document.getElementById('codeOut').value = code;
+  document.getElementById('codeLen').textContent = code.length + ' 字符 · ' + summarize();
+  try{ drawQR(code); }catch(e){ toast('二维码生成失败：'+e.message); }
+};
+document.getElementById('copyCode').onclick = async ()=>{
+  const t = document.getElementById('codeOut').value || packCode();
+  document.getElementById('codeOut').value = t;
+  const ok = await copyText(t);
+  toast(ok ? '进度码已复制' : '复制被浏览器拦截，请手动全选复制');
+};
+document.getElementById('dlJson').onclick = ()=>{
+  const blob = new Blob([exportJSON()], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'progress.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+  toast('已下载 progress.json');
+};
+document.getElementById('fileIn').onchange = ev=>{
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    const txt = String(rd.result||'').trim();
+    try{
+      let parsed;
+      if(txt.startsWith('ZZB1-')) parsed = unpackCode(txt);
+      else{
+        const j = JSON.parse(txt);
+        if(j.code && /^ZZB1-/.test(j.code)) parsed = unpackCode(j.code);
+        else if(j.entries) parsed = { start: j.start||'', e: j.entries };
+        else throw new Error('JSON 里没有 entries/code 字段');
+      }
+      const how = document.querySelector('input[name=imp]:checked').value;
+      if(how === 'cover' && !confirm('导入会覆盖本机进度，确定？')) return;
+      const msg = importProgress(parsed, how);
+      document.getElementById('codeIn').value = parsed ? (txt.startsWith('ZZB1-') ? txt : '') : '';
+      document.getElementById('impMsg').textContent = '导入成功 · ' + msg;
+      toast('已从文件导入');
+    }catch(e){
+      document.getElementById('impMsg').textContent = '导入失败：' + e.message;
+      toast('导入失败：' + e.message);
+    }
+    ev.target.value = '';
+  };
+  rd.readAsText(f, 'utf-8');
+};
+document.getElementById('importBtn').onclick = ()=>{
+  const txt = document.getElementById('codeIn').value.trim();
+  const msgEl = document.getElementById('impMsg');
+  if(!txt){ msgEl.textContent = '请先粘贴进度码'; return; }
+  let parsed;
+  try{
+    if(txt.startsWith('ZZB1-')) parsed = unpackCode(txt);
+    else{
+      const j = JSON.parse(txt);
+      if(j.code) parsed = unpackCode(j.code);
+      else if(j.entries) parsed = { start:j.start||'', e:j.entries };
+      else throw new Error('既不是进度码，也不是 progress.json');
+    }
+  }catch(e){ msgEl.textContent = '导入失败：' + e.message; toast('导入失败'); return; }
+  const how = document.querySelector('input[name=imp]:checked').value;
+  if(how === 'cover' && !confirm('将覆盖本机进度（勾选与首背日），确定？')) return;
+  const msg = importProgress(parsed, how);
+  msgEl.textContent = '导入成功 · ' + msg;
+  toast('导入成功');
+};
+
+/* 云同步 */
+document.getElementById('saveCloud').onclick = ()=>{
+  const url = document.getElementById('cloudUrl').value.trim();
+  S.cloud = { url, token: document.getElementById('cloudToken').value.trim() };
+  save(false);
+  setCloudMsg(url ? '已保存，约 4 秒后自动上传一次' : '未启用（纯本地）');
+  toast(url ? '云同步设置已保存' : '已关闭云同步');
+  if(url) cloudPut(false);
+};
+document.getElementById('cloudPush').onclick = ()=>{
+  const url = document.getElementById('cloudUrl').value.trim();
+  S.cloud = { url, token: document.getElementById('cloudToken').value.trim() };
+  save(false);
+  cloudPut(false);
+};
+document.getElementById('cloudPull').onclick = cloudPull;
+
+/* 重置 */
+document.getElementById('resetBtn').onclick = ()=>{
+  if(!confirm('确定要清空 27 篇的勾选、首背日、打卡记录和云同步设置吗？此操作不可撤销。')) return;
+  if(!confirm('再确认一次：所有进度将丢失，确定重置？')) return;
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(OLDKEY);
+  S = load(); cur = null; mode = 'story'; storyOpen = false;
+  timer.left = TIMER0; timer.run = false;
+  closePanel(); close();
+  document.getElementById('grid') && render();
+  toast('进度已重置');
+};
+
+/* 键盘 */
+document.addEventListener('keydown', ev=>{
+  const tag = (ev.target && ev.target.tagName) || '';
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if(ev.key === 'Escape'){
+    if(document.getElementById('panel').classList.contains('on')){ closePanel(); return; }
+    if(cur) close();
+    return;
+  }
+  if(!cur) return;
+  if(ev.key === 'ArrowLeft'){ ev.preventDefault(); step(-1); }
+  else if(ev.key === 'ArrowRight'){ ev.preventDefault(); step(1); }
+  else if(ev.key === ' '){
+    ev.preventDefault();
+    mode = mode === 'story' ? 'text' : (mode === 'text' ? 'test' : 'story');
+    open(cur, mode);
+  }
+});
+
+/* ---------------- 初始化 ---------------- */
+render();
+if(S.cur && DATA.some(x=>x.id === S.cur)) open(S.cur);
+</script>
+</body>
+</html>
