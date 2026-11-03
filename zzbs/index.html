@@ -442,6 +442,8 @@ function load(){
       if(!s.auto2){ s.on = false; s.auto2 = true; }   /* 新版默认关闭自动同步（旧版默认是开） */
       return s; })(),
     devs: d.devs || {}, dirty: !!d.dirty,
+    /* v2 事件表：节点的显式勾/取消、首背日、备考日都带时间戳，合并时取 at 最新 */
+    ev: d.ev || {}, fev: d.fev || {}, sv: d.sv || null,
     fold: d.fold === undefined ? true : !!d.fold,
     lastSync: d.lastSync || '', q: ''
   };
@@ -451,7 +453,8 @@ function save(sync){
   S.cur = cur;
   if(sync) S.dirty = true;
   const o = { e:S.e, f:S.f, onlyUn:S.onlyUn, onlyDone:S.onlyDone, dueOnly:S.dueOnly, cur:S.cur,
-    start:S.start, startAt:S.startAt, day:S.day, sync:S.sync, devs:S.devs, fold:S.fold, lastSync:S.lastSync, dirty:S.dirty };
+    start:S.start, startAt:S.startAt, day:S.day, sync:S.sync, devs:S.devs, fold:S.fold, lastSync:S.lastSync, dirty:S.dirty,
+    ev:S.ev, fev:S.fev, sv:S.sv };
   try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){}
   if(sync) queueSync();
 }
@@ -462,6 +465,13 @@ function rec(id){
 function isDone(id){ return rec(id).n.every(v=>v); }
 function started(id){ const r = rec(id); return !!r.first || r.n.some(v=>v); }
 function markDay(){ S.day[today()] = 1; }
+/* 云端事件并进来时也记"行动日"：远端设备今天勾的节点，本机连续打卡要跟着变 */
+function markDayAt(ts){
+  const t = +(ts || 0);
+  if(!t) return;
+  const d = new Date(t);
+  S.day[dstr(d)] = 1;
+}
 function streak(){
   const d = new Date();
   let n = 0;
@@ -485,6 +495,17 @@ function dueInfo(id){
   return { has:true, due: out.length>0, list: out, late: out.some(o=>o.d < t) };
 }
 function dueList(){ return DATA.filter(e=>dueInfo(e.id).due); }
+/* 今日待复习 = 某节点"到期日正好是今天"且该节点未勾；按到期日、篇号排序 */
+function dueTodayList(){
+  const t = today();
+  return DATA.map(e=>{
+    const di = dueInfo(e.id);
+    const d = di.list.filter(o=>o.d === t).sort((a,b)=>a.i-b.i)[0];
+    return d ? { e, d: d.d } : null;
+  }).filter(Boolean)
+    .sort((a,b)=> a.d < b.d ? -1 : a.d > b.d ? 1 : a.e.id.localeCompare(b.e.id))
+    .map(x=>x.e);
+}
 function newList(){ return DATA.filter(e=>!started(e.id)); }
 
 /* ---------------- 首页 ---------------- */
@@ -543,7 +564,7 @@ function render(){
   renderDash();
 }
 function renderDash(){
-  const due = dueList(), nl = newList();
+  const due = dueTodayList(), nl = newList();
   const done = DATA.filter(e=>isDone(e.id)).length;
   const st = streak();
   const stNew = DATA.filter(e=>rec(e.id).first === today()).length;
@@ -552,10 +573,12 @@ function renderDash(){
   vDue.innerHTML = due.length + '<small>篇</small>';
   document.getElementById('tDue').classList.toggle('zero', due.length===0);
   document.getElementById('tDue').classList.toggle('ok', due.length===0);
-  document.getElementById('sDue').textContent = due.length ? ('第一篇：篇'+due[0].id+' '+due[0].tw) : '没有到期项目';
+  document.getElementById('sDue').textContent = due.length
+    ? ('第 1 篇：篇' + due[0].id + ' ' + (due[0].tw || due[0].title) + (due.length > 1 ? ' 等 ' + due.length + ' 篇' : ''))
+    : '今天没有到期节点';
 
   document.getElementById('vNew').innerHTML = Math.min(stNew,2) + '<small>/2 篇</small>';
-  document.getElementById('sNew').textContent = stNew >= 2 ? '今日配额已完成'
+  document.getElementById('sNew').textContent = stNew >= 2 ? '2/2（已完成今日配额）'
     : (nl.length ? ('建议：篇'+nl[0].id + (nl[1] ? '、篇'+nl[1].id : '')) : DATA.length + ' 篇都已开始');
 
   document.getElementById('vDone').innerHTML = done + '<small>/'+DATA.length+'</small>';
@@ -775,15 +798,35 @@ function unpackCode(txt){
   if(cs !== chk16(raw.slice(0, nb))) throw new Error('短码校验失败：可能有字符抄错，请重新复制');
   return out;
 }
-/* 云端快照 {e:{id:[首背日,掩码]}} → 本机格式 {e:{id:{first,n:[7]}}} */
+/* 云端快照（v2 事件表 或 旧版 {e:{id:[首背日,掩码]}}）→ 本机格式 {e:{id:{first,n:[7]}}} */
 function fromSnap(r){
   const e = {};
+  const zeros = ()=>[0,0,0,0,0,0,0];
+  if(r && r.nodes){
+    for(const k in r.nodes){
+      const p = k.split('-'), id = p[0], i = +p[1] - 1;
+      e[id] = e[id] || { first:'', n: zeros() };
+      if(r.nodes[k] && r.nodes[k].s && i >= 0 && i < 7) e[id].n[i] = 1;
+    }
+    for(const id in (r.first || {})){ e[id] = e[id] || { first:'', n: zeros() }; e[id].first = (r.first[id] || {}).v || ''; }
+    return { start: (r.start && (typeof r.start === 'object' ? r.start.v : r.start)) || '', e };
+  }
   for(const id in (r && r.e) || {}){
     const s = r.e[id] || [ '', 0 ], mask = s[1] || 0, n = [];
     for(let i=0;i<7;i++) n.push((mask >> i) & 1);
     e[id] = { first: s[0] || '', n };
   }
   return { start: (r && r.start) || '', e };
+}
+/* 导入后重建事件表：把"当前勾选/日期"记成 at=now 的显式事件，下一次同步才能带上这些改动 */
+function rebuildEvents(){
+  S.ev = {}; S.fev = {};
+  const at = Date.now();
+  DATA.forEach(x=>{ const r = rec(x.id);
+    r.n.forEach((v,i)=>{ if(v) evSet(x.id, i, 1, at); });
+    if(r.first) firstSet(x.id, r.first, at);
+  });
+  if(S.start) startSet(S.start, at);
 }
 function importProgress(parsed, how){
   if(how === 'merge'){
@@ -802,6 +845,7 @@ function importProgress(parsed, how){
     });
     S.start = parsed.start || '';
   }
+  rebuildEvents();                 /* 导入得到的状态也要变成事件，才能同步出去 */
   markDay(); save(true); render();
   return summarize();
 }
@@ -1095,84 +1139,183 @@ function syncSummary(){
     ' · 最近 24 小时设备 ' + n + ' 台';
 }
 
-/* 进度快照：只含节点掩码、首背日、备考日、设备心跳，绝不含原文/标题 */
+/* ================= v2 事件模型 =================
+   每个动作记一条带时间戳的事件：节点 {"01-1":{s:0|1,at,dev}}、首背日 {"01":{v,at,dev}}、备考日 {v,at,dev}
+   合并 = 每个键取 at 最新的那条事件（勾与取消同权）→ 取消能真正生效；没有事件的键保持本地原值。
+   两台设备写入相差 < 2 秒视为并发：节点取 s:0（保守），日期取 at 较大的那条。
+   旧格式（只有 mask）只在 mask 为 1 的位置生成 s:1 事件（at=快照时间），mask 为 0 或未提及一律"无事件"。 */
+const CONFLICT_MS = 2000;
+
+function evSet(id, i, s, at, dev){
+  S.ev[id + '-' + (i + 1)] = { s: s ? 1 : 0, at: at || Date.now(), dev: dev || sy().dev || '' };  /* 键为 "篇号-节点序号(1 起)" */
+}
+function firstSet(id, v, at, dev){
+  S.fev[id] = { v: v || '', at: at || Date.now(), dev: dev || sy().dev || '' };
+}
+function startSet(v, at, dev){
+  S.sv = { v: v || '', at: at || Date.now(), dev: dev || sy().dev || '' };
+}
+
+/* 快照只带事件（动作日志），不带整份状态：空快照/缺项快照天然不产生任何效果 */
 function snapState(){
-  const e = {};
-  DATA.forEach(x=>{
-    const r = rec(x.id);
-    let m = 0; r.n.forEach((v,i)=>{ if(v) m |= 1<<i; });
-    e[x.id] = [ r.first || '', m ];
-  });
+  const nodes = {}, first = {};
+  for(const k in S.ev){ const e = S.ev[k]; nodes[k] = { s: e.s ? 1 : 0, at: e.at, dev: e.dev || '' }; }
+  for(const id in S.fev){ const e = S.fev[id]; first[id] = { v: e.v || '', at: e.at, dev: e.dev || '' }; }
   const devs = Object.assign({}, S.devs || {});
   devs[sy().dev] = Date.now();
   S.devs = devs;
-  return { v:1, at:Date.now(), dev:sy().dev, start:S.start || '', startAt:S.startAt || 0, e, devs };
+  return { v:2, dev:sy().dev || '', at:Date.now(), nodes, first,
+    start: S.sv ? { v:S.sv.v || '', at:S.sv.at || 0, dev:S.sv.dev || '' } : null, devs };
 }
-
 function packSnap(snap){ return 'P1:' + JSON.stringify(snap); }
 function unpackSnap(str){
   if(!str) return null;
   if(str.indexOf('P1:') === 0){ try{ return JSON.parse(str.slice(3)); }catch(e){ return null; } }
   return null;
 }
+/* 旧快照 → 事件：mask 为 1 才算"勾过"，为 0 绝不当作取消 */
+function legacyNodes(r){
+  const out = {}, at = +(r.at || 0), dev = (r.dev || '') + '·旧';
+  const e = r.e || {};
+  for(const id in e){
+    const a = e[id] || ['', 0], mask = (a[1] || 0) | 0;
+    for(let i = 0; i < 7; i++) if(mask & (1 << i)) out[id + '-' + (i + 1)] = { s:1, at, dev };
+  }
+  return out;
+}
+function legacyFirst(r){
+  const out = {}, at = +(r.at || 0), dev = (r.dev || '') + '·旧';
+  const e = r.e || {};
+  for(const id in e){ const a = e[id] || ['', 0]; if(a[0]) out[id] = { v:a[0], at, dev }; }
+  return out;
+}
 function nodeCount(){ let n = 0; DATA.forEach(x=>{ n += rec(x.id).n.filter(v=>v).length; }); return n; }
-function nodeIn(r){ if(!r || !r.e) return 0; let n = 0; for(const id in r.e){ n += ((((r.e[id]||['',0])[1])||0).toString(2).match(/1/g)||[]).length; } return n; }
-function cardIn(r){ if(!r || !r.e) return 0; let c = 0; for(const id in r.e){ if((((r.e[id]||['',0])[1])||0) > 0) c++; } return c; }
+function nodeIn(r){
+  if(!r) return 0;
+  if(r.nodes){ let n = 0; for(const k in r.nodes){ if(r.nodes[k] && r.nodes[k].s) n++; } return n; }
+  if(!r.e) return 0;
+  let n = 0; for(const id in r.e){ n += ((((r.e[id] || ['',0])[1]) || 0).toString(2).match(/1/g) || []).length; } return n;
+}
+function cardIn(r){
+  if(!r) return 0;
+  if(r.nodes){ const s = {}; for(const k in r.nodes){ if(r.nodes[k] && r.nodes[k].s) s[k.split('-')[0]] = 1; } return Object.keys(s).length; }
+  if(!r.e) return 0;
+  let c = 0; for(const id in r.e){ if((((r.e[id] || ['',0])[1]) || 0) > 0) c++; } return c;
+}
 function maskText(r){
-  if(!r || !r.e) return '（空）';
+  if(!r) return '（空）';
   const out = [];
-  for(const id in r.e){ const s = r.e[id] || ['',0]; if((s[1]||0) > 0 || s[0]) out.push(id + ':' + (s[1]||0) + (s[0] ? '@' + s[0] : '')); }
+  if(r.nodes){
+    const ks = Object.keys(r.nodes).sort();
+    for(const k of ks){ const e = r.nodes[k]; out.push(k + ':' + (e.s ? 1 : 0) + (e.s ? '' : '（取消）')); }
+  }else if(r.e){
+    for(const id in r.e){ const s = r.e[id] || ['',0]; if((s[1] || 0) > 0 || s[0]) out.push(id + ':' + (s[1] || 0) + (s[0] ? '@' + s[0] : '')); }
+  }
   return out.length ? out.join(' ') : '（空）';
 }
-/* 硬保险：拉取前拍一张本地勾选快照，合并后若变少就回滚并报错（正常逻辑永远不会触发） */
-function captureLocal(){
-  const e = {};
-  DATA.forEach(x=>{ const r = rec(x.id); let m = 0; r.n.forEach((v,i)=>{ if(v) m |= 1<<i; }); e[x.id] = [ r.first || '', m ]; });
-  return e;
+/* 硬保险：合并前拍整份状态；任何"本地显式取消被更旧事件重新点亮"都回滚并报错 */
+function captureState(){
+  const ev = {}, fev = {}, n = {};
+  for(const k in S.ev){ const e = S.ev[k]; ev[k] = { s:e.s, at:e.at, dev:e.dev }; }
+  for(const k in S.fev){ const e = S.fev[k]; fev[k] = { v:e.v, at:e.at, dev:e.dev }; }
+  DATA.forEach(x=>{ const r = rec(x.id); n[x.id] = { n:r.n.slice(), first:r.first || '' }; });
+  return { ev, fev, sv: S.sv ? { v:S.sv.v, at:S.sv.at, dev:S.sv.dev } : null,
+    start:S.start || '', startAt:S.startAt || 0, n };
 }
-function restoreLocal(e){
-  DATA.forEach(x=>{ const s = e[x.id]; if(!s) return; const r = rec(x.id);
-    r.first = s[0] || '';
-    for(let i=0;i<7;i++) r.n[i] = (s[1] >> i) & 1; });
+function restoreState(k){
+  S.ev = k.ev; S.fev = k.fev; S.sv = k.sv; S.start = k.start; S.startAt = k.startAt;
+  DATA.forEach(x=>{ const r = rec(x.id), s = k.n[x.id]; if(s){ r.n = s.n.slice(); r.first = s.first; } });
 }
-/* 所有快照逐条并集合并（空快照、旧快照天然无副作用） */
 function mergeAll(snaps){
-  const keep = captureLocal(), before = nodeCount();
+  const keep = captureState(), before = Object.assign({}, S.ev);
   mergeN = 0;
   let changed = false;
-  for(const r of snaps){ if(mergeRemote(r)) changed = true; }
-  const after = nodeCount();
-  if(before > 0 && after < before){
-    restoreLocal(keep);
-    console.error('[同步·断言失败] pull 使本地勾选数减少 ' + before + ' → ' + after + '，已按合并前快照回滚（请把这条日志反馈给开发者）');
-    window.__nbAssert = (window.__nbAssert || []).concat([{ before, after, at:Date.now() }]);
+  for(const r of snaps){ if(mergeSnap(r)) changed = true; }
+  /* 断言：本地事件的时间戳不得倒退；本地显式取消 (s:0) 不得被 <2 秒内的旧事件重新点亮 */
+  let bad = null;
+  for(const k in before){
+    const b = before[k], a = S.ev[k];
+    if(!a){ bad = { k, why:'本地事件丢失' }; break; }
+    if(a.at < b.at){ bad = { k, why:'时间戳倒退' }; break; }
+    if(b.s === 0 && a.s === 1 && (a.at - b.at) < CONFLICT_MS){ bad = { k, why:'本地取消被旧事件重新点亮' }; break; }
   }
-  return { changed, merged: mergeN, before, after: nodeCount() };
-}
-
-/* 并集合并：节点只会 0→1，首背日取更早；备考日取"用户显式设置的最新值"；不整体覆盖本地 */
-function mergeRemote(r){
-  if(!r || !r.e) return false;
-  let ch = false;
   DATA.forEach(x=>{
-    const t = rec(x.id), s = r.e[x.id];
-    if(!s) return;
-    const f = s[0] || '', m = s[1] || 0;
-    if(f && (!t.first || f < t.first)){ t.first = f; ch = true; mergeN++; }
-    for(let i=0;i<7;i++){ if(((m>>i)&1) && !t.n[i]){ t.n[i] = 1; ch = true; mergeN++; } }
+    if(bad) return;
+    const r = rec(x.id);
+    r.n.forEach((v,i)=>{ const k = x.id + '-' + (i + 1); if(S.ev[k] && S.ev[k].s !== v) bad = { k, why:'节点状态与事件不一致' }; });
   });
-  const rs = r.start || '', rat = +(r.startAt || 0);
-  if(rat > (S.startAt || 0)){
-    if((S.start || '') !== rs){ S.start = rs; ch = true; mergeN++; }
-    S.startAt = rat;
-  }else if(!S.start && rs && !rat && !S.startAt){
-    S.start = rs; ch = true; mergeN++;
+  if(bad){
+    restoreState(keep);
+    console.error('[同步·断言失败] ' + JSON.stringify(bad) + '，已回滚到合并前状态（把这条日志反馈给开发者）');
+    window.__nbAssert = (window.__nbAssert || []).concat([{ bad, at:Date.now() }]);
+    return { changed:false, merged:0, bad:true };
+  }
+  return { changed, merged:mergeN, bad:false };
+}
+/* 合并一条快照：逐键取 at 最新事件；没有本地事件的键才采纳云端（空快照 = 没有任何事件） */
+function mergeSnap(r){
+  if(!r) return false;
+  const nodes = r.nodes || legacyNodes(r);
+  const first = r.first || legacyFirst(r);
+  let ch = false;
+  for(const k in nodes){
+    const ce = nodes[k]; if(!ce) continue;
+    const le = S.ev[k] || null;
+    let win;
+    if(!le) win = { s: ce.s ? 1 : 0, at: +(ce.at || 0), dev: ce.dev || '' };
+    else{
+      const d = +(ce.at || 0) - +(le.at || 0);
+      if(Math.abs(d) < CONFLICT_MS){
+        /* 同一时刻/2 秒内的两条事件：状态相同 = 同一条（自己推上去又拉回来的情况），保留本地；
+           状态不同 = 真并发，取未勾（保守） */
+        win = (ce.s === le.s) ? le : { s:0, at:Math.max(+(le.at || 0), +(ce.at || 0)), dev: ce.dev || '' };
+      }
+      else win = d > 0 ? { s: ce.s ? 1 : 0, at: +(ce.at || 0), dev: ce.dev || '' } : le;
+    }
+    if(win === le) continue;
+    S.ev[k] = win;
+    markDayAt(win.at);
+    const p = k.split('-'), id = p[0], i = +p[1] - 1;   /* 键是 1 起（"01-1"），数组是 0 起 */
+    if(i >= 0 && i < 7){
+      const r = rec(id);
+      if(r.n[i] !== win.s){ r.n[i] = win.s; ch = true; mergeN++; }
+    }
+  }
+  for(const id in first){
+    const ce = first[id]; if(!ce) continue;
+    const le = S.fev[id] || null;
+    if(le && +(ce.at || 0) <= +(le.at || 0)) continue;
+    const nv = ce.v || '';
+    const r = rec(id);
+    if((r.first || '') !== nv){ r.first = nv; ch = true; mergeN++; }
+    S.fev[id] = { v:nv, at:+(ce.at || 0), dev:ce.dev || '' };
+    markDayAt(ce.at);
+  }
+  const st = (r.start && typeof r.start === 'object') ? r.start
+    : (r.start ? { v:r.start, at:+(r.startAt || 0), dev:r.dev || '' } : null);
+  if(st){
+    const le = S.sv;
+    if(!le || +(st.at || 0) > +(le.at || 0)){
+      const nv = st.v || '';
+      if((S.start || '') !== nv){ S.start = nv; ch = true; mergeN++; }
+      S.sv = { v:nv, at:+(st.at || 0), dev:st.dev || '' };
+      S.startAt = +(st.at || 0);
+      markDayAt(st.at);
+    }
   }
   if(r.devs){
     S.devs = S.devs || {};
     for(const k in r.devs){ const v = r.devs[k] || 0; if(!S.devs[k] || S.devs[k] < v) S.devs[k] = v; }
   }
   return ch;
+}
+
+function sigOf(r){
+  const ks = Object.keys(r.nodes || {}).sort();
+  const fs = Object.keys(r.first || {}).sort();
+  return ks.map(k=>k + ':' + r.nodes[k].s + ':' + r.nodes[k].at).join(',') + '|' +
+    fs.map(k=>k + ':' + r.first[k].v + ':' + r.first[k].at).join(',') + '|' +
+    (r.start ? r.start.v + ':' + r.start.at : '');
 }
 
 /* 主通道：ntfy.sh（匿名，实测可读写；消息保留 12 小时） */
@@ -1203,10 +1346,6 @@ async function ntfyPush(ch, txt){
   return true;
 }
 
-function sigOf(r){
-  const parts = DATA.map(x=>{ const s = (r.e && r.e[x.id]) || ['',0]; return x.id + ':' + (s[0]||'') + ':' + (s[1]||0); });
-  return parts.join(',') + '|' + (r.start || '');
-}
 function scheduleRetry(ms){
   clearTimeout(syncRetry);
   const wait = Math.min(300000, Math.max(15000, ms || BACKOFF[Math.min(syncTry, BACKOFF.length - 1)]));
@@ -1228,9 +1367,9 @@ function updateSnapBox(){
   const w2 = n ? new Date(n.at).toLocaleString('zh-CN', { hour12:false }) : '';
   b.innerHTML =
     '<div class="skv">最近一次拉取 <b>' + w1 + '</b> · 共 ' + lastPull.total + ' 条消息（可解析 ' + lastPull.used + ' 条，坏格式 ' + lastPull.bad + ' 条）</div>' +
-    (n ? '<div class="skv">最新快照：设备 <b>' + esc(n.dev) + '</b> · ' + esc(w2) + ' · ' + n.cards + ' 篇 / ' + n.nodes + ' 节点</div>' +
-         '<div class="skv">掩码 <code>' + esc(n.mask) + '</code></div>' +
-         '<div class="skv">本次并入 <b>' + lastPull.merged + '</b> 项（空快照、旧快照不产生效果）</div>'
+    (n ? '<div class="skv">最新快照：设备 <b>' + esc(n.dev) + '</b> · ' + esc(w2) + ' · ' + n.cards + ' 篇 / ' + n.nodes + ' 节点 · ' + n.evts + ' 条事件</div>' +
+         '<div class="skv">事件 <code>' + esc(n.mask) + '</code></div>' +
+         '<div class="skv">本次并入 <b>' + lastPull.merged + '</b> 项' + (lastPull.badAssert ? ' · <b>断言已回滚</b>' : '') + '（空快照、缺项快照不产生事件）</div>'
       : '<div class="skv">最新快照：云端没有可解析的进度快照</div>');
 }
 
@@ -1242,12 +1381,15 @@ async function pullMerge(){
   try{ raw = await ntfyPull(c.ch); }
   catch(e){ return { ok:false, reason:'连不上云端（' + (e.status || '网络') + '）', merged:0, status:e.status }; }
   const snaps = [];
-  for(const s of raw){ const r = unpackSnap(s); if(r && r.e) snaps.push(r); }
+  for(const s of raw){ const r = unpackSnap(s); if(r && (r.nodes || r.e)) snaps.push(r); }
   const res = mergeAll(snaps);
   let newest = null;
   for(const r of snaps){ if(!newest || (r.at||0) > (newest.at||0)) newest = r; }
+  const newestStart = newest ? (newest.start && typeof newest.start === 'object' ? newest.start.v : (newest.start || '')) : '';
   lastPull = { at:Date.now(), total:raw.length, used:snaps.length, bad:raw.length - snaps.length, merged:res.merged,
-    newest: newest ? { dev:newest.dev || '?', at:newest.at || 0, start:newest.start || '', startAt:newest.startAt || 0,
+    badAssert: !!res.bad,
+    newest: newest ? { dev:newest.dev || '?', at:newest.at || 0, start:newestStart || '',
+      evts: newest.nodes ? Object.keys(newest.nodes).length : cardIn(newest),
       mask:maskText(newest), cards:cardIn(newest), nodes:nodeIn(newest) } : null };
   if(res.changed){ save(false); if(DATA.length) render(); }
   updateSnapBox();
@@ -1255,19 +1397,19 @@ async function pullMerge(){
     empty: snaps.filter(r=>nodeIn(r) === 0).length };
 }
 
-function localAnyOf(snap){
-  if(S.start) return true;
-  const e = (snap && snap.e) || {};
-  for(const id in e){ const s = e[id] || ['',0]; if((s[1]||0) > 0 || s[0]) return true; }
+function localAnyOf(){
+  if(Object.keys(S.ev || {}).length) return true;
+  if(Object.keys(S.fev || {}).length) return true;
+  if(S.sv && (S.sv.v || S.sv.at)) return true;
   return false;
 }
-/* 推：只推本机快照；本机为空时绝不推（防洗白云端）；只有真成功才清 dirty */
+/* 推：只推本机事件日志；本机没有任何事件时绝不推（防洗白云端）；只有真成功才清 dirty */
 async function pushRemote(){
   const c = sy();
   if(!c.ch || !DATA.length) return { ok:false, reason:'未解锁（只存本机）', skip:true };
   const snap = snapState();
-  tr('push 开始 dirty=' + !!S.dirty + ' 节点=' + nodeIn(snap));
-  if(!localAnyOf(snap)) return { ok:false, reason:'本机为空，不上传（防止把云端洗成默认）', skip:true };
+  tr('push 开始 dirty=' + !!S.dirty + ' 事件=' + Object.keys(snap.nodes).length);
+  if(!localAnyOf()) return { ok:false, reason:'本机没有任何动作，不上传（防止把云端洗成默认）', skip:true };
   const sig = sigOf(snap);
   try{
     await ntfyPush(c.ch, packSnap(snap));
@@ -1331,6 +1473,7 @@ async function syncNow(manual){
     else toast('已同步：云端与本机一致，无新增');
   }
   updateSnapBox();
+  renderDash();                             /* 合并完成后立刻重算四个仪表盘，不等刷新 */
   if(S.dirty) ensurePush(300);              /* 同步期间又改了本地：保证最后一定推上去 */
   if(syncAgain){ syncAgain = false; setTimeout(()=>{ if(sy().ch) syncNow(false); }, 300); }
   return res;
@@ -1374,7 +1517,11 @@ function stopSync(){
   clearTimeout(syncRetry); syncRetry = null;
 }
 
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible' && sy().on) syncNow(false); });
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState !== 'visible') return;
+  renderDash();                                   /* 回到页面先重算四个标签 */
+  if(sy().on) syncNow(false);                     /* 自动同步开启时再拉一次（合并后会再重算） */
+});
 window.addEventListener('online', ()=>{ if(sy().on) syncNow(false); });
 /* ---------------- 设置面板 ---------------- */
 function openPanel(){
@@ -1442,6 +1589,7 @@ document.addEventListener('click', ev=>{
     const r = rec(nd.dataset.id);
     const i = +nd.dataset.i;
     r.n[i] = r.n[i] ? 0 : 1;
+    evSet(nd.dataset.id, i, r.n[i]);        /* 勾/取消都记一条带时间戳的事件，取消能同步生效 */
     markDay(); save(true); render();
     if(ev.target.closest('.nd')) paintTimer();
     return;
@@ -1521,6 +1669,7 @@ document.getElementById('tStreak').onclick = ()=>{
 document.getElementById('firstDate').onchange = ev=>{
   const r = rec(cur);
   r.first = ev.target.value;
+  firstSet(cur, r.first);              /* 日期也记事件（含清空），合并取 at 最新 */
   if(r.first) markDay();
   save(true); render();
   toast(r.first ? '首背日已存：'+r.first+'（D1 起算已排）' : '已清除首背日');
@@ -1528,7 +1677,9 @@ document.getElementById('firstDate').onchange = ev=>{
 document.getElementById('startDate').onchange = ev=>{
   S.start = ev.target.value;
   S.startAt = Date.now();      /* 记录"显式设置"的时间，合并时以最新的显式值为准 */
-  save(true);
+  startSet(S.start);
+  markDay();                   /* 设置备考日也算一次有效动作 */
+  save(true); renderDash();
   toast(S.start ? '开始备考日已存：'+S.start : '已清除开始备考日');
 };
 
@@ -1846,8 +1997,9 @@ window.__nb = {
   get data(){ return DATA; },
   get state(){ return S; },
   rec, open, close, makePrint, packCode, unpackCode, summarize,
-  syncNow, pullMerge, pushRemote, ensurePush, snapState, mergeRemote, mergeAll, packSnap, unpackSnap, startSync, stopSync,
+  syncNow, pullMerge, pushRemote, ensurePush, snapState, mergeSnap, mergeAll, packSnap, unpackSnap, startSync, stopSync, rebuildEvents,
   get lastPull(){ return lastPull; },
+  get ev(){ return S.ev; }, get fev(){ return S.fev; }, get sv(){ return S.sv; },
   get sync(){ return S.sync; }
 };
 </script>
