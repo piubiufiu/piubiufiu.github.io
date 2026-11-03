@@ -138,6 +138,8 @@ a{color:inherit}
 .stbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .sbtn{min-height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
 .sbtn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sbtn.danger2{color:var(--accent);border-color:#e0b3ab;background:#fbeeeb}
+.sbtn.danger2:hover{background:#f7e2dd}
 .datebox{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2)}
 .datebox input{min-height:38px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font-size:13px;background:#fff;font-family:inherit}
 .mut{font-size:12px;color:#9a927f;line-height:1.6}
@@ -159,7 +161,7 @@ a{color:inherit}
 .pbody section:last-child{border-bottom:none}
 .pbody h3{margin:0 0 6px;font-size:14px;letter-spacing:.5px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
-.row input[type=url],.row input[type=password],.row input[type=date]{min-height:40px;border:1px solid var(--line);border-radius:8px;
+.row input[type=url],.row input[type=password],.row input[type=date],.row input[type=text]{min-height:40px;border:1px solid var(--line);border-radius:8px;
  padding:0 10px;font-size:13px;background:#fff;font-family:inherit;flex:1;min-width:180px;color:var(--ink)}
 .row label{font-size:12px;color:var(--ink2);display:inline-flex;align-items:center;gap:5px}
 textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);border-radius:9px;padding:9px 10px;
@@ -361,7 +363,7 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
       <h3>④ 同步（默认手动；云端只存进度）</h3>
       <p class="mut">频道号由口令在本机确定性派生：任何设备输入同一口令就落到同一个频道，<b>不用输频道号</b>。云端只存进度（节点勾选、首背日、备考日、设备编号），<b>不含任何原文</b>。知道口令的人也能推出频道，这属可接受——频道里只有进度。</p>
       <p class="mut"><b>用法：</b>点任意 D1…D30 节点即自动上传（去抖 1.5 秒），不用点任何按钮；打开或刷新页面会自动拉一次云端并并集合并。页眉唯一的「同步」按钮＝再拉一次云端（合并进来新数据；本机若有未上传改动才补推），结果会显示并入几项。自动同步默认关闭，打开后每 5 分钟一次。</p>
-      <p class="mut"><b>注意：</b>为防止任何一次拉取把进度洗白，云端合并是「只增不减」——取消勾选只在本机生效，下次拉取时云端那条旧勾选可能把它重新勾上；需要真正撤掉时请在该篇里改用「已掌握」筛选或直接编辑本机。</p>
+      <p class="mut"><b>说明：</b>每个勾选/取消都是一条带时间戳的事件，合并时每个节点取时间最新的那条——所以<b>取消勾选会真正同步到其他设备</b>。两台设备在 2 秒内改了同一个节点视为并发，保守取"未勾"，不会假装完成。</p>
     </section>
 
     <section class="danger">
@@ -382,8 +384,16 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
       <div class="row"><button class="sbtn" id="resetBtn">重置进度</button></div>
     </section>
 
+    <section class="danger">
+      <h3>⑦ 数据（全新开始）</h3>
+      <p class="mut">本机进度清空，并切换到一条全新的同步频道：旧频道的云端数据不再被读取、也不会参与合并。ntfy 匿名接口无法删除消息，只能靠换频道隔离。</p>
+      <div class="row"><span class="mut">账号代号</span><input type="text" id="acctCode" inputmode="numeric" maxlength="6" value="1"><span class="mut">换号即换频道；换设备时用同一代号对齐</span></div>
+      <div class="row"><input type="text" id="freshConfirm" placeholder="输入 确认清空"><button class="sbtn danger2" id="freshBtn">全新开始</button></div>
+      <p class="mut" id="freshMsg"></p>
+    </section>
+
     <section>
-      <h3>⑦ 关于</h3>
+      <h3>⑧ 关于</h3>
       <p class="mut">单文件离线笔记：AES-256-GCM 加密。同步频道由口令在本机派生，输对口令即自动对齐。ntfy 的免费消息保留 12 小时，但每次推送都是全量快照，<b>超过 12 小时未同步也不会丢数据</b>，重新联网会自动补齐。本页不内置任何账号、密钥或第三方凭据，所有进度只存在本机浏览器与你输口令后自动对齐的那条频道里。</p>
     </section>
   </div>
@@ -438,7 +448,7 @@ function load(){
   return {
     e: d.e || {}, f: d.f || 'all', onlyUn: !!d.onlyUn, onlyDone: !!d.onlyDone, dueOnly: !!d.dueOnly,
     cur: d.cur || null, start: d.start || '', startAt: d.startAt || 0, day: d.day || {},
-    sync: (function(){ const s = Object.assign({ ch:'', on:false, off:false, dev:'', at:'', auto2:false }, d.sync || {});
+    sync: (function(){ const s = Object.assign({ ch:'', on:false, off:false, dev:'', at:'', acct:'1', auto2:false }, d.sync || {});
       if(!s.auto2){ s.on = false; s.auto2 = true; }   /* 新版默认关闭自动同步（旧版默认是开） */
       return s; })(),
     devs: d.devs || {}, dirty: !!d.dirty,
@@ -506,7 +516,33 @@ function dueTodayList(){
     .sort((a,b)=> a.d < b.d ? -1 : a.d > b.d ? 1 : a.e.id.localeCompare(b.e.id))
     .map(x=>x.e);
 }
-function newList(){ return DATA.filter(e=>!started(e.id)); }
+/* 建议 = 首背日还空着（没开始背）且未掌握的篇目，按篇号升序 */
+function newList(){
+  return DATA.filter(e=> !rec(e.id).first && !isDone(e.id))
+    .sort((a,b)=> a.id.localeCompare(b.id));
+}
+
+/* 全新开始：清空本机进度与行动日期，并把账号代号 +1 → 频道换成一条全新的（旧频道一条都不读）。
+   不删云端消息（ntfy 匿名接口无法删），靠换频道隔离。 */
+async function freshStart(){
+  const c = sy();
+  const next = String(Number(c.acct || '1') + 1);
+  clearTimeout(syncDeb); syncDeb = null;
+  clearTimeout(syncRetry); syncRetry = null;
+  for(const k of [KEY, OLDKEY].concat(LEGACY)){ try{ localStorage.removeItem(k); }catch(e){} }
+  S = load();
+  S.sync.acct = next; S.sync.on = false; S.sync.dev = devMake(); S.sync.ch = ''; S.dirty = false;
+  cur = null; lastPull = null; mergeN = 0;
+  DATA.forEach(e=>{ S.e[e.id] = { n:[0,0,0,0,0,0,0], first:'' }; });
+  S.day = {}; S.ev = {}; S.fev = {}; S.sv = null; S.start = ''; S.startAt = 0;
+  save(false);
+  if(KEYBITS) await setDerivedChan(KEYBITS);
+  render(); renderDash();
+  setSyncUI('ok', '新频道');
+  setMsg('已切换到新频道（账号代号 ' + S.sync.acct + '）：旧数据不再同步');
+  toast('已切换到新频道（旧数据不再同步）');
+  return { acct: S.sync.acct, ch: S.sync.ch };
+}
 
 /* ---------------- 首页 ---------------- */
 function visible(){
@@ -578,8 +614,10 @@ function renderDash(){
     : '今天没有到期节点';
 
   document.getElementById('vNew').innerHTML = Math.min(stNew,2) + '<small>/2 篇</small>';
-  document.getElementById('sNew').textContent = stNew >= 2 ? '2/2（已完成今日配额）'
-    : (nl.length ? ('建议：篇'+nl[0].id + (nl[1] ? '、篇'+nl[1].id : '')) : DATA.length + ' 篇都已开始');
+  document.getElementById('sNew').textContent =
+    stNew >= 2 ? '2/2（已完成今日配额）'
+    : stNew === 1 ? ('今日已开始 1 篇' + (nl.length ? ' · 建议篇' + nl[0].id : ''))
+    : (nl.length ? ('建议：' + nl.slice(0,2).map(e=>'篇'+e.id).join('、')) : '全部篇目都已开始');
 
   document.getElementById('vDone').innerHTML = done + '<small>/'+DATA.length+'</small>';
   document.getElementById('tDone').classList.toggle('ok', done>0);
@@ -1099,16 +1137,20 @@ let mergeN = 0;                 /* 本轮拉取实际并入本地的项数 */
 function sy(){ return S.sync; }
 function devMake(){ const a = new Uint8Array(4); crypto.getRandomValues(a); return b32e(a).slice(0,6).toLowerCase(); }
 
-/* 口令派生频道：同一口令在任何设备都得到同一个频道（只在解锁成功后调用） */
-const CHSALT = new TextEncoder().encode('nb-sync-channel-v1');
-async function chanFromPw(pw){
-  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(norm(pw)), 'PBKDF2', false, ['deriveBits']);
-  const bits = new Uint8Array(await crypto.subtle.deriveBits({ name:'PBKDF2', salt:CHSALT, iterations:100000, hash:'SHA-256' }, km, 256));
-  return 'nb' + b32e(bits).slice(0,18).toLowerCase();
+/* 频道派生：用解密密钥（同一文件+同一口令在任何设备都一致）+ 版本盐 + 账号代号。
+   版本盐 v2 与原 v1（口令文本派生）完全隔离：换版本/换账号代号 = 换频道，旧频道消息一条都读不到。 */
+const CHVER = 'nb-sync-channel-v2';
+let KEYBITS = null;
+function chSalt(acct){ return new TextEncoder().encode(CHVER + '|' + (acct || '1')); }
+async function chanFromKey(bits, acct){
+  const km = await crypto.subtle.importKey('raw', bits, 'PBKDF2', false, ['deriveBits']);
+  const d = new Uint8Array(await crypto.subtle.deriveBits({ name:'PBKDF2', salt:chSalt(acct), iterations:100000, hash:'SHA-256' }, km, 256));
+  return 'nb' + b32e(d).slice(0,18).toLowerCase();
 }
-async function setDerivedChan(pw){
+async function setDerivedChan(bits){
+  KEYBITS = bits;
   const c = sy();
-  c.ch = await chanFromPw(pw);
+  c.ch = await chanFromKey(bits, c.acct || '1');
 }
 
 
@@ -1816,6 +1858,27 @@ document.getElementById('resetBtn').onclick = ()=>{
   toast('进度已重置');
 };
 
+/* 全新开始：必须手输「确认清空」，清本机 + 换频道 */
+document.getElementById('freshBtn').onclick = async ()=>{
+  const box = document.getElementById('freshConfirm'), msg = document.getElementById('freshMsg');
+  if((box.value || '').trim() !== '确认清空'){
+    msg.textContent = '请先在输入框里输入「确认清空」四个字，再点按钮。';
+    box.focus(); return;
+  }
+  msg.textContent = '正在清空并切换频道…';
+  const r = await freshStart();
+  box.value = '';
+  document.getElementById('acctCode').value = r.acct;
+  msg.textContent = '已切换到新频道（账号代号 ' + r.acct + '）：旧数据不再同步。';
+};
+document.getElementById('acctCode').onchange = async ev=>{
+  const v = (ev.target.value || '').trim() || '1';
+  sy().acct = v; save(false);
+  await setDerivedChan(KEYBITS);
+  document.getElementById('freshMsg').textContent = '账号代号已改为 ' + v + '，频道随之切换（本机数据保留，不会自动拉取）。';
+  setSyncUI('pending', '待上传');
+};
+
 /* 键盘 */
 document.addEventListener('keydown', ev=>{
   const tag = (ev.target && ev.target.tagName) || '';
@@ -1921,7 +1984,7 @@ async function tryUnlock(pw){
   try{
     const bits = await deriveBits(pw, ENC.salt, ENC.it);
     DATA = JSON.parse(await decryptData(bits));
-    await setDerivedChan(pw);
+    await setDerivedChan(bits);
     const c = sy();
     if(!c.dev) c.dev = devMake();
     c.on = !!c.on;   /* 默认关闭自动同步，保留用户显式开启的设置 */
@@ -1946,7 +2009,7 @@ async function autoUnlock(){
     const o = JSON.parse(raw);
     if(!o || !o.b || Date.now() - o.t > 24*3600*1000){ sessionStorage.removeItem(SS_KEY); return false; }
     DATA = JSON.parse(await decryptData(u8(o.b)));
-    if(o.ch){ sy().ch = o.ch; }
+    await setDerivedChan(u8(o.b));
     sy().on = !!sy().on;
     if(!sy().dev) sy().dev = devMake();
     save(false);
@@ -1983,7 +2046,7 @@ document.getElementById('rekeyBtn').onclick = async ()=>{
     a.download = 'note.html';
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
-    msg.textContent = '已导出 note.html（' + Math.round(blob.size/1024) + ' KB）。请用它替换服务器/本地的同名页面并改名回 index.html；替换后旧口令立即失效，当前会话仍可用。线上要覆盖 k7m2q/index.html 与 zzbs/index.html 两个路径，否则旧口令仍能打开旧文件。';
+    msg.textContent = '已导出 note.html（' + Math.round(blob.size/1024) + ' KB）。请用它替换服务器/本地的同名页面并改名回 index.html；替换后旧口令立即失效，当前会话仍可用。线上要覆盖 k7m2q/index.html，否则旧口令仍能打开旧文件。';
     toast('已导出新加密文件');
   }catch(e){
     msg.textContent = '导出失败：' + e.message;
@@ -1997,7 +2060,7 @@ window.__nb = {
   get data(){ return DATA; },
   get state(){ return S; },
   rec, open, close, makePrint, packCode, unpackCode, summarize,
-  syncNow, pullMerge, pushRemote, ensurePush, snapState, mergeSnap, mergeAll, packSnap, unpackSnap, startSync, stopSync, rebuildEvents,
+  syncNow, pullMerge, pushRemote, ensurePush, snapState, mergeSnap, mergeAll, packSnap, unpackSnap, startSync, stopSync, rebuildEvents, freshStart, newList, renderDash,
   get lastPull(){ return lastPull; },
   get ev(){ return S.ev; }, get fev(){ return S.fev; }, get sv(){ return S.sv; },
   get sync(){ return S.sync; }
