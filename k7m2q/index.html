@@ -149,13 +149,14 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
 .filelbl input{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .danger h3{color:var(--accent)}
 /* ---------- lock ---------- */
-#lock{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+#lock{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;
+ padding:max(18px,7vh) 24px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #lock.off{display:none}
 .lockbox{width:min(380px,92vw);background:var(--paper);border:1px solid var(--line);border-radius:16px;
- padding:28px 24px 22px;box-shadow:var(--shadow);text-align:center}
+ padding:28px 24px 22px;box-shadow:var(--shadow);text-align:center;margin:auto 0}
 .lk-t{font-size:22px;font-weight:700;letter-spacing:6px}
 .lk-p{margin:10px 0 16px;font-size:13px;color:var(--ink2)}
-#pw{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:15px;
+#pw{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font-size:16px;
  background:#fff;color:var(--ink);font-family:inherit;outline:none;text-align:center;letter-spacing:1px}
 #pw:focus{border-color:#cfc7b7;box-shadow:0 0 0 3px rgba(140,43,34,.08)}
 .lk-b{width:100%;min-height:46px;margin-top:12px;border:1px solid var(--accent);background:var(--accent);color:#fff;
@@ -213,13 +214,14 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
 }
 
 .syncdot{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border:1px solid var(--line);
- background:var(--paper);border-radius:20px;font-size:11px;color:var(--ink2);cursor:pointer;font-family:inherit;line-height:1;white-space:nowrap}
+ background:var(--paper);border-radius:20px;font-size:11px;color:var(--ink2);cursor:default;font-family:inherit;line-height:1;white-space:nowrap}
 .syncdot i{width:7px;height:7px;border-radius:50%;background:#9aa3ad;display:block}
 .syncdot.ok i{background:var(--ok)}
 .syncdot.busy i{background:#c98a1e;animation:spulse 1s infinite}
 .syncdot.fail i{background:#b8432f}
 @keyframes spulse{50%{opacity:.3}}
-.warnline{color:#8c2b22;border-left:3px solid #d9b3a9;padding-left:9px;margin:8px 0 0}
+.warnline{color:#8c2b22;border:1px solid #e0b3ab;border-left:4px solid var(--accent);background:#fbeeeb;
+ border-radius:8px;padding:9px 11px;margin:10px 0 0;line-height:1.65}
 </style>
 </head>
 <body>
@@ -241,7 +243,7 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
     <input class="search" id="q" type="search" placeholder="搜索：关键词" autocomplete="off" aria-label="搜索">
     <div class="pbar" aria-hidden="true"><i id="pfill"></i></div>
     <div class="pnum" id="pnum">0</div>
-    <button class="syncdot fail" id="syncDot" title="同步状态"><i></i><span id="syncTxt">未启用</span></button>
+    <div class="syncdot fail" id="syncDot" title="同步状态"><i></i><span id="syncTxt">未启用</span></div>
     <button class="tbtn" id="panelBtn">同步 · 设置</button>
     <button class="tbtn" id="helpBtn">快捷键</button>
   </div>
@@ -296,8 +298,8 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
     </section>
 
     <section>
-      <h3>② 生成同步短码（只给换设备用）</h3>
-      <p class="mut">同一浏览器会自动记住进度，不用任何码。换手机/换电脑/清过缓存时才用短码：只含首背日与 7 个节点勾选，<b>不含原文</b>。基础 30 字符；已开始的篇数越多越长，末尾带校验位，抄错会直接提示。</p>
+      <h3>② 生成同步短码（服务不可用时的兜底）</h3>
+      <p class="mut">同一口令在任意设备都会自动对齐进度，平时不用任何码。只有云端连不上、或换设备时想离线搬进度才用短码：只含首背日与 7 个节点勾选，<b>不含原文</b>。基础 30 字符；已开始的篇数越多越长，末尾带校验位，抄错会直接提示。</p>
       <div class="row">
         <button class="sbtn pri" id="genCode">生成短码</button>
         <button class="sbtn" id="copyCode">复制</button>
@@ -310,7 +312,7 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
       </details>
       <div class="row">
         <button class="sbtn" id="dlJson">下载 progress.json</button>
-        <button class="sbtn" id="dlBackup">导出加密备份 progress-backup.json</button>
+        <button class="sbtn" id="dlBackup">导出进度备份 progress-backup.json</button>
         <label class="sbtn filelbl">从 progress.json 导入<input type="file" id="fileIn" accept=".json,application/json,text/plain"></label>
       </div>
     </section>
@@ -327,33 +329,18 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
     </section>
 
     <section>
-      <h3>④ 自动同步（勾选即同步，不用手动点）</h3>
-      <p class="mut">解锁后自动拉取、改动后约 3 秒自动上传，全程无弹窗。云端只存进度（节点勾选、首背日、设备编号），<b>不含任何原文</b>；频道号是随机串，不含科目、考试等字样。<br>换设备时把「频道号」抄过去点「加入」即可；可选 6 位 PIN 会把上传内容再加密一层（两台设备必须填同一个 PIN）。</p>
+      <h3>④ 自动同步（输对口令即自动对齐）</h3>
+      <p class="mut">频道号由口令在本机确定性派生：任何设备输入同一口令就落到同一个频道，<b>不用输频道号、不用点任何按钮</b>，开页即拉取/推送：改动后约 3 秒推送、每 60 秒静默拉取、回到前台或恢复网络立即同步。云端只存进度（节点勾选、首背日、备考日、设备编号），<b>不含任何原文</b>。知道口令的人也能推出频道，这属可接受——频道里只有进度。</p>
       <div class="row">
-        <input type="text" id="chanId" readonly placeholder="频道号（点「启用」后自动生成）" aria-label="频道号">
-        <button class="sbtn" id="copyChan">复制</button>
-      </div>
-      <div class="row">
-        <input type="password" id="chanPin" maxlength="6" inputmode="numeric" placeholder="可选 6 位数字 PIN" aria-label="同步 PIN">
-        <button class="sbtn pri" id="syncOn">启用自动同步</button>
-        <button class="sbtn" id="syncOff">停用</button>
-      </div>
-      <div class="row">
-        <input type="text" id="chanJoin" placeholder="其他设备：粘贴频道号后点加入" aria-label="加入频道">
-        <button class="sbtn" id="syncJoin">加入</button>
+        <input type="checkbox" id="syncToggle">
+        <label for="syncToggle" class="mut">自动同步（默认开启；取消勾选则只存本机）</label>
       </div>
       <div class="mut" id="syncMsg">未启用</div>
-      <details class="qrdet">
-        <summary>可选：备用通道（GitHub 私有 Gist，需一次性粘贴只含 gist 权限的 token）</summary>
-        <div class="row"><input type="password" id="gistTok" placeholder="GitHub token（Fine-grained，仅 gist 权限）" autocomplete="off"></div>
-        <div class="row"><input type="text" id="gistId" readonly placeholder="gist id（首次推送时自动创建）"></div>
-        <div class="row"><button class="sbtn" id="gistOn">启用备用通道</button><span class="mut" id="gistMsg"></span></div>
-      </details>
     </section>
 
     <section class="danger">
       <h3>⑤ 锁定与改口令</h3>
-      <p class="mut">「立即锁定」会清掉本次会话的解锁状态，下次需要重新输入口令。<br>「改口令」会在本机重新加密，并导出一个新的 index.html，<b>需要你自己用它替换服务器上的旧文件</b>（浏览器无法回写服务器）。</p>
+      <p class="mut">「立即锁定」会清掉本次会话的解锁状态，下次需要重新输入口令。<br>「改口令」会在本机重新加密，并导出一个文件名中性的 note.html，<b>需要你自己把它改名成 index.html 并替换服务器上的旧文件</b>（浏览器无法回写服务器）。</p>
       <p class="mut warnline"><b>口令强度提示：</b>当前口令只有 4 位数字（0000–9999，共 1 万种组合），可被穷举：写个脚本挨个试，几十分钟就能试完，<b>只能防"别人随手打开看一眼"</b>，挡不住有意破解的人。要当保密用，请用下面的「改口令并导出」换成 10 位以上、含字母与符号、无规律的口令，再用新文件替换服务器上的旧文件。</p>
       <div class="row">
         <input type="password" id="newPw" placeholder="新口令（留空则只导出当前加密文件）" autocomplete="off">
@@ -367,6 +354,11 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
       <h3>⑥ 重置进度</h3>
       <p class="mut">清空全部勾选、首背日、打卡记录与云同步设置。会二次确认。</p>
       <div class="row"><button class="sbtn" id="resetBtn">重置进度</button></div>
+    </section>
+
+    <section>
+      <h3>⑦ 关于</h3>
+      <p class="mut">单文件离线笔记：AES-256-GCM 加密。同步频道由口令在本机派生，输对口令即自动对齐。ntfy 的免费消息保留 12 小时，但每次推送都是全量快照，<b>超过 12 小时未同步也不会丢数据</b>，重新联网会自动补齐。本页不内置任何账号、密钥或第三方凭据，所有进度只存在本机浏览器与你输口令后自动对齐的那条频道里。</p>
     </section>
   </div>
 </div>
@@ -420,7 +412,7 @@ function load(){
   return {
     e: d.e || {}, f: d.f || 'all', onlyUn: !!d.onlyUn, onlyDone: !!d.onlyDone, dueOnly: !!d.dueOnly,
     cur: d.cur || null, start: d.start || '', day: d.day || {},
-    sync: Object.assign({ ch:'', on:false, dev:'', pin:'', gistTok:'', gistId:'', at:'' }, d.sync || {}),
+    sync: Object.assign({ ch:'', on:false, off:false, dev:'', at:'' }, d.sync || {}),
     devs: d.devs || {},
     fold: d.fold === undefined ? true : !!d.fold,
     lastSync: d.lastSync || '', q: ''
@@ -1021,15 +1013,26 @@ function drawQR(text){
   }
 }
 
-/* ---------------- 自动同步（主通道 ntfy.sh / 备用通道 GitHub Gist） ---------------- */
+/* ---------------- 自动同步（ntfy.sh，匿名只读频道） ---------------- */
 const NTFY = 'https://ntfy.sh';
-const PINSALT = b64(new TextEncoder().encode('nb-sync-salt-v1'));
 let syncBusy = false, syncTimer = null, syncDeb = null, syncRetry = null, syncBackoff = 1, syncLastAt = '';
-let pinCache = null;
 
 function sy(){ return S.sync; }
-function chMake(){ const a = new Uint8Array(16); crypto.getRandomValues(a); return 'nb' + b32e(a).slice(0,16).toLowerCase(); }
 function devMake(){ const a = new Uint8Array(4); crypto.getRandomValues(a); return b32e(a).slice(0,6).toLowerCase(); }
+
+/* 口令派生频道：同一口令在任何设备都得到同一个频道（只在解锁成功后调用） */
+const CHSALT = new TextEncoder().encode('nb-sync-channel-v1');
+async function chanFromPw(pw){
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(norm(pw)), 'PBKDF2', false, ['deriveBits']);
+  const bits = new Uint8Array(await crypto.subtle.deriveBits({ name:'PBKDF2', salt:CHSALT, iterations:100000, hash:'SHA-256' }, km, 256));
+  return 'nb' + b32e(bits).slice(0,18).toLowerCase();
+}
+async function setDerivedChan(pw){
+  const c = sy();
+  c.ch = await chanFromPw(pw);
+}
+
+
 
 function fetchT(url, opt, ms){
   const ctl = new AbortController();
@@ -1067,35 +1070,10 @@ function snapState(){
   return { v:1, at:Date.now(), dev:sy().dev, start:S.start || '', e, devs };
 }
 
-async function pinBits(){
-  const p = sy().pin;
-  if(!p) return null;
-  if(pinCache && pinCache.p === p) return pinCache.b;
-  const b = await deriveBits(p, PINSALT, 100000);
-  pinCache = { p, b };
-  return b;
-}
-async function decIv(bits, iv, ct){
-  const k = await aesKey(bits, ['decrypt']);
-  const buf = await crypto.subtle.decrypt({ name:'AES-GCM', iv:u8(iv) }, k, u8(ct));
-  return new TextDecoder('utf-8').decode(buf);
-}
-async function packSnap(snap){
-  const txt = JSON.stringify(snap);
-  const b = await pinBits();
-  if(!b) return 'P1:' + txt;
-  const iv = rnd(12);
-  return 'P2:' + iv + ':' + await encryptData(b, txt, '', iv);
-}
+async function packSnap(snap){ return 'P1:' + JSON.stringify(snap); }
 async function unpackSnap(str){
   if(!str) return null;
   if(str.indexOf('P1:') === 0) return JSON.parse(str.slice(3));
-  if(str.indexOf('P2:') === 0){
-    const p = str.split(':');
-    const b = await pinBits();
-    if(!b) return null;
-    return JSON.parse(await decIv(b, p[1], p[2]));
-  }
   return null;
 }
 
@@ -1136,36 +1114,6 @@ async function ntfyPush(ch, txt){
   return true;
 }
 
-/* 备用通道：GitHub 私有 Gist（api.github.com 实测可达） */
-async function gistReq(path, opt){
-  const h = { 'Authorization':'Bearer ' + sy().gistTok, 'Accept':'application/vnd.github+json' };
-  if(opt && opt.body) h['Content-Type'] = 'application/json';
-  const r = await fetchT('https://api.github.com' + path, Object.assign({ headers:h }, opt||{}), 12000);
-  if(!r.ok) throw new Error('HTTP ' + r.status);
-  return r.json();
-}
-async function gistPull(){
-  const c = sy();
-  if(!c.gistTok || !c.gistId) return null;
-  const j = await gistReq('/gists/' + c.gistId, { method:'GET' });
-  const f = j.files && j.files['nb.json'];
-  if(!f) return null;
-  if(f.truncated && f.raw_url){ const r = await fetchT(f.raw_url, {}, 12000); return await r.text(); }
-  return f.content || null;
-}
-async function gistPush(txt){
-  const c = sy();
-  if(!c.gistTok) return false;
-  if(!c.gistId){
-    const j = await gistReq('/gists', { method:'POST', body: JSON.stringify({ description:'nb progress sync', public:false, files:{ 'nb.json':{ content:txt } } }) });
-    c.gistId = j.id; save(false);
-    const el = document.getElementById('gistId'); if(el) el.value = c.gistId;
-    return true;
-  }
-  await gistReq('/gists/' + c.gistId, { method:'PATCH', body: JSON.stringify({ files:{ 'nb.json':{ content:txt } } }) });
-  return true;
-}
-
 /* 一次同步：拉 → 并集合并 → 云端缺数据才推 */
 function sigOf(r){
   const parts = DATA.map(x=>{ const s = (r.e && r.e[x.id]) || ['',0]; return x.id + ':' + (s[0]||'') + ':' + (s[1]||0); });
@@ -1185,9 +1133,6 @@ async function doSync(manual){
     /* ntfy 的 /raw?poll=1 有 1–2 秒的缓存滞后：空结果时补拉一次，避免刚加入就判"云端没数据" */
     await new Promise(r=>setTimeout(r, 1600));
     try{ for(const s of await ntfyPull(c.ch)) raw.push(s); }catch(e){}
-  }
-  if(c.gistTok){
-    try{ const g = await gistPull(); if(g) raw.push(g); }catch(e){}
   }
   const snaps = [];
   for(const s of raw){
@@ -1212,7 +1157,6 @@ async function doSync(manual){
       syncRetry = setTimeout(()=>{ if(sy().on) doSync(false); }, 15000);
     }
   }
-  if(c.gistTok && need){ try{ await gistPush(await packSnap(snap)); pushed = true; }catch(e){} }
   if(changed) save(false);
   if(changed && DATA.length){ render(); }
   syncBusy = false;
@@ -1255,12 +1199,8 @@ function openPanel(){
   document.getElementById('smask').classList.add('on');
   document.getElementById('panel').classList.add('on');
   document.getElementById('startDate').value = S.start || '';
-  document.getElementById('chanId').value = sy().ch || '';
-  document.getElementById('chanPin').value = sy().pin || '';
-  document.getElementById('gistTok').value = sy().gistTok || '';
-  document.getElementById('gistId').value = sy().gistId || '';
+  document.getElementById('syncToggle').checked = !!sy().on;
   document.getElementById('syncMsg').textContent = syncSummary();
-  document.getElementById('gistMsg').textContent = sy().gistTok ? (sy().gistId ? '已启用' : '待首次推送创建 gist') : '';
   document.getElementById('streakNote').textContent =
     `当前连续打卡 ${streak()} 天。规则：当天有任何勾选/首背日/导入操作即记 1 天；断一天，从下一天重新起算。`;
   setSyncUI(sy().on ? 'ok' : 'off');
@@ -1434,15 +1374,14 @@ document.getElementById('dlJson').onclick = ()=>{
 document.getElementById('dlBackup').onclick = async ()=>{
   const snap = snapState();
   const packed = await packSnap(snap);
-  const enc = sy().pin ? 'P2:AES-256-GCM(PBKDF2-100000,PIN)' : 'P1:plain';
-  const body = JSON.stringify({ v:1, kind:'progress-backup', enc, at:new Date().toISOString(), payload: packed });
+  const body = JSON.stringify({ v:1, kind:'progress-backup', enc:'P1:plain', at:new Date().toISOString(), payload: packed });
   const blob = new Blob([body], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'progress-backup.json';
   document.body.appendChild(a); a.click();
   setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
-  toast(enc === 'P1:plain' ? '已导出备份（未填 PIN，文件里是明文进度，不含正文）' : '已导出加密备份');
+  toast('已导出备份（文件里是进度：勾选、首背日、备考日，不含正文）');
 };
 document.getElementById('fileIn').onchange = async ev=>{
   const f = ev.target.files && ev.target.files[0];
@@ -1459,7 +1398,7 @@ document.getElementById('fileIn').onchange = async ev=>{
         else if(j.payload){ const r = await unpackSnap(String(j.payload)); parsed = r ? fromSnap(r) : null; }
         else if(j.entries) parsed = { start: j.start||'', e: j.entries };
         else throw new Error('JSON 里没有 entries/code/payload 字段');
-        if(j.payload && !parsed) throw new Error('备份是加密的，请先在 ④ 填同一个 PIN 再导入');
+        if(j.payload && !parsed) throw new Error('备份格式无法识别');
       }
       const how = document.querySelector('input[name=imp]:checked').value;
       if(how === 'cover' && !confirm('导入会覆盖本机进度，确定？')) return;
@@ -1485,7 +1424,7 @@ document.getElementById('importBtn').onclick = async ()=>{
     else{
       const j = JSON.parse(txt);
       if(j.code) parsed = unpackCode(j.code);
-      else if(j.payload){ const r = await unpackSnap(String(j.payload)); if(!r) throw new Error('备份是加密的，请先在 ④ 填同一个 PIN 再导入'); parsed = fromSnap(r); }
+      else if(j.payload){ const r = await unpackSnap(String(j.payload)); if(!r) throw new Error('备份格式无法识别'); parsed = fromSnap(r); }
       else if(j.entries) parsed = { start:j.start||'', e:j.entries };
       else throw new Error('既不是进度码，也不是 progress.json');
     }
@@ -1497,60 +1436,23 @@ document.getElementById('importBtn').onclick = async ()=>{
   toast('导入成功');
 };
 
-/* 自动同步 */
-document.getElementById('syncOn').onclick = ()=>{
+/* 自动同步开关（频道由口令派生，无需任何输入） */
+document.getElementById('syncToggle').onchange = ev=>{
   const c = sy();
-  if(!c.ch) c.ch = chMake();
-  if(!c.dev) c.dev = devMake();
-  c.pin = (document.getElementById('chanPin').value.replace(/\D/g,'') || '').slice(0,6);
-  c.on = true;
-  pinCache = null;
+  c.on = ev.target.checked;
+  c.off = !c.on;
   save(false);
-  document.getElementById('chanId').value = c.ch;
-  document.getElementById('syncMsg').textContent = '已启用，正在首次同步…';
-  toast('自动同步已启用：勾选后会自动上传');
-  startSync();
+  if(c.on && c.ch){
+    document.getElementById('syncMsg').textContent = '正在首次同步…';
+    toast('自动同步已开启');
+    startSync();
+  }else{
+    stopSync(); setSyncUI('off');
+    document.getElementById('syncMsg').textContent = '已停用（进度仍存本机）';
+    toast('已停用自动同步');
+  }
 };
-document.getElementById('syncOff').onclick = ()=>{
-  sy().on = false;
-  stopSync();
-  save(false);
-  setSyncUI('off');
-  document.getElementById('syncMsg').textContent = '已停用（进度仍存本机）';
-  toast('已停用自动同步');
-};
-document.getElementById('copyChan').onclick = async ()=>{
-  const c = sy();
-  if(!c.ch) c.ch = chMake();
-  document.getElementById('chanId').value = c.ch;
-  const ok = await copyText(c.ch);
-  toast(ok ? '频道号已复制' : '复制被拦截，请手动长按选中');
-};
-document.getElementById('syncJoin').onclick = ()=>{
-  const raw = document.getElementById('chanJoin').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
-  if(!raw){ toast('先粘贴频道号'); return; }
-  const c = sy();
-  c.ch = raw.indexOf('nb') === 0 ? raw : ('nb' + raw);
-  c.on = true;
-  if(!c.dev) c.dev = devMake();
-  c.pin = (document.getElementById('chanPin').value.replace(/\D/g,'') || '').slice(0,6);
-  pinCache = null;
-  save(false);
-  document.getElementById('chanId').value = c.ch;
-  document.getElementById('chanJoin').value = '';
-  toast('已加入频道，正在拉取云端进度');
-  startSync();
-};
-document.getElementById('gistOn').onclick = async ()=>{
-  const c = sy();
-  c.gistTok = document.getElementById('gistTok').value.trim();
-  if(!c.gistTok){ toast('先粘贴 GitHub token'); return; }
-  document.getElementById('gistMsg').textContent = '正在创建/连接 gist…';
-  stopSync();
-  await doSync(true);
-  document.getElementById('gistMsg').textContent = c.gistId ? '备用通道已启用' : '创建失败，检查 token 权限';
-  startSync();
-};
+
 
 /* 重置 */
 document.getElementById('resetBtn').onclick = ()=>{
@@ -1644,8 +1546,8 @@ function lockNow(){
   document.getElementById('newPw').value = '';
   ['codeLen','impMsg','rekeyMsg','streakNote'].forEach(id=>{ document.getElementById(id).textContent = ''; });
   stopSync(); setSyncUI('off');
-  ['chanId','chanPin','chanJoin','gistTok','gistId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  ['syncMsg','gistMsg'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=''; });
+  S.sync.ch = '';
+  const sm = document.getElementById('syncMsg'); if(sm) sm.textContent = '';
   document.getElementById('lock').classList.remove('off');
   document.getElementById('pw').value = '';
   document.getElementById('lkErr').textContent = '';
@@ -1664,7 +1566,12 @@ async function tryUnlock(pw){
   try{
     const bits = await deriveBits(pw, ENC.salt, ENC.it);
     DATA = JSON.parse(await decryptData(bits));
-    sessionStorage.setItem(SS_KEY, JSON.stringify({ b:b64(bits), t:Date.now() }));
+    await setDerivedChan(pw);
+    const c = sy();
+    if(!c.dev) c.dev = devMake();
+    c.on = !c.off;
+    save(false);
+    sessionStorage.setItem(SS_KEY, JSON.stringify({ b:b64(bits), t:Date.now(), ch:c.ch }));
     document.getElementById('lock').classList.add('off');
     boot();
     toast('已解锁');
@@ -1684,6 +1591,10 @@ async function autoUnlock(){
     const o = JSON.parse(raw);
     if(!o || !o.b || Date.now() - o.t > 24*3600*1000){ sessionStorage.removeItem(SS_KEY); return false; }
     DATA = JSON.parse(await decryptData(u8(o.b)));
+    if(o.ch){ sy().ch = o.ch; }
+    sy().on = !sy().off;
+    if(!sy().dev) sy().dev = devMake();
+    save(false);
     document.getElementById('lock').classList.add('off');
     boot();
     return true;
@@ -1714,10 +1625,10 @@ document.getElementById('rekeyBtn').onclick = async ()=>{
     const blob = new Blob([out], { type:'text/html' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'index.html';
+    a.download = 'note.html';
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
-    msg.textContent = '已导出 index.html（' + Math.round(blob.size/1024) + ' KB）。请用它替换服务器/本地的同名文件；替换后旧口令立即失效，当前会话仍可用。线上要覆盖 k7m2q/index.html 与 zzbs/index.html 两个路径，否则旧口令仍能打开旧文件。';
+    msg.textContent = '已导出 note.html（' + Math.round(blob.size/1024) + ' KB）。请用它替换服务器/本地的同名页面并改名回 index.html；替换后旧口令立即失效，当前会话仍可用。线上要覆盖 k7m2q/index.html 与 zzbs/index.html 两个路径，否则旧口令仍能打开旧文件。';
     toast('已导出新加密文件');
   }catch(e){
     msg.textContent = '导出失败：' + e.message;
