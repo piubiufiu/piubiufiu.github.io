@@ -1308,8 +1308,8 @@ async function syncNow(manual){
   if(res.push === 'fail') setSyncUI('fail', '上传失败');
   else if(dirty) setSyncUI('pending', '待上传');
   else if(res.pull === 'fail') setSyncUI('fail', '离线');
-  else if(res.merged) setSyncUI('ok', '已同步(' + res.merged + ')');
-  else setSyncUI('ok', res.push === 'ok' ? '已上传' : '已同步(0)');
+  else if(res.merged) setSyncUI('ok', '已同步（' + res.merged + ' 项）');
+  else setSyncUI('ok', res.push === 'ok' ? '已上传' : '已同步（0 项）');
   const cnt = '本机 ' + nodeCount() + ' 个勾选' + (dirty ? ' · 待上传' : '');
   let msg;
   if(res.pull === 'fail'){
@@ -1645,7 +1645,7 @@ document.getElementById('syncToggle').onchange = ev=>{
     startSync();
   }else{
     stopSync();
-    setSyncUI(!c.ch ? 'off' : (S.dirty ? 'pending' : 'ok'), !c.ch ? '未启用' : (S.dirty ? '待上传' : '已同步(0)'));
+    setSyncUI(!c.ch ? 'off' : (S.dirty ? 'pending' : 'ok'), !c.ch ? '未启用' : (S.dirty ? '待上传' : '已同步（0 项）'));
     setMsg('自动同步已关闭：改动仍会在 1.5 秒后自动上传；「同步」按钮用于手动再拉一次云端');
     toast('已关闭自动同步');
   }
