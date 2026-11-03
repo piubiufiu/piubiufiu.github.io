@@ -19,24 +19,41 @@ body{background:var(--bg);color:var(--ink);
  -webkit-font-smoothing:antialiased;}
 .serif{font-family:"Songti SC","SimSun","Source Han Serif SC",serif}
 a{color:inherit}
-/* ---------- top ---------- */
-#top{position:sticky;top:0;z-index:30;background:rgba(246,243,236,.95);backdrop-filter:saturate(1.4) blur(8px);
- border-bottom:1px solid var(--line);padding:12px 20px 10px;}
-.trow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.brand{font-weight:700;font-size:19px;letter-spacing:.5px;white-space:nowrap}
-.brand small{font-weight:400;color:var(--ink2);font-size:12px;margin-left:8px;letter-spacing:0}
-.search{flex:1;min-width:180px;max-width:340px;height:38px;border:1px solid var(--line);border-radius:9px;
+/* ---------- top：页眉固定 56px（标题 + 状态点 + 同步 + 菜单），其余收进可折叠面板 ---------- */
+#top{position:sticky;top:0;z-index:30;background:rgba(246,243,236,.96);backdrop-filter:saturate(1.4) blur(8px);
+ border-bottom:1px solid var(--line);padding:0 12px}
+.trow{display:flex;align-items:center;gap:8px;height:55px;flex-wrap:nowrap}
+.brand{font-weight:700;font-size:18px;letter-spacing:.5px;white-space:nowrap}
+.brand small{display:none}
+.syncdot{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border:1px solid var(--line);
+ background:var(--paper);border-radius:20px;font-size:11px;font-family:inherit;line-height:1;white-space:nowrap;color:var(--ink2);margin-left:auto}
+.syncdot i{width:7px;height:7px;border-radius:50%;background:#9aa3ad;display:block}
+.syncdot.ok{border-color:#c9d9cc;color:var(--ok)} .syncdot.ok i{background:var(--ok)}
+.syncdot.busy i{background:#c98a1e;animation:spulse 1s infinite}
+.syncdot.pending{border-color:#e7d3ae;color:#a2701d} .syncdot.pending i{background:#c98a1e}
+.syncdot.fail{border-color:#e0b3ab;color:var(--accent)} .syncdot.fail i{background:#b8432f}
+@keyframes spulse{50%{opacity:.3}}
+.tbtn{min-height:34px;padding:0 10px;border:1px solid var(--line);background:var(--paper);border-radius:8px;
+ font-size:13px;cursor:pointer;color:var(--ink2);font-family:inherit;white-space:nowrap}
+.tbtn:hover{border-color:#cfc7b7;color:var(--ink)}
+.tbtn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.tbtn.pri:hover{background:var(--accent2);color:#fff}
+.tbtn.moreBtn{width:38px;padding:0;font-size:15px}
+.more{max-height:0;overflow:hidden;transition:max-height .26s ease}
+.more.open{max-height:min(62vh,520px);overflow-y:auto;padding:8px 0 10px;border-top:1px solid var(--line)}
+.syncbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.syncbar .mut{flex:1 1 100%;margin:2px 0 0;order:9}
+.mrow{display:flex;gap:10px;align-items:center;margin-top:8px}
+.search{flex:1;min-width:120px;height:36px;border:1px solid var(--line);border-radius:9px;
  padding:0 12px;font-size:14px;font-family:inherit;background:var(--paper);color:var(--ink);outline:none}
 .search:focus{border-color:#cfc7b7;box-shadow:0 0 0 3px rgba(140,43,34,.08)}
-.pbar{flex:1;min-width:120px;height:8px;background:#e7e2d6;border-radius:9px;overflow:hidden}
+.pbar{flex:1;min-width:80px;height:8px;background:#e7e2d6;border-radius:9px;overflow:hidden}
 .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s}
-.pnum{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink2);min-width:52px}
-.tbtn{min-height:36px;padding:0 12px;border:1px solid var(--line);background:var(--paper);border-radius:8px;
- font-size:13px;cursor:pointer;color:var(--ink2);font-family:inherit}
-.tbtn:hover{border-color:#cfc7b7;color:var(--ink)}
-.tbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.pnum{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink2);min-width:52px;text-align:right}
+.mrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.mrow2 .mut{flex:1 1 100%;margin:0}
 /* ---------- dashboard ---------- */
-.dash{margin-top:11px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dash{margin-top:9px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .tile{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:11px;padding:9px 12px;
  cursor:pointer;font-family:inherit;color:var(--ink);display:flex;flex-direction:column;gap:1px;min-height:64px}
 .tile:hover{border-color:#d3caba;transform:translateY(-1px)}
@@ -47,8 +64,8 @@ a{color:inherit}
 .tile.ok .v{color:var(--ok)}
 .tile.zero .v{color:#9a927f}
 /* ---------- filters ---------- */
-.filters{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);
+.filters{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{min-height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);
  font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .chip.on{background:#1e232b;color:#fff;border-color:#1e232b}
 .chip .c{opacity:.6;font-size:11px}
@@ -190,13 +207,11 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
  .dash{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:640px){
- #top{padding:10px 12px 8px}
- .brand{font-size:16px;flex:1 1 100%}
- .brand small{display:none}
- .search{max-width:none;order:2;flex:1 1 100%;height:44px}
- .pbar{order:3;min-width:90px}
- .pnum{order:3}
- .tbtn{order:3;min-height:44px}
+ #top{padding:0 10px}
+ .trow{height:55px;gap:6px}
+ .brand{font-size:16px}
+ .tbtn{min-height:36px}
+ .search{height:44px}
  .grid{grid-template-columns:1fr;padding:12px 12px 90px;gap:12px}
  .card h3{font-size:19px}
  .nd{width:44px;height:44px;font-size:11px}
@@ -213,13 +228,6 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
  #panel.on{transform:none}
 }
 
-.syncdot{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border:1px solid var(--line);
- background:var(--paper);border-radius:20px;font-size:11px;color:var(--ink2);cursor:default;font-family:inherit;line-height:1;white-space:nowrap}
-.syncdot i{width:7px;height:7px;border-radius:50%;background:#9aa3ad;display:block}
-.syncdot.ok i{background:var(--ok)}
-.syncdot.busy i{background:#c98a1e;animation:spulse 1s infinite}
-.syncdot.fail i{background:#b8432f}
-@keyframes spulse{50%{opacity:.3}}
 .warnline{color:#8c2b22;border:1px solid #e0b3ab;border-left:4px solid var(--accent);background:#fbeeeb;
  border-radius:8px;padding:9px 11px;margin:10px 0 0;line-height:1.65}
 </style>
@@ -240,20 +248,35 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
 <div id="top">
   <div class="trow">
     <div class="brand">笔记<small id="brandSub"></small></div>
-    <input class="search" id="q" type="search" placeholder="搜索：关键词" autocomplete="off" aria-label="搜索">
-    <div class="pbar" aria-hidden="true"><i id="pfill"></i></div>
-    <div class="pnum" id="pnum">0</div>
     <div class="syncdot fail" id="syncDot" title="同步状态"><i></i><span id="syncTxt">未启用</span></div>
-    <button class="tbtn" id="panelBtn">同步 · 设置</button>
-    <button class="tbtn" id="helpBtn">快捷键</button>
+    <button class="tbtn pri" id="syncBtn">同步</button>
+    <button class="tbtn moreBtn" id="moreBtn" aria-expanded="false" aria-controls="more" aria-label="展开进度与筛选">☰</button>
   </div>
-  <div class="dash">
-    <button class="tile" id="tDue" title="点击跳到第一篇到期"><span class="k">今日待复习</span><span class="v" id="vDue">0<small>篇</small></span><span class="s" id="sDue">没有到期项目</span></button>
-    <button class="tile" id="tNew" title="点击跳到第一篇未开始"><span class="k">今日新背配额</span><span class="v" id="vNew">0<small>/2 篇</small></span><span class="s" id="sNew"></span></button>
-    <button class="tile" id="tDone" title="点击只看已掌握"><span class="k">已掌握</span><span class="v" id="vDone">0<small></small></span><span class="s">7 个节点全勾才算掌握</span></button>
-    <button class="tile" id="tStreak" title="连续打卡规则"><span class="k">连续打卡</span><span class="v" id="vStreak">0<small>天</small></span><span class="s">每天有任何操作即记一天</span></button>
+  <div id="more" class="more">
+    <div class="syncbar">
+      <button class="sbtn" id="upOnly">仅上传</button>
+      <button class="sbtn" id="downOnly">仅下载</button>
+      <label class="sw"><input type="checkbox" id="syncToggle"> 自动同步（每 5 分钟）</label>
+      <div class="mut" id="syncMsg">未启用</div>
+    </div>
+    <div class="mrow">
+      <input class="search" id="q" type="search" placeholder="搜索：关键词" autocomplete="off" aria-label="搜索">
+      <div class="pbar" aria-hidden="true"><i id="pfill"></i></div>
+      <div class="pnum" id="pnum">0</div>
+    </div>
+    <div class="dash">
+      <button class="tile" id="tDue" title="点击跳到第一篇到期"><span class="k">今日待复习</span><span class="v" id="vDue">0<small>篇</small></span><span class="s" id="sDue">没有到期项目</span></button>
+      <button class="tile" id="tNew" title="点击跳到第一篇未开始"><span class="k">今日新背配额</span><span class="v" id="vNew">0<small>/2 篇</small></span><span class="s" id="sNew"></span></button>
+      <button class="tile" id="tDone" title="点击只看已掌握"><span class="k">已掌握</span><span class="v" id="vDone">0<small></small></span><span class="s">7 个节点全勾才算掌握</span></button>
+      <button class="tile" id="tStreak" title="连续打卡规则"><span class="k">连续打卡</span><span class="v" id="vStreak">0<small>天</small></span><span class="s">每天有任何操作即记一天</span></button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="mrow2">
+      <button class="tbtn" id="panelBtn">同步 · 设置</button>
+      <button class="tbtn" id="helpBtn">快捷键</button>
+      <span class="mut" id="moreHint"></span>
+    </div>
   </div>
-  <div class="filters" id="filters"></div>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -329,13 +352,9 @@ textarea{width:100%;min-height:78px;margin-top:8px;border:1px solid var(--line);
     </section>
 
     <section>
-      <h3>④ 自动同步（输对口令即自动对齐）</h3>
-      <p class="mut">频道号由口令在本机确定性派生：任何设备输入同一口令就落到同一个频道，<b>不用输频道号、不用点任何按钮</b>，开页即拉取/推送：改动后约 3 秒推送、每 60 秒静默拉取、回到前台或恢复网络立即同步。云端只存进度（节点勾选、首背日、备考日、设备编号），<b>不含任何原文</b>。知道口令的人也能推出频道，这属可接受——频道里只有进度。</p>
-      <div class="row">
-        <input type="checkbox" id="syncToggle">
-        <label for="syncToggle" class="mut">自动同步（默认开启；取消勾选则只存本机）</label>
-      </div>
-      <div class="mut" id="syncMsg">未启用</div>
+      <h3>④ 同步（默认手动；云端只存进度）</h3>
+      <p class="mut">频道号由口令在本机确定性派生：任何设备输入同一口令就落到同一个频道，<b>不用输频道号</b>。云端只存进度（节点勾选、首背日、备考日、设备编号），<b>不含任何原文</b>。知道口令的人也能推出频道，这属可接受——频道里只有进度。</p>
+      <p class="mut"><b>用法：</b>点页眉的「同步」＝先下载并做并集合并，再把本机未上传的改动推上去，结果显示成功/失败原因/合并差异数。自动同步默认关闭，打开后每 5 分钟一次。排障用「仅上传」「仅下载」。</p>
     </section>
 
     <section class="danger">
@@ -411,19 +430,22 @@ function load(){
   }
   return {
     e: d.e || {}, f: d.f || 'all', onlyUn: !!d.onlyUn, onlyDone: !!d.onlyDone, dueOnly: !!d.dueOnly,
-    cur: d.cur || null, start: d.start || '', day: d.day || {},
-    sync: Object.assign({ ch:'', on:false, off:false, dev:'', at:'' }, d.sync || {}),
-    devs: d.devs || {},
+    cur: d.cur || null, start: d.start || '', startAt: d.startAt || 0, day: d.day || {},
+    sync: (function(){ const s = Object.assign({ ch:'', on:false, off:false, dev:'', at:'', auto2:false }, d.sync || {});
+      if(!s.auto2){ s.on = false; s.auto2 = true; }   /* 新版默认关闭自动同步（旧版默认是开） */
+      return s; })(),
+    devs: d.devs || {}, dirty: !!d.dirty,
     fold: d.fold === undefined ? true : !!d.fold,
     lastSync: d.lastSync || '', q: ''
   };
 }
+/* save(true) = 本地进度有变更：立刻置 dirty 并入推送队列；只有推送成功才清 dirty */
 function save(sync){
   S.cur = cur;
   const o = { e:S.e, f:S.f, onlyUn:S.onlyUn, onlyDone:S.onlyDone, dueOnly:S.dueOnly, cur:S.cur,
-    start:S.start, day:S.day, sync:S.sync, devs:S.devs, fold:S.fold, lastSync:S.lastSync };
+    start:S.start, startAt:S.startAt, day:S.day, sync:S.sync, devs:S.devs, fold:S.fold, lastSync:S.lastSync, dirty:S.dirty };
   try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){}
-  if(sync) queueSync(true);
+  if(sync){ S.dirty = true; queueSync(); }
 }
 function rec(id){
   if(!S.e[id]) S.e[id] = { n:[0,0,0,0,0,0,0], first:'' };
@@ -1015,7 +1037,9 @@ function drawQR(text){
 
 /* ---------------- 自动同步（ntfy.sh，匿名只读频道） ---------------- */
 const NTFY = 'https://ntfy.sh';
-let syncBusy = false, syncTimer = null, syncDeb = null, syncRetry = null, syncBackoff = 1, syncLastAt = '';
+let syncBusy = false, syncAgain = false, syncTimer = null, syncDeb = null, syncRetry = null;
+let syncTry = 0, syncLastAt = '';
+const BACKOFF = [15000, 30000, 60000, 120000, 300000];
 
 function sy(){ return S.sync; }
 function devMake(){ const a = new Uint8Array(4); crypto.getRandomValues(a); return b32e(a).slice(0,6).toLowerCase(); }
@@ -1046,14 +1070,15 @@ function setSyncUI(state, txt){
   if(!d) return;
   d.className = 'syncdot ' + state;
   const t = document.getElementById('syncTxt');
-  if(t) t.textContent = txt || ({ ok:'已同步', busy:'同步中', fail:'离线', off:'未启用' }[state] || '');
+  if(t) t.textContent = txt || ({ ok:'已同步', busy:'同步中', pending:'待上传', fail:'上传失败', off:'未启用' }[state] || '');
 }
 
 function syncSummary(){
   const c = sy();
-  if(!c.on) return '未启用（只存本机）';
+  if(!c.ch) return '未解锁（只存本机）';
   const n = Object.keys(S.devs || {}).length;
-  return (syncLastAt ? '已同步 · 上次 ' + syncLastAt : '等待首次同步') + ' · 最近 24 小时见过的设备 ' + n + ' 台';
+  return (S.dirty ? '待上传 · ' : '') + '上次成功同步 ' + (syncLastAt || '—') +
+    ' · 自动同步' + (c.on ? '开（每 5 分钟）' : '关（手动）') + ' · 最近 24 小时设备 ' + n + ' 台';
 }
 
 /* 进度快照：只含节点掩码、首背日、备考日、设备心跳，绝不含原文/标题 */
@@ -1067,7 +1092,7 @@ function snapState(){
   const devs = Object.assign({}, S.devs || {});
   devs[sy().dev] = Date.now();
   S.devs = devs;
-  return { v:1, at:Date.now(), dev:sy().dev, start:S.start || '', e, devs };
+  return { v:1, at:Date.now(), dev:sy().dev, start:S.start || '', startAt:S.startAt || 0, e, devs };
 }
 
 async function packSnap(snap){ return 'P1:' + JSON.stringify(snap); }
@@ -1077,7 +1102,7 @@ async function unpackSnap(str){
   return null;
 }
 
-/* 并集合并：节点只会 0→1，首背日取更早，备考日取更早；不覆盖 */
+/* 并集合并：节点只会 0→1，首背日取更早；备考日取"用户显式设置的最新值"；不整体覆盖本地 */
 function mergeRemote(r){
   if(!r || !r.e) return false;
   let ch = false;
@@ -1085,11 +1110,16 @@ function mergeRemote(r){
     const t = rec(x.id), s = r.e[x.id];
     if(!s) return;
     const f = s[0] || '', m = s[1] || 0;
-    if(f && (!t.first || f < t.first)){ t.first = f; ch = true; }
-    for(let i=0;i<7;i++){ if(((m>>i)&1) && !t.n[i]){ t.n[i] = 1; ch = true; } }
+    if(f && (!t.first || f < t.first)){ t.first = f; ch = true; mergeN++; }
+    for(let i=0;i<7;i++){ if(((m>>i)&1) && !t.n[i]){ t.n[i] = 1; ch = true; mergeN++; } }
   });
-  const rs = r.start || '';
-  if(rs && (!S.start || rs < S.start)){ S.start = rs; ch = true; }
+  const rs = r.start || '', rat = +(r.startAt || 0);
+  if(rat > (S.startAt || 0)){
+    if((S.start || '') !== rs){ S.start = rs; ch = true; mergeN++; }
+    S.startAt = rat;
+  }else if(!S.start && rs && !rat && !S.startAt){
+    S.start = rs; ch = true; mergeN++;
+  }
   if(r.devs){
     S.devs = S.devs || {};
     for(const k in r.devs){ const v = r.devs[k] || 0; if(!S.devs[k] || S.devs[k] < v) S.devs[k] = v; }
@@ -1110,7 +1140,15 @@ async function ntfyPull(ch){
 async function ntfyPush(ch, txt){
   const r = await fetchT(NTFY + '/' + ch, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body:txt }, 9000);
   window.__nbDbg.push = r.status;
-  if(!r.ok){ window.__nbDbg.err = 'push HTTP ' + r.status; throw new Error('HTTP ' + r.status); }
+  if(!r.ok){
+    window.__nbDbg.err = 'push HTTP ' + r.status;
+    let ms = 0;
+    const ra = r.headers.get('Retry-After');
+    if(ra){ const n = +ra; if(!isNaN(n) && n > 0) ms = n * 1000; }
+    const e = new Error('HTTP ' + r.status);
+    e.status = r.status; e.retryMs = ms;
+    throw e;
+  }
   return true;
 }
 
@@ -1119,84 +1157,135 @@ function sigOf(r){
   const parts = DATA.map(x=>{ const s = (r.e && r.e[x.id]) || ['',0]; return x.id + ':' + (s[0]||'') + ':' + (s[1]||0); });
   return parts.join(',') + '|' + (r.start || '');
 }
-async function doSync(manual){
+/* 一次同步：kind = 'both'（先拉后推，默认）| 'down'（只下载）| 'up'（只上传）
+   顺序固定：pull → 并集合并 → 有本地改动再 push；只有 push 真的成功才清 dirty */
+let mergeN = 0;
+function scheduleRetry(ms){
+  clearTimeout(syncRetry);
+  const wait = Math.min(300000, Math.max(15000, ms || BACKOFF[Math.min(syncTry, BACKOFF.length - 1)]));
+  syncTry = Math.min(syncTry + 1, BACKOFF.length - 1);
+  syncRetry = setTimeout(()=>{ syncRetry = null; if(sy().on && sy().ch) doSync(false, 'both'); }, wait);
+  return wait;
+}
+async function doSync(manual, kind){
+  kind = kind || 'both';
   const c = sy();
-  if(!c.on || !c.ch){ setSyncUI('off'); return; }
-  if(syncBusy || !DATA.length) return;
-  syncBusy = true;
-  setSyncUI('busy');
-  const raw = [];
-  let reach = false;
-  try{ for(const s of await ntfyPull(c.ch)) raw.push(s); reach = true; }
-  catch(e){}
-  if(reach && !raw.length){
-    /* ntfy 的 /raw?poll=1 有 1–2 秒的缓存滞后：空结果时补拉一次，避免刚加入就判"云端没数据" */
-    await new Promise(r=>setTimeout(r, 1600));
-    try{ for(const s of await ntfyPull(c.ch)) raw.push(s); }catch(e){}
-  }
-  const snaps = [];
-  for(const s of raw){
-    try{ const r = await unpackSnap(s); if(r && r.e) snaps.push(r); }catch(e){}
-  }
+  if(!c.ch || !DATA.length) return { pull:'skip', push:'skip', merged:0, reason:'未启用（只存本机）' };
+  if(syncBusy){ syncAgain = true; return { pull:'busy', push:'busy', merged:0, reason:'正在同步' }; }
+  syncBusy = true; syncAgain = false;
+  setSyncUI('busy', '同步中');
+  const res = { pull:'skip', push:'skip', pushed:false, merged:0, reason:'', retryMs:0, waitMs:0 };
+  let reach = false, raw = [], snaps = [];
+  if(kind !== 'up'){
+    try{
+      raw = await ntfyPull(c.ch); reach = true;
+      if(!raw.length){
+        /* ntfy /raw?poll=1 有 1–2 秒缓存滞后：空结果补拉一次 */
+        await new Promise(r=>setTimeout(r, 1600));
+        const raw2 = await ntfyPull(c.ch); if(raw2.length) raw = raw2;
+      }
+      res.pull = 'ok';
+    }catch(e){ res.pull = 'fail'; res.reason = '连不上云端'; }
+    if(reach){
+      for(const s of raw){ try{ const r = await unpackSnap(s); if(r && r.e) snaps.push(r); }catch(e){} }
+    }
+  }else{ reach = true; }
+  /* 并集合并（pull 绝不整体覆盖本地） */
+  mergeN = 0;
+  const dirty0 = S.dirty;               /* 本次同步前本机是否已有未上传改动 */
   let changed = false;
   for(const r of snaps){ if(mergeRemote(r)) changed = true; }
-  const snap = snapState();
-  const localSig = sigOf(snap);
+  res.merged = mergeN;
+  if(changed){ save(false); if(DATA.length) render(); }
+  const snap = snapState(), localSig = sigOf(snap);
   let newest = null;
   for(const r of snaps){ if(!newest || (r.at||0) > (newest.at||0)) newest = r; }
   const cloudSig = newest ? sigOf(newest) : '';
-  let pushed = false;
-  /* 本机还没有任何进度时不要推空快照：否则会盖掉"最新"指针，让另一台设备白等一轮 */
-  const localAny = Object.keys(snap.e).some(id=> (snap.e[id][1] || 0) > 0 || snap.e[id][0]);
-  const need = localAny && (changed || !newest || cloudSig !== localSig);
-  let pushFailed = false;
-  if(reach && need){
-    const mine = await packSnap(snap);
-    try{ await ntfyPush(c.ch, mine); pushed = true; }
-    catch(e){
-      pushFailed = true;
-      clearTimeout(syncRetry);
-      syncRetry = setTimeout(()=>{ if(sy().on) doSync(false); }, 15000);
+  /* 云端最新快照是否已覆盖本机的每一项：只在"本机有云端没有的数据"时才需要推 */
+  let covered = !!newest;
+  if(newest){
+    for(const id in snap.e){
+      const s = snap.e[id], c = (newest.e && newest.e[id]) || ['', 0];
+      if((s[1] | 0) > (c[1] | 0)){ covered = false; break; }
+      if(s[0] && (!c[0] || s[0] < c[0])){ covered = false; break; }
     }
+    if((S.start || '') && (S.startAt || 0) > (newest.startAt || 0)
+       && (S.start || '') !== (newest.start || '')) covered = false;
   }
-  if(changed) save(false);
-  if(changed && DATA.length){ render(); }
+  /* 本地为空时永不推空快照：首次进入的设备不可能洗白云端 */
+  const localAny = !!(S.start || '') || Object.keys(snap.e).some(id=> (snap.e[id][1] || 0) > 0 || snap.e[id][0]);
+  const need = localAny && (dirty0 || !covered || cloudSig !== localSig || kind === 'up');
+  if(kind !== 'down' && need){
+    try{ await ntfyPush(c.ch, await packSnap(snap)); res.push = 'ok'; res.pushed = true; }
+    catch(e){ res.push = 'fail'; res.reason = 'HTTP ' + (e.status || '网络'); res.retryMs = e.retryMs || 0; }
+  }
+  if(res.pushed){
+    S.dirty = sigOf(snapState()) !== localSig;   /* 推送期间又有新改动则保持 dirty */
+    save(false);
+  }
   syncBusy = false;
-  if(reach && pushFailed){
-    setSyncUI('fail', '上传失败');
-    const m = document.getElementById('syncMsg'); if(m) m.textContent = '上传失败：云端暂时拒绝写入，本机照常可用，稍后自动重试';
-    if(manual) toast('上传失败，本地进度已保存，稍后自动重试');
-  }else if(reach){
-    syncBackoff = 1;
+  /* 文案：只有 push 真的成功（或云端签名与本机完全一致）才允许出现"已同步" */
+  const msgEl = document.getElementById('syncMsg');
+  if(res.pushed){
+    syncTry = 0;
     syncLastAt = new Date().toLocaleTimeString('zh-CN', { hour12:false });
     c.at = syncLastAt; save(false);
     setSyncUI('ok');
-    const m = document.getElementById('syncMsg'); if(m) m.textContent = syncSummary();
-    if(manual) toast(pushed ? '已同步（已把本机进度上传）' : '已同步');
+    if(msgEl) msgEl.textContent = syncSummary();
+    if(manual) toast('同步完成：已上传本机改动' + (res.merged ? '，并从云端合并 ' + res.merged + ' 项' : ''));
+  }else if(res.push === 'fail'){
+    res.waitMs = sy().on ? scheduleRetry(res.retryMs) : 0;
+    const txt = res.reason.indexOf('429') >= 0 ? '上传失败（限流）' : '上传失败';
+    setSyncUI('fail', txt);
+    if(msgEl) msgEl.textContent = '上传失败（' + res.reason + '）：云端拒绝写入，本机进度照常保存' +
+      (res.waitMs ? '，' + Math.round(res.waitMs/1000) + ' 秒后自动重试' : '，稍后点「同步」重试');
+    if(manual) toast('上传失败（' + res.reason + '），本机进度已保存');
+  }else if(S.dirty){
+    const txt = (kind === 'down' || res.merged) ? '已下载未推送' : (res.pull === 'fail' ? '待上传（离线）' : '待上传');
+    setSyncUI('pending', txt);
+    if(msgEl) msgEl.textContent = '待上传：本机有改动尚未写入云端' + (res.merged ? '（已从云端合并 ' + res.merged + ' 项）' : '');
+    if(res.pull === 'fail' && sy().on) scheduleRetry(0);
+    if(manual) toast(txt + '：本机进度已保存，联网后点「同步」');
+  }else if(res.pull === 'fail'){
+    setSyncUI('fail', '离线');
+    if(msgEl) msgEl.textContent = '离线：连不上云端，本机照常可用，恢复后点「同步」';
+    if(sy().on) scheduleRetry(0);
+    if(manual) toast('连不上同步服务，本地进度已保存');
   }else{
-    syncBackoff = Math.min(5, syncBackoff + 1);
-    setSyncUI('fail');
-    const m = document.getElementById('syncMsg'); if(m) m.textContent = '离线：连不上云端，本机照常可用，恢复后会自动补上';
-    if(manual) toast('暂时连不上同步服务，本地进度已保存');
+    syncTry = 0;
+    setSyncUI('ok', localAny ? '已同步' : '已连接');
+    if(msgEl) msgEl.textContent = syncSummary();
+    if(manual) toast(localAny ? '同步完成：云端与本机一致，无新改动需要上传' : '已连上云端，云端还没有进度');
   }
+  if(res.pushed && S.dirty){ clearTimeout(syncDeb); syncDeb = setTimeout(()=>{ syncDeb = null; doSync(false, 'both'); }, 900); }
+  if(syncAgain){ syncAgain = false; clearTimeout(syncDeb); syncDeb = setTimeout(()=>{ syncDeb = null; if(sy().ch) doSync(false, 'both'); }, 400); }
+  return res;
 }
 
-function queueSync(force){
-  if(!sy().on || !sy().ch) return;
+/* 本地改动：置 dirty + 入队。自动同步关闭时只标"待上传"，不发任何请求 */
+function queueSync(){
+  S.dirty = true;
+  if(!sy().ch) return;
+  setSyncUI('pending', '待上传');
+  if(!sy().on) return;
   clearTimeout(syncDeb);
-  syncDeb = setTimeout(()=>doSync(false), 3000);
+  syncDeb = setTimeout(()=>{ syncDeb = null; doSync(false, 'both'); }, 3000);
 }
 function startSync(){
   stopSync();
-  if(!sy().on || !sy().ch){ setSyncUI('off'); const m = document.getElementById('syncMsg'); if(m) m.textContent = '未启用（只存本机）'; return; }
-  setSyncUI('busy', '同步中');
-  doSync(false);
+  if(!sy().on || !sy().ch){ setSyncUI('off'); return; }
+  syncTry = 0;
+  doSync(false, 'both');
   syncTimer = setInterval(()=>{
     if(document.visibilityState === 'hidden') return;
-    doSync(false);
-  }, 60000 * syncBackoff);
+    doSync(false, 'both');
+  }, 300000);
 }
-function stopSync(){ if(syncTimer){ clearInterval(syncTimer); syncTimer = null; } clearTimeout(syncDeb); }
+function stopSync(){
+  if(syncTimer){ clearInterval(syncTimer); syncTimer = null; }
+  clearTimeout(syncDeb); syncDeb = null;
+  clearTimeout(syncRetry); syncRetry = null;
+}
 
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible' && sy().on) doSync(false); });
 window.addEventListener('online', ()=>{ if(sy().on) doSync(false); });
@@ -1351,7 +1440,8 @@ document.getElementById('firstDate').onchange = ev=>{
 };
 document.getElementById('startDate').onchange = ev=>{
   S.start = ev.target.value;
-  save(false);
+  S.startAt = Date.now();      /* 记录"显式设置"的时间，合并时以最新的显式值为准 */
+  save(true);
   toast(S.start ? '开始备考日已存：'+S.start : '已清除开始备考日');
 };
 
@@ -1442,7 +1532,24 @@ document.getElementById('importBtn').onclick = async ()=>{
   toast('导入成功');
 };
 
-/* 自动同步开关（频道由口令派生，无需任何输入） */
+/* 页眉：可折叠面板 + 手动同步入口（同步 = 先拉后合再推；仅上传/仅下载用于排障） */
+(function(){
+  const more = document.getElementById('more'), mbtn = document.getElementById('moreBtn');
+  const setMore = open=>{ more.classList.toggle('open', open); mbtn.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+  mbtn.onclick = ()=> setMore(!more.classList.contains('open'));
+  addEventListener('scroll', ()=>{ if(scrollY > 30 && more.classList.contains('open')) setMore(false); }, { passive:true });
+  document.getElementById('moreHint').textContent = '自动同步关闭时也可以随时点「同步」';
+  const lockBtn = (b, on)=>{ b.disabled = on; b.style.opacity = on ? '.55' : '1'; };
+  const run = async (kind, b)=>{
+    if(!b) return;
+    lockBtn(b, true);
+    try{ await doSync(true, kind); }
+    finally{ lockBtn(b, false); }
+  };
+  document.getElementById('syncBtn').onclick = e=> run('both', e.currentTarget);
+  document.getElementById('upOnly').onclick = e=> run('up', e.currentTarget);
+  document.getElementById('downOnly').onclick = e=> run('down', e.currentTarget);
+})();
 document.getElementById('syncToggle').onchange = ev=>{
   const c = sy();
   c.on = ev.target.checked;
@@ -1450,12 +1557,13 @@ document.getElementById('syncToggle').onchange = ev=>{
   save(false);
   if(c.on && c.ch){
     document.getElementById('syncMsg').textContent = '正在首次同步…';
-    toast('自动同步已开启');
+    toast('自动同步已开启（每 5 分钟）');
     startSync();
   }else{
-    stopSync(); setSyncUI('off');
-    document.getElementById('syncMsg').textContent = '已停用（进度仍存本机）';
-    toast('已停用自动同步');
+    stopSync();
+    setSyncUI(S.dirty ? 'pending' : 'off', S.dirty ? '待上传' : '未启用');
+    document.getElementById('syncMsg').textContent = '自动同步已关闭：本机照常可勾选，点「同步」手动上传';
+    toast('已关闭自动同步');
   }
 };
 
@@ -1499,7 +1607,11 @@ function boot(){
   buildFilters();
   render();
   if(S.cur && DATA.some(x=>x.id === S.cur)) open(S.cur);
-  if(sy().on && sy().ch) startSync(); else setSyncUI('off');
+  /* 自动同步开启时才自动跑；关闭时只显示状态，等用户点「同步」 */
+  if(sy().on && sy().ch) startSync();
+  else if(sy().ch) setSyncUI('pending', S.dirty ? '待上传' : '待同步');
+  else setSyncUI('off');
+  const m = document.getElementById('syncMsg'); if(m) m.textContent = syncSummary();
 }
 
 /* ---------------- 口令与加解密（AES-256-GCM + PBKDF2-SHA256） ---------------- */
@@ -1575,7 +1687,7 @@ async function tryUnlock(pw){
     await setDerivedChan(pw);
     const c = sy();
     if(!c.dev) c.dev = devMake();
-    c.on = !c.off;
+    c.on = !!c.on;   /* 默认关闭自动同步，保留用户显式开启的设置 */
     save(false);
     sessionStorage.setItem(SS_KEY, JSON.stringify({ b:b64(bits), t:Date.now(), ch:c.ch }));
     document.getElementById('lock').classList.add('off');
@@ -1598,7 +1710,7 @@ async function autoUnlock(){
     if(!o || !o.b || Date.now() - o.t > 24*3600*1000){ sessionStorage.removeItem(SS_KEY); return false; }
     DATA = JSON.parse(await decryptData(u8(o.b)));
     if(o.ch){ sy().ch = o.ch; }
-    sy().on = !sy().off;
+    sy().on = !!sy().on;
     if(!sy().dev) sy().dev = devMake();
     save(false);
     document.getElementById('lock').classList.add('off');
