@@ -1149,10 +1149,12 @@ async function doSync(manual){
   /* 本机还没有任何进度时不要推空快照：否则会盖掉"最新"指针，让另一台设备白等一轮 */
   const localAny = Object.keys(snap.e).some(id=> (snap.e[id][1] || 0) > 0 || snap.e[id][0]);
   const need = localAny && (changed || !newest || cloudSig !== localSig);
+  let pushFailed = false;
   if(reach && need){
     const mine = await packSnap(snap);
     try{ await ntfyPush(c.ch, mine); pushed = true; }
     catch(e){
+      pushFailed = true;
       clearTimeout(syncRetry);
       syncRetry = setTimeout(()=>{ if(sy().on) doSync(false); }, 15000);
     }
@@ -1160,7 +1162,11 @@ async function doSync(manual){
   if(changed) save(false);
   if(changed && DATA.length){ render(); }
   syncBusy = false;
-  if(reach){
+  if(reach && pushFailed){
+    setSyncUI('fail', '上传失败');
+    const m = document.getElementById('syncMsg'); if(m) m.textContent = '上传失败：云端暂时拒绝写入，本机照常可用，稍后自动重试';
+    if(manual) toast('上传失败，本地进度已保存，稍后自动重试');
+  }else if(reach){
     syncBackoff = 1;
     syncLastAt = new Date().toLocaleTimeString('zh-CN', { hour12:false });
     c.at = syncLastAt; save(false);
