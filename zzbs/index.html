@@ -1176,7 +1176,8 @@ function mergeRemote(r){
 }
 
 /* 主通道：ntfy.sh（匿名，实测可读写；消息保留 12 小时） */
-window.__nbDbg = { push: 0, pull: 0, err: '' };
+window.__nbDbg = { push: 0, pull: 0, err: '', trail: [] };
+function tr(s){ try{ const t = window.__nbDbg.trail; t.push((Date.now() % 100000) + ' ' + s); if(t.length > 40) t.shift(); }catch(e){} }
 async function ntfyPull(ch){
   const r = await fetchT(NTFY + '/' + ch + '/raw?poll=1&since=all', {}, 9000);
   window.__nbDbg.pull = r.status;
@@ -1265,6 +1266,7 @@ async function pushRemote(){
   const c = sy();
   if(!c.ch || !DATA.length) return { ok:false, reason:'未解锁（只存本机）', skip:true };
   const snap = snapState();
+  tr('push 开始 dirty=' + !!S.dirty + ' 节点=' + nodeIn(snap));
   if(!localAnyOf(snap)) return { ok:false, reason:'本机为空，不上传（防止把云端洗成默认）', skip:true };
   const sig = sigOf(snap);
   try{
@@ -1273,10 +1275,12 @@ async function pushRemote(){
     syncTry = 0; syncLastAt = new Date().toLocaleTimeString('zh-CN', { hour12:false }); c.at = syncLastAt;
     save(false);
     setSyncUI('ok', '已上传');
+    tr('push 成功 dirty=' + !!S.dirty);
     return { ok:true };
   }catch(e){
     const wait = sy().on ? scheduleRetry(e.retryMs || 0) : 0;
     setSyncUI('fail', '上传失败');
+    tr('push 失败 ' + (e.status || 'net'));
     return { ok:false, reason:(e.status ? 'HTTP ' + e.status : '网络错误'), wait };
   }
 }
@@ -1292,6 +1296,7 @@ async function syncNow(manual){
   const pr = await pullMerge();
   if(pr.ok){ res.pull = 'ok'; res.merged = pr.merged; }
   else{ res.pull = 'fail'; res.reason = pr.reason; }
+  tr('pull 完成 merged=' + res.merged + ' ok=' + pr.ok + ' dirty=' + !!S.dirty);
   if(S.dirty){
     const pu = await pushRemote();
     if(pu.ok) res.push = 'ok';
@@ -1312,7 +1317,7 @@ async function syncNow(manual){
   }else{
     msg = '拉取 ' + (lastPull ? lastPull.total : 0) + ' 条快照，并入 ' + res.merged + ' 项';
     if(res.push === 'ok') msg += '；已上传本机改动';
-    else if(res.push === 'skip') msg += '；' + res.reason;
+    else if(res.push === 'skip' && res.reason) msg += '；' + res.reason;
     else if(res.push === 'fail') msg += '；上传失败（' + res.reason + '）' + (res.wait ? '，' + Math.round(res.wait/1000) + ' 秒后自动重试' : '，稍后点「同步」重试');
     msg += ' · ' + cnt;
   }
@@ -1326,25 +1331,33 @@ async function syncNow(manual){
     else toast('已同步：云端与本机一致，无新增');
   }
   updateSnapBox();
-  if(syncAgain){ syncAgain = false; clearTimeout(syncDeb); syncDeb = setTimeout(()=>{ syncDeb = null; if(sy().ch) syncNow(false); }, 400); }
+  if(S.dirty) ensurePush(300);              /* 同步期间又改了本地：保证最后一定推上去 */
+  if(syncAgain){ syncAgain = false; setTimeout(()=>{ if(sy().ch) syncNow(false); }, 300); }
   return res;
 }
 
-/* 本地改动：置 dirty + 去抖 1.5 秒自动推送（不需要点任何按钮） */
+/* 本地改动：置 dirty + 1.5 秒去抖后自动推；若是同步进行中点进来的，等同步结束立刻补推（保证不丢） */
 function queueSync(){
   S.dirty = true;
   if(!sy().ch){ setSyncUI('pending', '待上传'); return; }
   setSyncUI('pending', '待上传');
-  if(syncBusy){ syncAgain = true; return; }
-  clearTimeout(syncDeb);
-  syncDeb = setTimeout(()=>{ syncDeb = null; autoPush(); }, PUSH_DEB);
+  ensurePush(PUSH_DEB);
 }
-async function autoPush(){
-  if(!sy().ch || !S.dirty || syncBusy) return;
-  const pu = await pushRemote();
-  if(!pu.ok && !pu.skip) setSyncUI('fail', '上传失败');
-  else if(!S.dirty) setMsg(syncSummary());
-  updateSnapBox();
+function ensurePush(delay){
+  if(!sy().ch || !DATA.length) return;
+  if(syncDeb) return;                       /* 已有一条待执行的推送，不重复排队 */
+  tr('排推送 ' + (delay == null ? PUSH_DEB : delay) + 'ms dirty=' + !!S.dirty + ' busy=' + syncBusy);
+  syncDeb = setTimeout(async ()=>{
+    syncDeb = null;
+    if(!S.dirty) return;
+    if(syncBusy){ ensurePush(300); return; }  /* 同步还在跑：等它结束再推 */
+    const pu = await pushRemote();
+    if(S.dirty){
+      if(pu.ok) ensurePush(1200);              /* 推送期间又改了 → 立刻再推一次 */
+      else if(sy().on) ensurePush(15000);      /* 自动模式才退避重试；手动模式停在「上传失败」等用户 */
+    }else setMsg(syncSummary());
+    updateSnapBox();
+  }, delay == null ? PUSH_DEB : delay);
 }
 function startSync(){
   stopSync();
@@ -1358,7 +1371,6 @@ function startSync(){
 }
 function stopSync(){
   if(syncTimer){ clearInterval(syncTimer); syncTimer = null; }
-  clearTimeout(syncDeb); syncDeb = null;
   clearTimeout(syncRetry); syncRetry = null;
 }
 
@@ -1834,7 +1846,7 @@ window.__nb = {
   get data(){ return DATA; },
   get state(){ return S; },
   rec, open, close, makePrint, packCode, unpackCode, summarize,
-  syncNow, pullMerge, pushRemote, autoPush, snapState, mergeRemote, mergeAll, packSnap, unpackSnap, startSync, stopSync,
+  syncNow, pullMerge, pushRemote, ensurePush, snapState, mergeRemote, mergeAll, packSnap, unpackSnap, startSync, stopSync,
   get lastPull(){ return lastPull; },
   get sync(){ return S.sync; }
 };
