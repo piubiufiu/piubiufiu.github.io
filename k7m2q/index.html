@@ -527,6 +527,7 @@ function newList(){
 async function freshStart(){
   const c = sy();
   const next = String(Number(c.acct || '1') + 1);
+  pushGen++;                                 /* 让所有在途/排队中的旧快照失效 */
   clearTimeout(syncDeb); syncDeb = null;
   clearTimeout(syncRetry); syncRetry = null;
   for(const k of [KEY, OLDKEY].concat(LEGACY)){ try{ localStorage.removeItem(k); }catch(e){} }
@@ -1128,6 +1129,7 @@ function drawQR(text){
 /* ---------------- 自动同步（ntfy.sh，匿名只读频道） ---------------- */
 const NTFY = 'https://ntfy.sh';
 let syncBusy = false, syncAgain = false, syncTimer = null, syncDeb = null, syncRetry = null;
+let pushGen = 0;                /* 频道代次：全新开始 +1，在途旧快照作废 */
 let syncTry = 0, syncLastAt = '';
 const BACKOFF = [15000, 30000, 60000, 120000, 300000];
 const PUSH_DEB = 1500;          /* 本地改动后多久自动推送（去抖） */
@@ -1447,14 +1449,16 @@ function localAnyOf(){
 }
 /* 推：只推本机事件日志；本机没有任何事件时绝不推（防洗白云端）；只有真成功才清 dirty */
 async function pushRemote(){
+  const gen = pushGen;                       /* 拿一份"频道代次"：全新开始会 +1，旧快照不许落到新频道 */
   const c = sy();
   if(!c.ch || !DATA.length) return { ok:false, reason:'未解锁（只存本机）', skip:true };
-  const snap = snapState();
+  const chNow = c.ch, snap = snapState();
   tr('push 开始 dirty=' + !!S.dirty + ' 事件=' + Object.keys(snap.nodes).length);
   if(!localAnyOf()) return { ok:false, reason:'本机没有任何动作，不上传（防止把云端洗成默认）', skip:true };
+  if(gen !== pushGen) return { ok:false, reason:'频道已切换，放弃这次旧快照', skip:true };
   const sig = sigOf(snap);
   try{
-    await ntfyPush(c.ch, packSnap(snap));
+    await ntfyPush(chNow, packSnap(snap));
     S.dirty = sigOf(snapState()) !== sig;      /* 推送期间若又有改动就保持 dirty */
     syncTry = 0; syncLastAt = new Date().toLocaleTimeString('zh-CN', { hour12:false }); c.at = syncLastAt;
     save(false);
